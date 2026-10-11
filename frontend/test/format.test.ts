@@ -25,3 +25,15 @@ describe("format", () => {
     expect(goalProgress(500, 0)).toBeNull();
   });
 });
+
+describe("categoryMessage", async () => {
+  const { categoryMessage, translator } = await import("../src/i18n");
+  it("translates known source enums in any casing", () => {
+    expect(translator("tr")(categoryMessage("BALANCED")!)).toBe("Dengeli");
+    expect(translator("tr")(categoryMessage("Detraining")!)).toBe("Form kaybı");
+    expect(categoryMessage("NO_STATUS")).toBe("cat_no_status");
+  });
+  it("returns null for unknown values so the raw text is humanized instead", () => {
+    expect(categoryMessage("Something new")).toBeNull();
+  });
+});

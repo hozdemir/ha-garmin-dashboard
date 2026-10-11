@@ -5,7 +5,7 @@ import "./settings";
 import { CHARTS, TILE_SECTIONS, TREND_RANGES, type ChartDef, type Preferences, type SectionId } from "./catalog";
 import type { ChartPayload } from "./chart-data";
 import { formatDistance, formatMetric, goalProgress, type FormatContext } from "./format";
-import { hasMessage, translator, type MessageKey, type Translate } from "./i18n";
+import { categoryMessage, hasMessage, translator, type MessageKey, type Translate } from "./i18n";
 import {
   SCHEMA_VERSION,
   type HassLike,
@@ -433,7 +433,9 @@ export class GarminDashboardPanel extends LitElement {
     const t = this._t;
     const labelKey = `metric_${metric.key}`;
     const label = hasMessage(labelKey) ? t(labelKey) : metric.key;
-    const shown = metric.status === "available" || metric.status === "unavailable" ? formatMetric(this._fmt, metric) : null;
+    const showable = metric.status === "available" || metric.status === "unavailable";
+    const category = metric.kind === "category" && typeof metric.value === "string" ? categoryMessage(metric.value) : null;
+    const shown = !showable ? null : category ? t(category) : formatMetric(this._fmt, metric);
     const statusKey = `status_${metric.status}`;
     const stale = metric.freshness === "stale";
     return html`

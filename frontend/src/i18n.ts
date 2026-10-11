@@ -107,6 +107,19 @@ const en = {
   all_hidden: "All sections are hidden.",
   open_settings: "Open settings",
   section_activities: "Activities",
+  cat_balanced: "Balanced",
+  cat_unbalanced: "Unbalanced",
+  cat_low: "Low",
+  cat_poor: "Poor",
+  cat_productive: "Productive",
+  cat_maintaining: "Maintaining",
+  cat_recovery: "Recovery",
+  cat_unproductive: "Unproductive",
+  cat_detraining: "Detraining",
+  cat_peaking: "Peaking",
+  cat_overreaching: "Overreaching",
+  cat_strained: "Strained",
+  cat_no_status: "No status",
 };
 
 export type MessageKey = keyof typeof en;
@@ -220,6 +233,19 @@ const tr: Record<MessageKey, string> = {
   all_hidden: "Tüm bölümler gizli.",
   open_settings: "Ayarları aç",
   section_activities: "Aktiviteler",
+  cat_balanced: "Dengeli",
+  cat_unbalanced: "Dengesiz",
+  cat_low: "Düşük",
+  cat_poor: "Zayıf",
+  cat_productive: "Verimli",
+  cat_maintaining: "Koruma",
+  cat_recovery: "Toparlanma",
+  cat_unproductive: "Verimsiz",
+  cat_detraining: "Form kaybı",
+  cat_peaking: "Zirve",
+  cat_overreaching: "Aşırı yüklenme",
+  cat_strained: "Zorlanmış",
+  cat_no_status: "Durum yok",
 };
 
 const catalogs: Record<string, Record<MessageKey, string>> = { en, tr };
@@ -239,4 +265,10 @@ export function translator(language: string): Translate {
 
 export function hasMessage(key: string): key is MessageKey {
   return key in en;
+}
+
+/** Translate a source enum value (e.g. "BALANCED", "Detraining"); null when unknown. */
+export function categoryMessage(value: string): MessageKey | null {
+  const key = `cat_${value.trim().toLowerCase().replace(/[\s-]+/g, "_")}`;
+  return hasMessage(key) ? key : null;
 }
