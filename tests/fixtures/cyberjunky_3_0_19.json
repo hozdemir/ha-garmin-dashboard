@@ -1,0 +1,2178 @@
+{
+ "source_version": "3.0.19",
+ "source_entry_id": "01SOURCEENTRY000000000000",
+ "entities": [
+  {
+   "entity_id": "sensor.garmin_abnormal_hr_alerts",
+   "unique_id": "01SOURCEENTRY000000000000_abnormalHeartRateAlertsCount",
+   "translation_key": "abnormal_hr_alerts",
+   "disabled_by": "integration",
+   "original_name": "Abnormal heart rate alerts"
+  },
+  {
+   "entity_id": "sensor.garmin_achievable_fitness_age",
+   "unique_id": "01SOURCEENTRY000000000000_achievableFitnessAge",
+   "translation_key": "achievable_fitness_age",
+   "disabled_by": null,
+   "original_name": "Achievable fitness age"
+  },
+  {
+   "entity_id": "sensor.garmin_active_goals",
+   "unique_id": "01SOURCEENTRY000000000000_activeGoals",
+   "translation_key": "active_goals",
+   "disabled_by": null,
+   "original_name": "Active goals"
+  },
+  {
+   "entity_id": "sensor.garmin_active_calories",
+   "unique_id": "01SOURCEENTRY000000000000_activeKilocalories",
+   "translation_key": "active_calories",
+   "disabled_by": null,
+   "original_name": "Active calories"
+  },
+  {
+   "entity_id": "sensor.garmin_active_time",
+   "unique_id": "01SOURCEENTRY000000000000_activeMinutes",
+   "translation_key": "active_time",
+   "disabled_by": null,
+   "original_name": "Active time"
+  },
+  {
+   "entity_id": "sensor.garmin_hydration_activity_intake",
+   "unique_id": "01SOURCEENTRY000000000000_activityIntakeInML",
+   "translation_key": "hydration_activity_intake",
+   "disabled_by": null,
+   "original_name": "Hydration activity intake"
+  },
+  {
+   "entity_id": "sensor.garmin_activity_stress_duration",
+   "unique_id": "01SOURCEENTRY000000000000_activityStressMinutes",
+   "translation_key": "activity_stress_duration",
+   "disabled_by": null,
+   "original_name": "Activity stress duration"
+  },
+  {
+   "entity_id": "sensor.garmin_activity_stress_percentage",
+   "unique_id": "01SOURCEENTRY000000000000_activityStressPercentage",
+   "translation_key": "activity_stress_percentage",
+   "disabled_by": "integration",
+   "original_name": "Activity stress percentage"
+  },
+  {
+   "entity_id": "sensor.garmin_avg_altitude",
+   "unique_id": "01SOURCEENTRY000000000000_averageMonitoringEnvironmentAltitude",
+   "translation_key": "avg_altitude",
+   "disabled_by": "integration",
+   "original_name": "Average altitude"
+  },
+  {
+   "entity_id": "sensor.garmin_avg_spo2",
+   "unique_id": "01SOURCEENTRY000000000000_averageSpo2",
+   "translation_key": "avg_spo2",
+   "disabled_by": null,
+   "original_name": "Average SpO2"
+  },
+  {
+   "entity_id": "sensor.garmin_avg_stress_level",
+   "unique_id": "01SOURCEENTRY000000000000_averageStressLevel",
+   "translation_key": "avg_stress_level",
+   "disabled_by": null,
+   "original_name": "Average stress level"
+  },
+  {
+   "entity_id": "sensor.garmin_skin_temp_change",
+   "unique_id": "01SOURCEENTRY000000000000_avgSkinTempDeviationC",
+   "translation_key": "skin_temp_change",
+   "disabled_by": null,
+   "original_name": "Skin temperature change"
+  },
+  {
+   "entity_id": "sensor.garmin_avg_sleep_respiration",
+   "unique_id": "01SOURCEENTRY000000000000_avgSleepRespirationValue",
+   "translation_key": "avg_sleep_respiration",
+   "disabled_by": null,
+   "original_name": "Average sleep respiration"
+  },
+  {
+   "entity_id": "sensor.garmin_avg_solar_intensity",
+   "unique_id": "01SOURCEENTRY000000000000_avgSolarUtilization",
+   "translation_key": "avg_solar_intensity",
+   "disabled_by": null,
+   "original_name": "Average solar intensity"
+  },
+  {
+   "entity_id": "sensor.garmin_awake_sleep",
+   "unique_id": "01SOURCEENTRY000000000000_awakeSleepMinutes",
+   "translation_key": "awake_sleep",
+   "disabled_by": null,
+   "original_name": "Awake time"
+  },
+  {
+   "entity_id": "sensor.garmin_badges",
+   "unique_id": "01SOURCEENTRY000000000000_badges",
+   "translation_key": "badges",
+   "disabled_by": "integration",
+   "original_name": "Badges"
+  },
+  {
+   "entity_id": "sensor.garmin_bedtime",
+   "unique_id": "01SOURCEENTRY000000000000_bedtime",
+   "translation_key": "bedtime",
+   "disabled_by": null,
+   "original_name": "Bedtime"
+  },
+  {
+   "entity_id": "sensor.garmin_bmi",
+   "unique_id": "01SOURCEENTRY000000000000_bmi",
+   "translation_key": "bmi",
+   "disabled_by": "integration",
+   "original_name": "BMI"
+  },
+  {
+   "entity_id": "sensor.garmin_bmr_calories",
+   "unique_id": "01SOURCEENTRY000000000000_bmrKilocalories",
+   "translation_key": "bmr_calories",
+   "disabled_by": null,
+   "original_name": "BMR calories"
+  },
+  {
+   "entity_id": "sensor.garmin_body_battery_charged",
+   "unique_id": "01SOURCEENTRY000000000000_bodyBatteryChargedValue",
+   "translation_key": "body_battery_charged",
+   "disabled_by": null,
+   "original_name": "Body battery charged"
+  },
+  {
+   "entity_id": "sensor.garmin_body_battery_drained",
+   "unique_id": "01SOURCEENTRY000000000000_bodyBatteryDrainedValue",
+   "translation_key": "body_battery_drained",
+   "disabled_by": null,
+   "original_name": "Body battery drained"
+  },
+  {
+   "entity_id": "sensor.garmin_body_battery_highest",
+   "unique_id": "01SOURCEENTRY000000000000_bodyBatteryHighestValue",
+   "translation_key": "body_battery_highest",
+   "disabled_by": null,
+   "original_name": "Body battery highest"
+  },
+  {
+   "entity_id": "sensor.garmin_body_battery_lowest",
+   "unique_id": "01SOURCEENTRY000000000000_bodyBatteryLowestValue",
+   "translation_key": "body_battery_lowest",
+   "disabled_by": null,
+   "original_name": "Body battery lowest"
+  },
+  {
+   "entity_id": "sensor.garmin_body_battery_most_recent",
+   "unique_id": "01SOURCEENTRY000000000000_bodyBatteryMostRecentValue",
+   "translation_key": "body_battery_most_recent",
+   "disabled_by": null,
+   "original_name": "Body battery"
+  },
+  {
+   "entity_id": "sensor.garmin_body_fat",
+   "unique_id": "01SOURCEENTRY000000000000_bodyFat",
+   "translation_key": "body_fat",
+   "disabled_by": "integration",
+   "original_name": "Body fat"
+  },
+  {
+   "entity_id": "sensor.garmin_body_water",
+   "unique_id": "01SOURCEENTRY000000000000_bodyWater",
+   "translation_key": "body_water",
+   "disabled_by": "integration",
+   "original_name": "Body water"
+  },
+  {
+   "entity_id": "sensor.garmin_bone_mass",
+   "unique_id": "01SOURCEENTRY000000000000_boneMassKg",
+   "translation_key": "bone_mass",
+   "disabled_by": "integration",
+   "original_name": "Bone mass"
+  },
+  {
+   "entity_id": "sensor.garmin_bp_category",
+   "unique_id": "01SOURCEENTRY000000000000_bpCategoryName",
+   "translation_key": "bp_category",
+   "disabled_by": null,
+   "original_name": "Blood pressure category"
+  },
+  {
+   "entity_id": "sensor.garmin_bp_diastolic",
+   "unique_id": "01SOURCEENTRY000000000000_bpDiastolic",
+   "translation_key": "bp_diastolic",
+   "disabled_by": null,
+   "original_name": "Blood pressure diastolic"
+  },
+  {
+   "entity_id": "sensor.garmin_bp_measurement_time",
+   "unique_id": "01SOURCEENTRY000000000000_bpMeasurementTime",
+   "translation_key": "bp_measurement_time",
+   "disabled_by": null,
+   "original_name": "Blood pressure measurement time"
+  },
+  {
+   "entity_id": "sensor.garmin_bp_pulse",
+   "unique_id": "01SOURCEENTRY000000000000_bpPulse",
+   "translation_key": "bp_pulse",
+   "disabled_by": null,
+   "original_name": "Blood pressure pulse"
+  },
+  {
+   "entity_id": "sensor.garmin_bp_systolic",
+   "unique_id": "01SOURCEENTRY000000000000_bpSystolic",
+   "translation_key": "bp_systolic",
+   "disabled_by": null,
+   "original_name": "Blood pressure systolic"
+  },
+  {
+   "entity_id": "sensor.garmin_burned_calories",
+   "unique_id": "01SOURCEENTRY000000000000_burnedKilocalories",
+   "translation_key": "burned_calories",
+   "disabled_by": null,
+   "original_name": "Burned calories"
+  },
+  {
+   "entity_id": "sensor.garmin_chronological_age",
+   "unique_id": "01SOURCEENTRY000000000000_chronologicalAge",
+   "translation_key": "chronological_age",
+   "disabled_by": null,
+   "original_name": "Chronological age"
+  },
+  {
+   "entity_id": "sensor.garmin_consumed_calories",
+   "unique_id": "01SOURCEENTRY000000000000_consumedKilocalories",
+   "translation_key": "consumed_calories",
+   "disabled_by": "integration",
+   "original_name": "Consumed calories"
+  },
+  {
+   "entity_id": "sensor.garmin_hydration_daily_average",
+   "unique_id": "01SOURCEENTRY000000000000_dailyAverageInML",
+   "translation_key": "hydration_daily_average",
+   "disabled_by": null,
+   "original_name": "Hydration daily average"
+  },
+  {
+   "entity_id": "sensor.garmin_daily_step_goal",
+   "unique_id": "01SOURCEENTRY000000000000_dailyStepGoal",
+   "translation_key": "daily_step_goal",
+   "disabled_by": null,
+   "original_name": "Daily step goal"
+  },
+  {
+   "entity_id": "sensor.garmin_deep_sleep",
+   "unique_id": "01SOURCEENTRY000000000000_deepSleepMinutes",
+   "translation_key": "deep_sleep",
+   "disabled_by": null,
+   "original_name": "Deep sleep"
+  },
+  {
+   "entity_id": "sensor.garmin_devices",
+   "unique_id": "01SOURCEENTRY000000000000_devices",
+   "translation_key": "devices",
+   "disabled_by": null,
+   "original_name": "Devices"
+  },
+  {
+   "entity_id": "sensor.garmin_endurance_score",
+   "unique_id": "01SOURCEENTRY000000000000_enduranceScore",
+   "translation_key": "endurance_score",
+   "disabled_by": "integration",
+   "original_name": "Endurance score"
+  },
+  {
+   "entity_id": "sensor.garmin_fitness_age",
+   "unique_id": "01SOURCEENTRY000000000000_fitnessAge",
+   "translation_key": "fitness_age",
+   "disabled_by": null,
+   "original_name": "Fitness age"
+  },
+  {
+   "entity_id": "sensor.garmin_floors_ascended",
+   "unique_id": "01SOURCEENTRY000000000000_floorsAscended",
+   "translation_key": "floors_ascended",
+   "disabled_by": null,
+   "original_name": "Floors ascended"
+  },
+  {
+   "entity_id": "sensor.garmin_floors_ascended_distance",
+   "unique_id": "01SOURCEENTRY000000000000_floorsAscendedInMeters",
+   "translation_key": "floors_ascended_distance",
+   "disabled_by": "integration",
+   "original_name": "Floors ascended distance"
+  },
+  {
+   "entity_id": "sensor.garmin_floors_descended",
+   "unique_id": "01SOURCEENTRY000000000000_floorsDescended",
+   "translation_key": "floors_descended",
+   "disabled_by": null,
+   "original_name": "Floors descended"
+  },
+  {
+   "entity_id": "sensor.garmin_floors_descended_distance",
+   "unique_id": "01SOURCEENTRY000000000000_floorsDescendedInMeters",
+   "translation_key": "floors_descended_distance",
+   "disabled_by": "integration",
+   "original_name": "Floors descended distance"
+  },
+  {
+   "entity_id": "sensor.garmin_functional_threshold_power_cross_country_skiing",
+   "unique_id": "01SOURCEENTRY000000000000_ftp_cross_country_skiing",
+   "translation_key": "functional_threshold_power",
+   "disabled_by": null,
+   "original_name": "FTP Cross Country Skiing"
+  },
+  {
+   "entity_id": "sensor.garmin_functional_threshold_power_cycling",
+   "unique_id": "01SOURCEENTRY000000000000_ftp_cycling",
+   "translation_key": "functional_threshold_power",
+   "disabled_by": null,
+   "original_name": "FTP Cycling"
+  },
+  {
+   "entity_id": "sensor.garmin_functional_threshold_power_rowing",
+   "unique_id": "01SOURCEENTRY000000000000_ftp_rowing",
+   "translation_key": "functional_threshold_power",
+   "disabled_by": null,
+   "original_name": "FTP Rowing"
+  },
+  {
+   "entity_id": "sensor.garmin_functional_threshold_power_running",
+   "unique_id": "01SOURCEENTRY000000000000_ftp_running",
+   "translation_key": "functional_threshold_power",
+   "disabled_by": null,
+   "original_name": "FTP Running"
+  },
+  {
+   "entity_id": "sensor.garmin_future_goals",
+   "unique_id": "01SOURCEENTRY000000000000_futureGoals",
+   "translation_key": "future_goals",
+   "disabled_by": null,
+   "original_name": "Future goals"
+  },
+  {
+   "entity_id": "sensor.gear_1",
+   "unique_id": "01SOURCEENTRY000000000000_gear_00000000000000000000000000000001",
+   "translation_key": null,
+   "disabled_by": null,
+   "original_name": "Gear 1"
+  },
+  {
+   "entity_id": "sensor.garmin_hydration_goal",
+   "unique_id": "01SOURCEENTRY000000000000_goalInML",
+   "translation_key": "hydration_goal",
+   "disabled_by": null,
+   "original_name": "Hydration goal"
+  },
+  {
+   "entity_id": "sensor.garmin_goals_history",
+   "unique_id": "01SOURCEENTRY000000000000_goalsHistory",
+   "translation_key": "goals_history",
+   "disabled_by": null,
+   "original_name": "Goals history"
+  },
+  {
+   "entity_id": "sensor.garmin_high_stress_duration",
+   "unique_id": "01SOURCEENTRY000000000000_highStressMinutes",
+   "translation_key": "high_stress_duration",
+   "disabled_by": null,
+   "original_name": "High stress duration"
+  },
+  {
+   "entity_id": "sensor.garmin_high_stress_percentage",
+   "unique_id": "01SOURCEENTRY000000000000_highStressPercentage",
+   "translation_key": "high_stress_percentage",
+   "disabled_by": "integration",
+   "original_name": "High stress percentage"
+  },
+  {
+   "entity_id": "sensor.garmin_highest_respiration",
+   "unique_id": "01SOURCEENTRY000000000000_highestRespirationValue",
+   "translation_key": "highest_respiration",
+   "disabled_by": "integration",
+   "original_name": "Highest respiration"
+  },
+  {
+   "entity_id": "sensor.garmin_highly_active_time",
+   "unique_id": "01SOURCEENTRY000000000000_highlyActiveMinutes",
+   "translation_key": "highly_active_time",
+   "disabled_by": "integration",
+   "original_name": "Highly active time"
+  },
+  {
+   "entity_id": "sensor.garmin_hill_score",
+   "unique_id": "01SOURCEENTRY000000000000_hillScore",
+   "translation_key": "hill_score",
+   "disabled_by": null,
+   "original_name": "Hill score"
+  },
+  {
+   "entity_id": "sensor.garmin_hrv_baseline",
+   "unique_id": "01SOURCEENTRY000000000000_hrvBaselineLowUpper",
+   "translation_key": "hrv_baseline",
+   "disabled_by": null,
+   "original_name": "HRV baseline"
+  },
+  {
+   "entity_id": "sensor.garmin_hrv_last_night_5min_high",
+   "unique_id": "01SOURCEENTRY000000000000_hrvLastNight5MinHigh",
+   "translation_key": "hrv_last_night_5min_high",
+   "disabled_by": null,
+   "original_name": "HRV last night 5-min high"
+  },
+  {
+   "entity_id": "sensor.garmin_hrv_last_night_avg",
+   "unique_id": "01SOURCEENTRY000000000000_hrvLastNightAvg",
+   "translation_key": "hrv_last_night_avg",
+   "disabled_by": null,
+   "original_name": "HRV last night average"
+  },
+  {
+   "entity_id": "sensor.garmin_hrv_status",
+   "unique_id": "01SOURCEENTRY000000000000_hrvStatusText",
+   "translation_key": "hrv_status",
+   "disabled_by": null,
+   "original_name": "HRV status"
+  },
+  {
+   "entity_id": "sensor.garmin_hrv_weekly_avg",
+   "unique_id": "01SOURCEENTRY000000000000_hrvWeeklyAvg",
+   "translation_key": "hrv_weekly_avg",
+   "disabled_by": null,
+   "original_name": "HRV weekly average"
+  },
+  {
+   "entity_id": "sensor.garmin_intensity_goal",
+   "unique_id": "01SOURCEENTRY000000000000_intensityMinutesGoal",
+   "translation_key": "intensity_goal",
+   "disabled_by": "integration",
+   "original_name": "Intensity minutes goal"
+  },
+  {
+   "entity_id": "sensor.garmin_lactate_threshold_hr",
+   "unique_id": "01SOURCEENTRY000000000000_lactateThresholdHeartRate",
+   "translation_key": "lactate_threshold_hr",
+   "disabled_by": null,
+   "original_name": "Lactate threshold heart rate"
+  },
+  {
+   "entity_id": "sensor.garmin_lactate_threshold_speed",
+   "unique_id": "01SOURCEENTRY000000000000_lactateThresholdSpeed",
+   "translation_key": "lactate_threshold_speed",
+   "disabled_by": null,
+   "original_name": "Lactate threshold speed"
+  },
+  {
+   "entity_id": "sensor.garmin_last_activities",
+   "unique_id": "01SOURCEENTRY000000000000_lastActivities",
+   "translation_key": "last_activities",
+   "disabled_by": "integration",
+   "original_name": "Last activities"
+  },
+  {
+   "entity_id": "sensor.garmin_last_activity",
+   "unique_id": "01SOURCEENTRY000000000000_lastActivity",
+   "translation_key": "last_activity",
+   "disabled_by": "integration",
+   "original_name": "Last activity"
+  },
+  {
+   "entity_id": "sensor.garmin_last_activity_route",
+   "unique_id": "01SOURCEENTRY000000000000_lastActivityRoute",
+   "translation_key": "last_activity_route",
+   "disabled_by": null,
+   "original_name": "Last activity route"
+  },
+  {
+   "entity_id": "sensor.garmin_last_7_days_avg_resting_heart_rate",
+   "unique_id": "01SOURCEENTRY000000000000_lastSevenDaysAvgRestingHeartRate",
+   "translation_key": "last_7_days_avg_resting_heart_rate",
+   "disabled_by": "integration",
+   "original_name": "7-day average resting heart rate"
+  },
+  {
+   "entity_id": "sensor.garmin_last_synced",
+   "unique_id": "01SOURCEENTRY000000000000_lastSyncTimestamp",
+   "translation_key": "last_synced",
+   "disabled_by": null,
+   "original_name": "Last synced"
+  },
+  {
+   "entity_id": "sensor.garmin_last_workout",
+   "unique_id": "01SOURCEENTRY000000000000_lastWorkout",
+   "translation_key": "last_workout",
+   "disabled_by": null,
+   "original_name": "Last workout"
+  },
+  {
+   "entity_id": "sensor.garmin_last_workouts",
+   "unique_id": "01SOURCEENTRY000000000000_lastWorkouts",
+   "translation_key": "last_workouts",
+   "disabled_by": null,
+   "original_name": "Last workouts"
+  },
+  {
+   "entity_id": "sensor.garmin_latest_respiration_time",
+   "unique_id": "01SOURCEENTRY000000000000_latestRespirationTime",
+   "translation_key": "latest_respiration_time",
+   "disabled_by": "integration",
+   "original_name": "Latest respiration time"
+  },
+  {
+   "entity_id": "sensor.garmin_latest_respiration",
+   "unique_id": "01SOURCEENTRY000000000000_latestRespirationValue",
+   "translation_key": "latest_respiration",
+   "disabled_by": "integration",
+   "original_name": "Latest respiration"
+  },
+  {
+   "entity_id": "sensor.garmin_latest_spo2",
+   "unique_id": "01SOURCEENTRY000000000000_latestSpo2",
+   "translation_key": "latest_spo2",
+   "disabled_by": null,
+   "original_name": "Latest SpO2"
+  },
+  {
+   "entity_id": "sensor.garmin_latest_spo2_time",
+   "unique_id": "01SOURCEENTRY000000000000_latestSpo2ReadingTime",
+   "translation_key": "latest_spo2_time",
+   "disabled_by": "integration",
+   "original_name": "Latest SpO2 time"
+  },
+  {
+   "entity_id": "sensor.garmin_light_sleep",
+   "unique_id": "01SOURCEENTRY000000000000_lightSleepMinutes",
+   "translation_key": "light_sleep",
+   "disabled_by": null,
+   "original_name": "Light sleep"
+  },
+  {
+   "entity_id": "sensor.garmin_low_stress_duration",
+   "unique_id": "01SOURCEENTRY000000000000_lowStressMinutes",
+   "translation_key": "low_stress_duration",
+   "disabled_by": null,
+   "original_name": "Low stress duration"
+  },
+  {
+   "entity_id": "sensor.garmin_low_stress_percentage",
+   "unique_id": "01SOURCEENTRY000000000000_lowStressPercentage",
+   "translation_key": "low_stress_percentage",
+   "disabled_by": "integration",
+   "original_name": "Low stress percentage"
+  },
+  {
+   "entity_id": "sensor.garmin_lowest_respiration",
+   "unique_id": "01SOURCEENTRY000000000000_lowestRespirationValue",
+   "translation_key": "lowest_respiration",
+   "disabled_by": "integration",
+   "original_name": "Lowest respiration"
+  },
+  {
+   "entity_id": "sensor.garmin_lowest_spo2",
+   "unique_id": "01SOURCEENTRY000000000000_lowestSpo2",
+   "translation_key": "lowest_spo2",
+   "disabled_by": null,
+   "original_name": "Lowest SpO2"
+  },
+  {
+   "entity_id": "sensor.garmin_max_avg_heart_rate",
+   "unique_id": "01SOURCEENTRY000000000000_maxAvgHeartRate",
+   "translation_key": "max_avg_heart_rate",
+   "disabled_by": "integration",
+   "original_name": "Max average heart rate"
+  },
+  {
+   "entity_id": "sensor.garmin_max_heart_rate",
+   "unique_id": "01SOURCEENTRY000000000000_maxHeartRate",
+   "translation_key": "max_heart_rate",
+   "disabled_by": null,
+   "original_name": "Max heart rate"
+  },
+  {
+   "entity_id": "sensor.garmin_max_stress_level",
+   "unique_id": "01SOURCEENTRY000000000000_maxStressLevel",
+   "translation_key": "max_stress_level",
+   "disabled_by": null,
+   "original_name": "Max stress level"
+  },
+  {
+   "entity_id": "sensor.garmin_sleep_duration",
+   "unique_id": "01SOURCEENTRY000000000000_measurableAsleepDurationMinutes",
+   "translation_key": "sleep_duration",
+   "disabled_by": null,
+   "original_name": "Sleep duration"
+  },
+  {
+   "entity_id": "sensor.garmin_awake_duration",
+   "unique_id": "01SOURCEENTRY000000000000_measurableAwakeDurationMinutes",
+   "translation_key": "awake_duration",
+   "disabled_by": null,
+   "original_name": "Awake duration"
+  },
+  {
+   "entity_id": "sensor.garmin_medium_stress_duration",
+   "unique_id": "01SOURCEENTRY000000000000_mediumStressMinutes",
+   "translation_key": "medium_stress_duration",
+   "disabled_by": null,
+   "original_name": "Medium stress duration"
+  },
+  {
+   "entity_id": "sensor.garmin_medium_stress_percentage",
+   "unique_id": "01SOURCEENTRY000000000000_mediumStressPercentage",
+   "translation_key": "medium_stress_percentage",
+   "disabled_by": "integration",
+   "original_name": "Medium stress percentage"
+  },
+  {
+   "entity_id": "sensor.garmin_menstrual_cycle_day",
+   "unique_id": "01SOURCEENTRY000000000000_menstrualCycleDay",
+   "translation_key": "menstrual_cycle_day",
+   "disabled_by": "integration",
+   "original_name": "Menstrual cycle day"
+  },
+  {
+   "entity_id": "sensor.garmin_menstrual_cycle_phase",
+   "unique_id": "01SOURCEENTRY000000000000_menstrualCyclePhase",
+   "translation_key": "menstrual_cycle_phase",
+   "disabled_by": "integration",
+   "original_name": "Menstrual cycle phase"
+  },
+  {
+   "entity_id": "sensor.garmin_menstrual_cycle_start",
+   "unique_id": "01SOURCEENTRY000000000000_menstrualCycleStart",
+   "translation_key": "menstrual_cycle_start",
+   "disabled_by": "integration",
+   "original_name": "Menstrual cycle start"
+  },
+  {
+   "entity_id": "sensor.garmin_menstrual_cycle_type",
+   "unique_id": "01SOURCEENTRY000000000000_menstrualCycleType",
+   "translation_key": "menstrual_cycle_type",
+   "disabled_by": "integration",
+   "original_name": "Menstrual cycle type"
+  },
+  {
+   "entity_id": "sensor.garmin_menstrual_days_until_next_phase",
+   "unique_id": "01SOURCEENTRY000000000000_menstrualDaysUntilNextPhase",
+   "translation_key": "menstrual_days_until_next_phase",
+   "disabled_by": "integration",
+   "original_name": "Menstrual days until next phase"
+  },
+  {
+   "entity_id": "sensor.garmin_menstrual_fertile_window_end",
+   "unique_id": "01SOURCEENTRY000000000000_menstrualFertileWindowEnd",
+   "translation_key": "menstrual_fertile_window_end",
+   "disabled_by": "integration",
+   "original_name": "Menstrual fertile window end"
+  },
+  {
+   "entity_id": "sensor.garmin_menstrual_fertile_window_start",
+   "unique_id": "01SOURCEENTRY000000000000_menstrualFertileWindowStart",
+   "translation_key": "menstrual_fertile_window_start",
+   "disabled_by": "integration",
+   "original_name": "Menstrual fertile window start"
+  },
+  {
+   "entity_id": "sensor.garmin_menstrual_next_predicted_cycle_start",
+   "unique_id": "01SOURCEENTRY000000000000_menstrualNextPredictedCycleStart",
+   "translation_key": "menstrual_next_predicted_cycle_start",
+   "disabled_by": "integration",
+   "original_name": "Menstrual next predicted cycle start"
+  },
+  {
+   "entity_id": "sensor.garmin_menstrual_period_length",
+   "unique_id": "01SOURCEENTRY000000000000_menstrualPeriodLength",
+   "translation_key": "menstrual_period_length",
+   "disabled_by": "integration",
+   "original_name": "Menstrual period length"
+  },
+  {
+   "entity_id": "sensor.garmin_metabolic_age",
+   "unique_id": "01SOURCEENTRY000000000000_metabolicAge",
+   "translation_key": "metabolic_age",
+   "disabled_by": "integration",
+   "original_name": "Metabolic age"
+  },
+  {
+   "entity_id": "sensor.garmin_min_avg_heart_rate",
+   "unique_id": "01SOURCEENTRY000000000000_minAvgHeartRate",
+   "translation_key": "min_avg_heart_rate",
+   "disabled_by": "integration",
+   "original_name": "Min average heart rate"
+  },
+  {
+   "entity_id": "sensor.garmin_min_heart_rate",
+   "unique_id": "01SOURCEENTRY000000000000_minHeartRate",
+   "translation_key": "min_heart_rate",
+   "disabled_by": null,
+   "original_name": "Min heart rate"
+  },
+  {
+   "entity_id": "sensor.garmin_moderate_intensity",
+   "unique_id": "01SOURCEENTRY000000000000_moderateIntensityMinutes",
+   "translation_key": "moderate_intensity",
+   "disabled_by": "integration",
+   "original_name": "Moderate intensity minutes"
+  },
+  {
+   "entity_id": "sensor.garmin_morning_training_readiness",
+   "unique_id": "01SOURCEENTRY000000000000_morningTrainingReadiness",
+   "translation_key": "morning_training_readiness",
+   "disabled_by": null,
+   "original_name": "Morning training readiness"
+  },
+  {
+   "entity_id": "sensor.garmin_muscle_mass",
+   "unique_id": "01SOURCEENTRY000000000000_muscleMassKg",
+   "translation_key": "muscle_mass",
+   "disabled_by": "integration",
+   "original_name": "Muscle mass"
+  },
+  {
+   "entity_id": "sensor.garmin_nap_time",
+   "unique_id": "01SOURCEENTRY000000000000_napTimeMinutes",
+   "translation_key": "nap_time",
+   "disabled_by": null,
+   "original_name": "Nap time"
+  },
+  {
+   "entity_id": "sensor.garmin_next_alarm",
+   "unique_id": "01SOURCEENTRY000000000000_nextAlarm",
+   "translation_key": "next_alarm",
+   "disabled_by": null,
+   "original_name": "Next alarm"
+  },
+  {
+   "entity_id": "sensor.garmin_next_scheduled_workout",
+   "unique_id": "01SOURCEENTRY000000000000_nextScheduledWorkout",
+   "translation_key": "next_scheduled_workout",
+   "disabled_by": null,
+   "original_name": "Next scheduled workout"
+  },
+  {
+   "entity_id": "sensor.garmin_nutrition_calorie_goal",
+   "unique_id": "01SOURCEENTRY000000000000_nutritionCalorieGoal",
+   "translation_key": "nutrition_calorie_goal",
+   "disabled_by": "integration",
+   "original_name": "Nutrition calorie goal"
+  },
+  {
+   "entity_id": "sensor.garmin_nutrition_carbs_goal",
+   "unique_id": "01SOURCEENTRY000000000000_nutritionCarbsGoal",
+   "translation_key": "nutrition_carbs_goal",
+   "disabled_by": "integration",
+   "original_name": "Nutrition carbohydrates goal"
+  },
+  {
+   "entity_id": "sensor.garmin_nutrition_consumed_calories",
+   "unique_id": "01SOURCEENTRY000000000000_nutritionConsumedCalories",
+   "translation_key": "nutrition_consumed_calories",
+   "disabled_by": "integration",
+   "original_name": "Nutrition consumed calories"
+  },
+  {
+   "entity_id": "sensor.garmin_nutrition_consumed_carbs",
+   "unique_id": "01SOURCEENTRY000000000000_nutritionConsumedCarbs",
+   "translation_key": "nutrition_consumed_carbs",
+   "disabled_by": "integration",
+   "original_name": "Nutrition consumed carbohydrates"
+  },
+  {
+   "entity_id": "sensor.garmin_nutrition_consumed_fat",
+   "unique_id": "01SOURCEENTRY000000000000_nutritionConsumedFat",
+   "translation_key": "nutrition_consumed_fat",
+   "disabled_by": "integration",
+   "original_name": "Nutrition consumed fat"
+  },
+  {
+   "entity_id": "sensor.garmin_nutrition_consumed_protein",
+   "unique_id": "01SOURCEENTRY000000000000_nutritionConsumedProtein",
+   "translation_key": "nutrition_consumed_protein",
+   "disabled_by": "integration",
+   "original_name": "Nutrition consumed protein"
+  },
+  {
+   "entity_id": "sensor.garmin_nutrition_fat_goal",
+   "unique_id": "01SOURCEENTRY000000000000_nutritionFatGoal",
+   "translation_key": "nutrition_fat_goal",
+   "disabled_by": "integration",
+   "original_name": "Nutrition fat goal"
+  },
+  {
+   "entity_id": "sensor.garmin_nutrition_last_logged",
+   "unique_id": "01SOURCEENTRY000000000000_nutritionLastLoggedTime",
+   "translation_key": "nutrition_last_logged",
+   "disabled_by": "integration",
+   "original_name": "Nutrition last logged"
+  },
+  {
+   "entity_id": "sensor.garmin_nutrition_logged_entries",
+   "unique_id": "01SOURCEENTRY000000000000_nutritionLoggedEntries",
+   "translation_key": "nutrition_logged_entries",
+   "disabled_by": "integration",
+   "original_name": "Nutrition logged entries"
+  },
+  {
+   "entity_id": "sensor.garmin_nutrition_protein_goal",
+   "unique_id": "01SOURCEENTRY000000000000_nutritionProteinGoal",
+   "translation_key": "nutrition_protein_goal",
+   "disabled_by": "integration",
+   "original_name": "Nutrition protein goal"
+  },
+  {
+   "entity_id": "sensor.garmin_nutrition_remaining_calories",
+   "unique_id": "01SOURCEENTRY000000000000_nutritionRemainingCalories",
+   "translation_key": "nutrition_remaining_calories",
+   "disabled_by": "integration",
+   "original_name": "Nutrition remaining calories"
+  },
+  {
+   "entity_id": "sensor.garmin_optimal_bedtime",
+   "unique_id": "01SOURCEENTRY000000000000_optimalBedtime",
+   "translation_key": "optimal_bedtime",
+   "disabled_by": null,
+   "original_name": "Optimal bedtime"
+  },
+  {
+   "entity_id": "sensor.garmin_optimal_wake_time",
+   "unique_id": "01SOURCEENTRY000000000000_optimalWakeTime",
+   "translation_key": "optimal_wake_time",
+   "disabled_by": null,
+   "original_name": "Optimal wake time"
+  },
+  {
+   "entity_id": "sensor.garmin_physique_rating",
+   "unique_id": "01SOURCEENTRY000000000000_physiqueRating",
+   "translation_key": "physique_rating",
+   "disabled_by": "integration",
+   "original_name": "Physique rating"
+  },
+  {
+   "entity_id": "sensor.garmin_previous_fitness_age",
+   "unique_id": "01SOURCEENTRY000000000000_previousFitnessAge",
+   "translation_key": "previous_fitness_age",
+   "disabled_by": null,
+   "original_name": "Previous fitness age"
+  },
+  {
+   "entity_id": "sensor.garmin_power_to_weight_cross_country_skiing",
+   "unique_id": "01SOURCEENTRY000000000000_ptw_cross_country_skiing",
+   "translation_key": "power_to_weight",
+   "disabled_by": null,
+   "original_name": "Power to Weight Cross Country Skiing"
+  },
+  {
+   "entity_id": "sensor.garmin_power_to_weight_cycling",
+   "unique_id": "01SOURCEENTRY000000000000_ptw_cycling",
+   "translation_key": "power_to_weight",
+   "disabled_by": null,
+   "original_name": "Power to Weight Cycling"
+  },
+  {
+   "entity_id": "sensor.garmin_power_to_weight_rowing",
+   "unique_id": "01SOURCEENTRY000000000000_ptw_rowing",
+   "translation_key": "power_to_weight",
+   "disabled_by": null,
+   "original_name": "Power to Weight Rowing"
+  },
+  {
+   "entity_id": "sensor.garmin_power_to_weight_running",
+   "unique_id": "01SOURCEENTRY000000000000_ptw_running",
+   "translation_key": "power_to_weight",
+   "disabled_by": null,
+   "original_name": "Power to Weight Running"
+  },
+  {
+   "entity_id": "sensor.garmin_recovery_time",
+   "unique_id": "01SOURCEENTRY000000000000_recoveryTime",
+   "translation_key": "recovery_time",
+   "disabled_by": null,
+   "original_name": "Recovery time"
+  },
+  {
+   "entity_id": "sensor.garmin_rem_sleep",
+   "unique_id": "01SOURCEENTRY000000000000_remSleepMinutes",
+   "translation_key": "rem_sleep",
+   "disabled_by": null,
+   "original_name": "REM sleep"
+  },
+  {
+   "entity_id": "sensor.garmin_remaining_calories",
+   "unique_id": "01SOURCEENTRY000000000000_remainingKilocalories",
+   "translation_key": "remaining_calories",
+   "disabled_by": "integration",
+   "original_name": "Remaining calories"
+  },
+  {
+   "entity_id": "sensor.garmin_rest_stress_duration",
+   "unique_id": "01SOURCEENTRY000000000000_restStressMinutes",
+   "translation_key": "rest_stress_duration",
+   "disabled_by": null,
+   "original_name": "Rest stress duration"
+  },
+  {
+   "entity_id": "sensor.garmin_rest_stress_percentage",
+   "unique_id": "01SOURCEENTRY000000000000_restStressPercentage",
+   "translation_key": "rest_stress_percentage",
+   "disabled_by": "integration",
+   "original_name": "Rest stress percentage"
+  },
+  {
+   "entity_id": "sensor.garmin_resting_heart_rate",
+   "unique_id": "01SOURCEENTRY000000000000_restingHeartRate",
+   "translation_key": "resting_heart_rate",
+   "disabled_by": null,
+   "original_name": "Resting heart rate"
+  },
+  {
+   "entity_id": "calendar.garmin_scheduled_workouts",
+   "unique_id": "01SOURCEENTRY000000000000_scheduled_workouts_calendar",
+   "translation_key": "scheduled_workouts",
+   "disabled_by": null,
+   "original_name": "Scheduled workouts"
+  },
+  {
+   "entity_id": "sensor.garmin_sedentary_time",
+   "unique_id": "01SOURCEENTRY000000000000_sedentaryMinutes",
+   "translation_key": "sedentary_time",
+   "disabled_by": null,
+   "original_name": "Sedentary time"
+  },
+  {
+   "entity_id": "sensor.garmin_connected_sensors",
+   "unique_id": "01SOURCEENTRY000000000000_sensors",
+   "translation_key": "connected_sensors",
+   "disabled_by": null,
+   "original_name": "Connected sensors"
+  },
+  {
+   "entity_id": "sensor.garmin_sleep_need",
+   "unique_id": "01SOURCEENTRY000000000000_sleepNeed",
+   "translation_key": "sleep_need",
+   "disabled_by": null,
+   "original_name": "Sleep need"
+  },
+  {
+   "entity_id": "sensor.garmin_sleep_score",
+   "unique_id": "01SOURCEENTRY000000000000_sleepScore",
+   "translation_key": "sleep_score",
+   "disabled_by": null,
+   "original_name": "Sleep score"
+  },
+  {
+   "entity_id": "sensor.garmin_total_sleep_duration",
+   "unique_id": "01SOURCEENTRY000000000000_sleepTimeMinutes",
+   "translation_key": "total_sleep_duration",
+   "disabled_by": null,
+   "original_name": "Total sleep duration"
+  },
+  {
+   "entity_id": "sensor.garmin_sleeping_time",
+   "unique_id": "01SOURCEENTRY000000000000_sleepingMinutes",
+   "translation_key": "sleeping_time",
+   "disabled_by": null,
+   "original_name": "Sleeping time"
+  },
+  {
+   "entity_id": "sensor.garmin_solar_intensity",
+   "unique_id": "01SOURCEENTRY000000000000_solarIntensity",
+   "translation_key": "solar_intensity",
+   "disabled_by": null,
+   "original_name": "Solar intensity"
+  },
+  {
+   "entity_id": "sensor.garmin_total_stress_duration",
+   "unique_id": "01SOURCEENTRY000000000000_stressMinutes",
+   "translation_key": "total_stress_duration",
+   "disabled_by": "integration",
+   "original_name": "Stress duration"
+  },
+  {
+   "entity_id": "sensor.garmin_stress_percentage",
+   "unique_id": "01SOURCEENTRY000000000000_stressPercentage",
+   "translation_key": "stress_percentage",
+   "disabled_by": "integration",
+   "original_name": "Stress percentage"
+  },
+  {
+   "entity_id": "sensor.garmin_stress_qualifier",
+   "unique_id": "01SOURCEENTRY000000000000_stressQualifierText",
+   "translation_key": "stress_qualifier",
+   "disabled_by": "integration",
+   "original_name": "Stress qualifier"
+  },
+  {
+   "entity_id": "sensor.garmin_hydration_sweat_loss",
+   "unique_id": "01SOURCEENTRY000000000000_sweatLossInML",
+   "translation_key": "hydration_sweat_loss",
+   "disabled_by": null,
+   "original_name": "Hydration sweat loss"
+  },
+  {
+   "entity_id": "sensor.garmin_today_scheduled_workout",
+   "unique_id": "01SOURCEENTRY000000000000_todayScheduledWorkout",
+   "translation_key": "today_scheduled_workout",
+   "disabled_by": null,
+   "original_name": "Today's scheduled workout"
+  },
+  {
+   "entity_id": "sensor.garmin_solar_time_gained",
+   "unique_id": "01SOURCEENTRY000000000000_totalActivityTimeGainMinutes",
+   "translation_key": "solar_time_gained",
+   "disabled_by": null,
+   "original_name": "Solar time gained"
+  },
+  {
+   "entity_id": "sensor.garmin_total_distance",
+   "unique_id": "01SOURCEENTRY000000000000_totalDistanceMeters",
+   "translation_key": "total_distance",
+   "disabled_by": null,
+   "original_name": "Distance"
+  },
+  {
+   "entity_id": "sensor.garmin_total_intensity_minutes",
+   "unique_id": "01SOURCEENTRY000000000000_totalIntensityMinutes",
+   "translation_key": "total_intensity_minutes",
+   "disabled_by": null,
+   "original_name": "Intensity minutes"
+  },
+  {
+   "entity_id": "sensor.garmin_total_calories",
+   "unique_id": "01SOURCEENTRY000000000000_totalKilocalories",
+   "translation_key": "total_calories",
+   "disabled_by": null,
+   "original_name": "Calories"
+  },
+  {
+   "entity_id": "sensor.garmin_total_steps",
+   "unique_id": "01SOURCEENTRY000000000000_totalSteps",
+   "translation_key": "total_steps",
+   "disabled_by": null,
+   "original_name": "Steps"
+  },
+  {
+   "entity_id": "sensor.garmin_training_plan_goal_event",
+   "unique_id": "01SOURCEENTRY000000000000_trainingPlanGoalEvent",
+   "translation_key": "training_plan_goal_event",
+   "disabled_by": null,
+   "original_name": "Training plan goal event"
+  },
+  {
+   "entity_id": "sensor.garmin_training_readiness",
+   "unique_id": "01SOURCEENTRY000000000000_trainingReadiness",
+   "translation_key": "training_readiness",
+   "disabled_by": null,
+   "original_name": "Training readiness"
+  },
+  {
+   "entity_id": "sensor.garmin_training_status",
+   "unique_id": "01SOURCEENTRY000000000000_trainingStatus",
+   "translation_key": "training_status",
+   "disabled_by": null,
+   "original_name": "Training status"
+  },
+  {
+   "entity_id": "sensor.garmin_uncategorized_stress_duration",
+   "unique_id": "01SOURCEENTRY000000000000_uncategorizedStressMinutes",
+   "translation_key": "uncategorized_stress_duration",
+   "disabled_by": null,
+   "original_name": "Uncategorized stress duration"
+  },
+  {
+   "entity_id": "sensor.garmin_uncategorized_stress_percentage",
+   "unique_id": "01SOURCEENTRY000000000000_uncategorizedStressPercentage",
+   "translation_key": "uncategorized_stress_percentage",
+   "disabled_by": "integration",
+   "original_name": "Uncategorized stress percentage"
+  },
+  {
+   "entity_id": "sensor.garmin_unmeasurable_sleep",
+   "unique_id": "01SOURCEENTRY000000000000_unmeasurableSleepMinutes",
+   "translation_key": "unmeasurable_sleep",
+   "disabled_by": null,
+   "original_name": "Unmeasurable sleep"
+  },
+  {
+   "entity_id": "sensor.garmin_floors_ascended_goal",
+   "unique_id": "01SOURCEENTRY000000000000_userFloorsAscendedGoal",
+   "translation_key": "floors_ascended_goal",
+   "disabled_by": null,
+   "original_name": "Floors ascended goal"
+  },
+  {
+   "entity_id": "sensor.garmin_user_level",
+   "unique_id": "01SOURCEENTRY000000000000_userLevel",
+   "translation_key": "user_level",
+   "disabled_by": "integration",
+   "original_name": "User level"
+  },
+  {
+   "entity_id": "sensor.garmin_user_points",
+   "unique_id": "01SOURCEENTRY000000000000_userPoints",
+   "translation_key": "user_points",
+   "disabled_by": "integration",
+   "original_name": "User points"
+  },
+  {
+   "entity_id": "sensor.garmin_hydration",
+   "unique_id": "01SOURCEENTRY000000000000_valueInML",
+   "translation_key": "hydration",
+   "disabled_by": null,
+   "original_name": "Hydration"
+  },
+  {
+   "entity_id": "sensor.garmin_vigorous_intensity",
+   "unique_id": "01SOURCEENTRY000000000000_vigorousIntensityMinutes",
+   "translation_key": "vigorous_intensity",
+   "disabled_by": "integration",
+   "original_name": "Vigorous intensity minutes"
+  },
+  {
+   "entity_id": "sensor.garmin_visceral_fat",
+   "unique_id": "01SOURCEENTRY000000000000_visceralFat",
+   "translation_key": "visceral_fat",
+   "disabled_by": "integration",
+   "original_name": "Visceral fat"
+  },
+  {
+   "entity_id": "sensor.garmin_vo2_max",
+   "unique_id": "01SOURCEENTRY000000000000_vo2Max",
+   "translation_key": "vo2_max",
+   "disabled_by": null,
+   "original_name": "VO2 Max"
+  },
+  {
+   "entity_id": "sensor.garmin_wake_time",
+   "unique_id": "01SOURCEENTRY000000000000_wakeTime",
+   "translation_key": "wake_time",
+   "disabled_by": null,
+   "original_name": "Wake time"
+  },
+  {
+   "entity_id": "sensor.garmin_weekly_distance_avg",
+   "unique_id": "01SOURCEENTRY000000000000_weeklyDistanceAvg",
+   "translation_key": "weekly_distance_avg",
+   "disabled_by": null,
+   "original_name": "Weekly distance average"
+  },
+  {
+   "entity_id": "sensor.garmin_weekly_step_avg",
+   "unique_id": "01SOURCEENTRY000000000000_weeklyStepAvg",
+   "translation_key": "weekly_step_avg",
+   "disabled_by": null,
+   "original_name": "Weekly step average"
+  },
+  {
+   "entity_id": "sensor.legacy_166",
+   "unique_id": "01SOURCEENTRY000000000000_weight",
+   "translation_key": null,
+   "disabled_by": null,
+   "original_name": "Weight"
+  },
+  {
+   "entity_id": "sensor.garmin_weight",
+   "unique_id": "01SOURCEENTRY000000000000_weightKg",
+   "translation_key": "weight",
+   "disabled_by": null,
+   "original_name": "Weight"
+  },
+  {
+   "entity_id": "sensor.garmin_wellness_active_calories",
+   "unique_id": "01SOURCEENTRY000000000000_wellnessActiveKilocalories",
+   "translation_key": "wellness_active_calories",
+   "disabled_by": "integration",
+   "original_name": "Wellness active calories"
+  },
+  {
+   "entity_id": "sensor.garmin_wellness_distance",
+   "unique_id": "01SOURCEENTRY000000000000_wellnessDistanceMeters",
+   "translation_key": "wellness_distance",
+   "disabled_by": "integration",
+   "original_name": "Wellness distance"
+  },
+  {
+   "entity_id": "sensor.garmin_wellness_end_time",
+   "unique_id": "01SOURCEENTRY000000000000_wellnessEndTime",
+   "translation_key": "wellness_end_time",
+   "disabled_by": "integration",
+   "original_name": "Wellness end time"
+  },
+  {
+   "entity_id": "sensor.garmin_wellness_calories",
+   "unique_id": "01SOURCEENTRY000000000000_wellnessKilocalories",
+   "translation_key": "wellness_calories",
+   "disabled_by": "integration",
+   "original_name": "Wellness calories"
+  },
+  {
+   "entity_id": "sensor.garmin_wellness_start_time",
+   "unique_id": "01SOURCEENTRY000000000000_wellnessStartTime",
+   "translation_key": "wellness_start_time",
+   "disabled_by": "integration",
+   "original_name": "Wellness start time"
+  },
+  {
+   "entity_id": "sensor.garmin_yesterday_distance",
+   "unique_id": "01SOURCEENTRY000000000000_yesterdayDistance",
+   "translation_key": "yesterday_distance",
+   "disabled_by": null,
+   "original_name": "Yesterday distance"
+  },
+  {
+   "entity_id": "sensor.garmin_yesterday_steps",
+   "unique_id": "01SOURCEENTRY000000000000_yesterdaySteps",
+   "translation_key": "yesterday_steps",
+   "disabled_by": null,
+   "original_name": "Yesterday steps"
+  },
+  {
+   "entity_id": "sensor.legacy_175",
+   "unique_id": "user@example.com_legacy175",
+   "translation_key": null,
+   "disabled_by": "integration",
+   "original_name": "Net Calorie Goal"
+  },
+  {
+   "entity_id": "sensor.legacy_176",
+   "unique_id": "user@example.com_legacy176",
+   "translation_key": null,
+   "disabled_by": "integration",
+   "original_name": "Net Remaining KiloCalories"
+  },
+  {
+   "entity_id": "sensor.legacy_177",
+   "unique_id": "user@example.com_legacy177",
+   "translation_key": null,
+   "disabled_by": null,
+   "original_name": "Total Stress Duration"
+  },
+  {
+   "entity_id": "sensor.legacy_178",
+   "unique_id": "user@example.com_legacy178",
+   "translation_key": null,
+   "disabled_by": "integration",
+   "original_name": "Wellness Description"
+  }
+ ],
+ "states": [
+  {
+   "entity_id": "sensor.garmin_achievable_fitness_age",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "y"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_active_goals",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_active_calories",
+   "state": "540",
+   "attributes": {
+    "state_class": "total_increasing",
+    "unit_of_measurement": "kcal"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_active_time",
+   "state": "1",
+   "attributes": {
+    "state_class": "total_increasing",
+    "unit_of_measurement": "min",
+    "device_class": "duration"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_hydration_activity_intake",
+   "state": "unknown",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "mL"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_activity_stress_duration",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "min",
+    "device_class": "duration"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_avg_spo2",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "%"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_avg_stress_level",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "level"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_skin_temp_change",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "°C",
+    "device_class": "temperature_delta"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_avg_sleep_respiration",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "brpm"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_avg_solar_intensity",
+   "state": "unknown",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "%"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_awake_sleep",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "min",
+    "device_class": "duration"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_bedtime",
+   "state": "1",
+   "attributes": {
+    "device_class": "timestamp"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_bmr_calories",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "kcal"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_body_battery_charged",
+   "state": "1",
+   "attributes": {
+    "state_class": "total",
+    "unit_of_measurement": "%"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_body_battery_drained",
+   "state": "1",
+   "attributes": {
+    "state_class": "total",
+    "unit_of_measurement": "%"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_body_battery_highest",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "%"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_body_battery_lowest",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "%"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_body_battery_most_recent",
+   "state": "62",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "%"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_bp_category",
+   "state": "unknown",
+   "attributes": {}
+  },
+  {
+   "entity_id": "sensor.garmin_bp_diastolic",
+   "state": "unknown",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "mmHg"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_bp_measurement_time",
+   "state": "unavailable",
+   "attributes": {
+    "restored": true
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_bp_pulse",
+   "state": "unknown",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "bpm"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_bp_systolic",
+   "state": "unknown",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "mmHg"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_burned_calories",
+   "state": "1",
+   "attributes": {
+    "state_class": "total_increasing",
+    "unit_of_measurement": "kcal"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_chronological_age",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "y"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_hydration_daily_average",
+   "state": "unknown",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "mL"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_daily_step_goal",
+   "state": "10000",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "steps"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_deep_sleep",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "min",
+    "device_class": "duration"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_devices",
+   "state": "1",
+   "attributes": {}
+  },
+  {
+   "entity_id": "sensor.garmin_fitness_age",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "y"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_floors_ascended",
+   "state": "1",
+   "attributes": {
+    "state_class": "total_increasing",
+    "unit_of_measurement": "floors"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_floors_descended",
+   "state": "1",
+   "attributes": {
+    "state_class": "total_increasing",
+    "unit_of_measurement": "floors"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_functional_threshold_power_cross_country_skiing",
+   "state": "250",
+   "attributes": {
+    "state_class": "measurement",
+    "sport": "CROSS_COUNTRY_SKIING",
+    "calendar_date": "2026-01-15",
+    "is_stale": false,
+    "unit_of_measurement": "W",
+    "device_class": "power"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_functional_threshold_power_cycling",
+   "state": "250",
+   "attributes": {
+    "state_class": "measurement",
+    "sport": "CYCLING",
+    "calendar_date": "2026-01-15",
+    "is_stale": false,
+    "unit_of_measurement": "W",
+    "device_class": "power"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_functional_threshold_power_rowing",
+   "state": "250",
+   "attributes": {
+    "state_class": "measurement",
+    "sport": "ROWING",
+    "calendar_date": "2026-01-15",
+    "is_stale": false,
+    "unit_of_measurement": "W",
+    "device_class": "power"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_functional_threshold_power_running",
+   "state": "250",
+   "attributes": {
+    "state_class": "measurement",
+    "sport": "RUNNING",
+    "calendar_date": "2026-01-15",
+    "is_stale": false,
+    "unit_of_measurement": "W",
+    "device_class": "power"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_future_goals",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement"
+   }
+  },
+  {
+   "entity_id": "sensor.gear_1",
+   "state": "12000",
+   "attributes": {
+    "state_class": "total_increasing",
+    "gear_uuid": "00000000000000000000000000000001",
+    "gear_status_name": "active",
+    "unit_of_measurement": "m",
+    "device_class": "distance"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_hydration_goal",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "mL"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_goals_history",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_high_stress_duration",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "min",
+    "device_class": "duration"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_hill_score",
+   "state": "unknown",
+   "attributes": {
+    "state_class": "measurement",
+    "calendarDate": "2026-01-15"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_hrv_baseline",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "ms"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_hrv_last_night_5min_high",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "ms"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_hrv_last_night_avg",
+   "state": "54",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "ms"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_hrv_status",
+   "state": "Balanced",
+   "attributes": {
+    "calendarDate": "2026-01-15"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_hrv_weekly_avg",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "ms"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_lactate_threshold_hr",
+   "state": "1",
+   "attributes": {
+    "calendarDate": "2026-01-15",
+    "unit_of_measurement": "bpm"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_lactate_threshold_speed",
+   "state": "unknown",
+   "attributes": {
+    "calendarDate": "2026-01-15",
+    "unit_of_measurement": "m/s"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_last_activity_route",
+   "state": "4",
+   "attributes": {
+    "polyline": [
+     {
+      "lat": 0.0,
+      "lon": 0.0
+     },
+     {
+      "lat": 0.01,
+      "lon": 0.0
+     },
+     {
+      "lat": 0.01,
+      "lon": 0.01
+     },
+     {
+      "lat": 0.0,
+      "lon": 0.01
+     }
+    ],
+    "has_polyline": true,
+    "activity_name": "Morning Ride"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_last_synced",
+   "state": "2026-01-15T07:30:00+00:00",
+   "attributes": {
+    "device_class": "timestamp"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_last_workout",
+   "state": "unknown",
+   "attributes": {}
+  },
+  {
+   "entity_id": "sensor.garmin_last_workouts",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_latest_spo2",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "%"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_light_sleep",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "min",
+    "device_class": "duration"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_low_stress_duration",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "min",
+    "device_class": "duration"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_lowest_spo2",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "%"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_max_heart_rate",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "bpm"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_max_stress_level",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "level"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_sleep_duration",
+   "state": "432",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "min",
+    "device_class": "duration"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_awake_duration",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "min",
+    "device_class": "duration"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_medium_stress_duration",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "min",
+    "device_class": "duration"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_min_heart_rate",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "bpm"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_morning_training_readiness",
+   "state": "unknown",
+   "attributes": {
+    "unit_of_measurement": "%"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_nap_time",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "min",
+    "device_class": "duration"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_next_alarm",
+   "state": "unknown",
+   "attributes": {
+    "device_class": "timestamp"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_next_scheduled_workout",
+   "state": "unknown",
+   "attributes": {}
+  },
+  {
+   "entity_id": "sensor.garmin_optimal_bedtime",
+   "state": "1",
+   "attributes": {
+    "device_class": "timestamp"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_optimal_wake_time",
+   "state": "1",
+   "attributes": {
+    "device_class": "timestamp"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_previous_fitness_age",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "y"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_power_to_weight_cross_country_skiing",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "sport": "CROSS_COUNTRY_SKIING",
+    "calendar_date": "2026-01-15",
+    "is_stale": false,
+    "unit_of_measurement": "W/kg"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_power_to_weight_cycling",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "sport": "CYCLING",
+    "calendar_date": "2026-01-15",
+    "is_stale": false,
+    "unit_of_measurement": "W/kg"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_power_to_weight_rowing",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "sport": "ROWING",
+    "calendar_date": "2026-01-15",
+    "is_stale": false,
+    "unit_of_measurement": "W/kg"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_power_to_weight_running",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "sport": "RUNNING",
+    "calendar_date": "2026-01-15",
+    "is_stale": false,
+    "unit_of_measurement": "W/kg"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_recovery_time",
+   "state": "12",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "h",
+    "device_class": "duration"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_rem_sleep",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "min",
+    "device_class": "duration"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_rest_stress_duration",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "min",
+    "device_class": "duration"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_resting_heart_rate",
+   "state": "52",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "bpm"
+   }
+  },
+  {
+   "entity_id": "calendar.garmin_scheduled_workouts",
+   "state": "1",
+   "attributes": {}
+  },
+  {
+   "entity_id": "sensor.garmin_sedentary_time",
+   "state": "1",
+   "attributes": {
+    "state_class": "total_increasing",
+    "unit_of_measurement": "min",
+    "device_class": "duration"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_connected_sensors",
+   "state": "1",
+   "attributes": {}
+  },
+  {
+   "entity_id": "sensor.garmin_sleep_need",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "min",
+    "device_class": "duration"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_sleep_score",
+   "state": "81",
+   "attributes": {
+    "state_class": "measurement"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_total_sleep_duration",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "min",
+    "device_class": "duration"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_sleeping_time",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "min",
+    "device_class": "duration"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_solar_intensity",
+   "state": "unknown",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "%"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_hydration_sweat_loss",
+   "state": "unknown",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "mL"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_today_scheduled_workout",
+   "state": "unknown",
+   "attributes": {}
+  },
+  {
+   "entity_id": "sensor.garmin_solar_time_gained",
+   "state": "unknown",
+   "attributes": {
+    "state_class": "total_increasing",
+    "unit_of_measurement": "min"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_total_distance",
+   "state": "6200",
+   "attributes": {
+    "state_class": "total_increasing",
+    "unit_of_measurement": "m",
+    "device_class": "distance"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_total_intensity_minutes",
+   "state": "1",
+   "attributes": {
+    "state_class": "total_increasing",
+    "unit_of_measurement": "min",
+    "device_class": "duration"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_total_calories",
+   "state": "2410",
+   "attributes": {
+    "state_class": "total_increasing",
+    "unit_of_measurement": "kcal"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_total_steps",
+   "state": "8500",
+   "attributes": {
+    "state_class": "total_increasing",
+    "unit_of_measurement": "steps"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_training_plan_goal_event",
+   "state": "unknown",
+   "attributes": {}
+  },
+  {
+   "entity_id": "sensor.garmin_training_readiness",
+   "state": "70",
+   "attributes": {
+    "unit_of_measurement": "%"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_training_status",
+   "state": "Productive",
+   "attributes": {}
+  },
+  {
+   "entity_id": "sensor.garmin_uncategorized_stress_duration",
+   "state": "1",
+   "attributes": {
+    "state_class": "total",
+    "unit_of_measurement": "min",
+    "device_class": "duration"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_unmeasurable_sleep",
+   "state": "unknown",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "min",
+    "device_class": "duration"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_floors_ascended_goal",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "floors"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_hydration",
+   "state": "unknown",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "mL"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_vo2_max",
+   "state": "51",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "mL/(kg·min)"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_wake_time",
+   "state": "1",
+   "attributes": {
+    "device_class": "timestamp"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_weekly_distance_avg",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "m",
+    "device_class": "distance"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_weekly_step_avg",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "steps"
+   }
+  },
+  {
+   "entity_id": "sensor.legacy_166",
+   "state": "unavailable",
+   "attributes": {
+    "restored": true,
+    "state_class": "measurement",
+    "device_class": "weight",
+    "unit_of_measurement": "kg"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_weight",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "kg",
+    "device_class": "weight"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_yesterday_distance",
+   "state": "1",
+   "attributes": {
+    "state_class": "total",
+    "unit_of_measurement": "m",
+    "device_class": "distance"
+   }
+  },
+  {
+   "entity_id": "sensor.garmin_yesterday_steps",
+   "state": "1",
+   "attributes": {
+    "state_class": "measurement",
+    "unit_of_measurement": "steps"
+   }
+  },
+  {
+   "entity_id": "sensor.legacy_177",
+   "state": "unavailable",
+   "attributes": {
+    "restored": true,
+    "state_class": "total",
+    "device_class": "duration",
+    "unit_of_measurement": "min"
+   }
+  }
+ ]
+}
