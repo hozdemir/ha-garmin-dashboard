@@ -56,6 +56,8 @@ class ChartSpec:
     method: Method
     default_visible: bool = True
     goal_metric: str | None = None
+    # Nightly values reset to 0 at the Garmin day change until the real value arrives.
+    zero_is_placeholder: bool = False
 
 
 CHARTS: tuple[ChartSpec, ...] = (
@@ -65,10 +67,13 @@ CHARTS: tuple[ChartSpec, ...] = (
     ChartSpec("sleep_stages", "today", "stacked_bar",
               ("sleep_deep", "sleep_light", "sleep_rem", "sleep_awake"), "current"),
     ChartSpec("body_battery_range", "trends", "range_columns", ("body_battery",), "daily_range"),
-    ChartSpec("sleep_score", "trends", "dots", ("sleep_score",), "change_points"),
-    ChartSpec("sleep_duration", "trends", "columns", ("sleep_duration",), "change_points"),
+    ChartSpec("sleep_score", "trends", "dots", ("sleep_score",), "change_points",
+              zero_is_placeholder=True),
+    ChartSpec("sleep_duration", "trends", "columns", ("sleep_duration",), "change_points",
+              zero_is_placeholder=True),
     ChartSpec("resting_hr", "trends", "line", ("resting_hr",), "change_points"),
-    ChartSpec("hrv", "trends", "line", ("hrv_last_night",), "change_points"),
+    ChartSpec("hrv", "trends", "line", ("hrv_last_night",), "change_points",
+              zero_is_placeholder=True),
     ChartSpec("weekly_steps", "trends", "line", ("weekly_step_avg",), "change_points"),
     ChartSpec("vo2max", "trends", "step", ("vo2max",), "change_points"),
     ChartSpec("ftp_cycling", "trends", "step", ("ftp_cycling",), "change_points"),
@@ -113,7 +118,9 @@ def history_points(states: Iterable[State | Mapping[str, Any]], convert) -> list
     return points
 
 
-def change_points(rows: Iterable[Mapping[str, Any]], convert) -> list[Point]:
+def change_points(
+    rows: Iterable[Mapping[str, Any]], convert, *, zero_is_placeholder: bool = False
+) -> list[Point]:
     """Emit a point at the first stable hour of each new value.
 
     Hours whose min and max differ are transitions; their mean is a blend of
@@ -128,7 +135,7 @@ def change_points(rows: Iterable[Mapping[str, Any]], convert) -> list[Point]:
         if low is None or high is None or low != high:
             continue
         value = convert(high)
-        if value is None:
+        if value is None or (zero_is_placeholder and value == 0):
             continue
         start = _ms(row["start"])
         if last_seen is not None and start - last_seen > GAP_MS and points:
@@ -241,7 +248,9 @@ class ChartService:
                 entry["points"] = downsample(history_points(states, convert))
             elif chart.method == "change_points":
                 rows = await self._statistics(entity_id, start, now, "hour")
-                entry["points"] = downsample(change_points(rows, convert))
+                entry["points"] = downsample(
+                    change_points(rows, convert, zero_is_placeholder=chart.zero_is_placeholder)
+                )
             else:
                 rows = await self._statistics(entity_id, start, now, "day")
                 entry["ranges"] = daily_range(rows, convert)

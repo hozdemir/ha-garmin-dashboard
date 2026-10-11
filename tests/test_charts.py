@@ -59,6 +59,14 @@ def test_long_hole_becomes_a_gap_not_a_bridge() -> None:
     assert points[1][0] - points[0][0] < GAP_MS
 
 
+def test_nightly_zero_placeholder_is_not_a_night() -> None:
+    # Real pattern: sleep duration drops to 0 at the Garmin day change, the
+    # night's value arrives in the morning.
+    rows = _rows((343, 343), (0, 0), (0, 0), (372, 372), (0, 0), (320, 320))
+    assert [v for _, v in change_points(rows, ident, zero_is_placeholder=True)] == [343, 372, 320]
+    assert 0 in [v for _, v in change_points(rows, ident)]
+
+
 def test_unconvertible_values_are_skipped() -> None:
     rows = _rows((1, 1), (2, 2))
     assert change_points(rows, lambda v: None if v == 1 else v) == [(int((T0 + HOUR) * 1000), 2)]
