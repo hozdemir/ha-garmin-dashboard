@@ -1,0 +1,13 @@
+# Dev Home Assistant instance (contains auth data and Garmin tokens)
+dev/config/
+# Real (non-anonymized) data dumps
+dev/raw/
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
+
+# Built panel bundle; produced by `npm run build` and shipped in release archives
+custom_components/garmin_dashboard/www/
+.idea/
