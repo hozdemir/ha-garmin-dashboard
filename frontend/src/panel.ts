@@ -55,6 +55,8 @@ export class GarminDashboardPanel extends LitElement {
   private _saving = false;
   private _notice?: MessageKey;
   private _todayLoadedAt = 0;
+  // Preferences and the first snapshot arrive in either order; load charts once both are in.
+  private _chartsLoaded = false;
   private _profileId?: string;
   // Revisions restart after an HA restart, so ordering is tracked per subscription.
   private _lastRevision = -1;
@@ -129,6 +131,7 @@ export class GarminDashboardPanel extends LitElement {
       this._chartErrors = {};
       this._prefs = undefined;
       this._todayLoadedAt = 0;
+      this._chartsLoaded = false;
     }
     this._profileId = profileId;
     this._lastRevision = -1;
@@ -152,7 +155,9 @@ export class GarminDashboardPanel extends LitElement {
     if (snapshot.revision <= this._lastRevision) return;
     this._lastRevision = snapshot.revision;
     this._snapshot = snapshot;
-    if (this._prefs && Date.now() - this._todayLoadedAt > TODAY_REFRESH_MS) void this._loadCharts("today");
+    if (!this._prefs) return;
+    if (!this._chartsLoaded) void this._loadCharts();
+    else if (Date.now() - this._todayLoadedAt > TODAY_REFRESH_MS) void this._loadCharts("today");
   }
 
   private async _loadPreferences(profileId: string): Promise<void> {
@@ -187,6 +192,7 @@ export class GarminDashboardPanel extends LitElement {
     const profileId = this._profileId;
     if (!this.hass || !profileId || !this._snapshot) return;
     const groups: ChartDef["group"][] = group ? [group] : ["today", "trends"];
+    if (!group) this._chartsLoaded = true;
     if (groups.includes("today")) this._todayLoadedAt = Date.now();
     const charts = groups.flatMap((g) => this._visibleCharts(g));
     await Promise.all(charts.map(async (chart) => {
