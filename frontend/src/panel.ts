@@ -1,7 +1,11 @@
 import { LitElement, css, html, nothing, type PropertyValues, type TemplateResult } from "lit";
 
+import "./chart";
+import "./settings";
+import { CHARTS, TILE_SECTIONS, TREND_RANGES, type ChartDef, type Preferences, type SectionId } from "./catalog";
+import type { ChartPayload } from "./chart-data";
 import { formatDistance, formatMetric, goalProgress, type FormatContext } from "./format";
-import { hasMessage, translator, type Translate } from "./i18n";
+import { hasMessage, translator, type MessageKey, type Translate } from "./i18n";
 import {
   SCHEMA_VERSION,
   type HassLike,
@@ -12,11 +16,8 @@ import {
   type Section,
 } from "./types";
 
-const SECTIONS: { id: Section; keys: string[] }[] = [
-  { id: "movement", keys: ["steps", "distance_day", "calories_active", "calories_total"] },
-  { id: "recovery", keys: ["body_battery", "sleep_score", "sleep_duration", "hrv_status", "hrv_last_night", "resting_hr"] },
-  { id: "training", keys: ["training_readiness", "training_status", "recovery_time", "vo2max", "ftp_cycling", "ftp_running"] },
-];
+// "Today" charts follow live data; refetch them at most this often.
+const TODAY_REFRESH_MS = 60_000;
 
 // Statuses that mean "this account never has it": hide instead of showing an empty tile.
 const HIDDEN_STATUSES = new Set(["missing", "ambiguous"]);
@@ -29,6 +30,14 @@ export class GarminDashboardPanel extends LitElement {
     _snapshot: { state: true },
     _error: { state: true },
     _disconnected: { state: true },
+    _prefs: { state: true },
+    _view: { state: true },
+    _charts: { state: true },
+    _chartErrors: { state: true },
+    _refreshing: { state: true },
+    _trendRange: { state: true },
+    _saving: { state: true },
+    _notice: { state: true },
   };
 
   hass?: HassLike;
@@ -37,6 +46,15 @@ export class GarminDashboardPanel extends LitElement {
   private _snapshot?: ProfileSnapshot;
   private _error?: string;
   private _disconnected = false;
+  private _prefs?: Preferences;
+  private _view: "dashboard" | "settings" = "dashboard";
+  private _charts: Record<string, ChartPayload> = {};
+  private _chartErrors: Record<string, MessageKey> = {};
+  private _refreshing = new Set<string>();
+  private _trendRange = 30;
+  private _saving = false;
+  private _notice?: MessageKey;
+  private _todayLoadedAt = 0;
   private _profileId?: string;
   // Revisions restart after an HA restart, so ordering is tracked per subscription.
   private _lastRevision = -1;
@@ -62,6 +80,7 @@ export class GarminDashboardPanel extends LitElement {
   }
 
   protected override updated(changed: PropertyValues): void {
+    if (changed.has("hass")) this.toggleAttribute("dark", Boolean(this.hass?.themes?.darkMode));
     if (changed.has("hass") && this.hass && !this._subscribed) {
       this._subscribed = true;
       this.hass.connection.addEventListener("ready", this._onReady);
@@ -104,9 +123,16 @@ export class GarminDashboardPanel extends LitElement {
   private _selectProfile(profileId: string): void {
     if (!this.hass) return;
     this._stopSnapshot();
-    if (profileId !== this._profileId) this._snapshot = undefined;
+    if (profileId !== this._profileId) {
+      this._snapshot = undefined;
+      this._charts = {};
+      this._chartErrors = {};
+      this._prefs = undefined;
+      this._todayLoadedAt = 0;
+    }
     this._profileId = profileId;
     this._lastRevision = -1;
+    void this._loadPreferences(profileId);
     this._unsubscribe = this.hass.connection.subscribeMessage<ProfileSnapshot>(
       (snapshot) => this._applySnapshot(profileId, snapshot),
       { type: "garmin_dashboard/subscribe", profile_id: profileId },
@@ -126,7 +152,99 @@ export class GarminDashboardPanel extends LitElement {
     if (snapshot.revision <= this._lastRevision) return;
     this._lastRevision = snapshot.revision;
     this._snapshot = snapshot;
+    if (this._prefs && Date.now() - this._todayLoadedAt > TODAY_REFRESH_MS) void this._loadCharts("today");
   }
+
+  private async _loadPreferences(profileId: string): Promise<void> {
+    try {
+      const prefs = await this.hass!.callWS<Preferences>({ type: "garmin_dashboard/preferences/get", profile_id: profileId });
+      if (profileId !== this._profileId) return;
+      this._prefs = prefs;
+      this._trendRange = prefs.trend_range_days;
+      void this._loadCharts();
+    } catch {
+      this._error = "source_offline";
+    }
+  }
+
+  /** Charts the account can draw and the user has not hidden. */
+  private _visibleCharts(group: ChartDef["group"]): ChartDef[] {
+    const snapshot = this._snapshot;
+    const prefs = this._prefs;
+    if (!snapshot || !prefs) return [];
+    return CHARTS.filter(
+      (c) =>
+        c.group === group &&
+        !prefs.hidden_charts.includes(c.id) &&
+        c.metrics.some((m) => {
+          const metric = snapshot.metrics[m];
+          return metric !== undefined && !HIDDEN_STATUSES.has(metric.status);
+        }),
+    );
+  }
+
+  private async _loadCharts(group?: ChartDef["group"]): Promise<void> {
+    const profileId = this._profileId;
+    if (!this.hass || !profileId || !this._snapshot) return;
+    const groups: ChartDef["group"][] = group ? [group] : ["today", "trends"];
+    if (groups.includes("today")) this._todayLoadedAt = Date.now();
+    const charts = groups.flatMap((g) => this._visibleCharts(g));
+    await Promise.all(charts.map(async (chart) => {
+      this._refreshing = new Set(this._refreshing).add(chart.id);
+      try {
+        const payload = await this.hass!.callWS<ChartPayload>({
+          type: "garmin_dashboard/chart",
+          profile_id: profileId,
+          chart_id: chart.id,
+          ...(chart.group === "trends" ? { range_days: this._trendRange } : {}),
+        });
+        // A late answer for a profile we already left must not be shown.
+        if (profileId !== this._profileId) return;
+        this._charts = { ...this._charts, [chart.id]: payload };
+        const { [chart.id]: _, ...rest } = this._chartErrors;
+        this._chartErrors = rest;
+      } catch (err) {
+        if (profileId !== this._profileId) return;
+        const code = (err as { code?: string }).code;
+        this._chartErrors = { ...this._chartErrors, [chart.id]: code === "recorder_unavailable" ? "chart_recorder_off" : "chart_error" };
+      } finally {
+        const next = new Set(this._refreshing);
+        next.delete(chart.id);
+        this._refreshing = next;
+      }
+    }));
+  }
+
+  private _setTrendRange(days: number): void {
+    if (days === this._trendRange) return;
+    this._trendRange = days;
+    void this._loadCharts("trends");
+  }
+
+  private async _savePreferences(prefs: Preferences | "reset"): Promise<void> {
+    const profileId = this._profileId;
+    if (!this.hass || !profileId) return;
+    this._saving = true;
+    try {
+      const saved = await this.hass.callWS<Preferences>(
+        prefs === "reset"
+          ? { type: "garmin_dashboard/preferences/reset", profile_id: profileId }
+          : { type: "garmin_dashboard/preferences/set", profile_id: profileId, preferences: prefs },
+      );
+      if (profileId !== this._profileId) return;
+      this._prefs = saved;
+      this._trendRange = saved.trend_range_days;
+      this._view = "dashboard";
+      this._notice = "saved";
+      void this._loadCharts();
+    } catch {
+      this._notice = "save_failed";
+    } finally {
+      this._saving = false;
+    }
+  }
+
+
 
   private _toggleMenu(): void {
     this.dispatchEvent(new Event("hass-toggle-menu", { bubbles: true, composed: true }));
@@ -152,9 +270,14 @@ export class GarminDashboardPanel extends LitElement {
           : nothing}
         <h1>${t("title")}</h1>
         ${this._renderProfilePicker()}
+        ${this._prefs
+          ? html`<button class="icon" aria-pressed=${this._view === "settings"} aria-label=${t("settings")} title=${t("settings")}
+              @click=${() => { this._view = this._view === "settings" ? "dashboard" : "settings"; this._notice = undefined; }}>⚙</button>`
+          : nothing}
       </header>
       ${this._disconnected ? html`<p class="banner" role="status">${t("connection_lost")}</p>` : nothing}
-      <main>${this._renderBody()}</main>
+      ${this._notice ? html`<p class="banner notice" role="status">${t(this._notice)}</p>` : nothing}
+      <main>${this._view === "settings" ? this._renderSettings() : this._renderBody()}</main>
     `;
   }
 
@@ -185,13 +308,89 @@ export class GarminDashboardPanel extends LitElement {
     }
     const snapshot = this._snapshot;
     if (!snapshot) return html`<p class="muted">${t("loading")}</p>`;
+    const prefs = this._prefs;
+    const order: SectionId[] = prefs?.section_order ?? ["movement", "recovery", "training", "gear"];
+    const hidden = new Set(prefs?.hidden_sections ?? []);
+    const shown = order.filter((s) => !hidden.has(s));
+    const sections = shown.map((id) => {
+      if (id === "gear") return this._renderGear(snapshot);
+      const def = TILE_SECTIONS.find((s) => s.id === id);
+      return def ? this._renderSection(snapshot, def.id, def.keys) : nothing;
+    });
     return html`
       ${this._renderSourceState(snapshot)}
+      ${shown.length === 0
+        ? html`<p class="banner">${t("all_hidden")}
+            <button class="link" @click=${() => (this._view = "settings")}>${t("open_settings")}</button></p>`
+        : nothing}
       <div class="grid">
-        ${SECTIONS.map((section) => this._renderSection(snapshot, section.id, section.keys))}
-        ${this._renderGear(snapshot)}
+        ${sections}
         ${this._renderStatus()}
       </div>
+      ${this._renderChartGroup("today")}
+      ${this._renderChartGroup("trends")}
+    `;
+  }
+
+  private _renderChartGroup(group: ChartDef["group"]): TemplateResult | typeof nothing {
+    const t = this._t;
+    const charts = this._visibleCharts(group);
+    if (!charts.length) return nothing;
+    return html`
+      <section class="charts" aria-labelledby="h-${group}">
+        <div class="charts-head">
+          <h2 id="h-${group}">${t(`group_${group}`)}</h2>
+          ${group === "trends"
+            ? html`<div class="segmented" role="radiogroup" aria-label=${t("range_label")}>
+                ${TREND_RANGES.map((d) => html`<button role="radio" aria-checked=${this._trendRange === d}
+                  @click=${() => this._setTrendRange(d)}>${t("range_days", { days: String(d) })}</button>`)}
+              </div>`
+            : nothing}
+        </div>
+        <div class="chart-grid">
+          ${charts.map((chart) => html`
+            <div class="card">
+              ${this._chartErrors[chart.id]
+                ? html`<h3 class="chart-title">${t(`chart_${chart.id}` as MessageKey)}</h3>
+                    <p class="muted">${t(this._chartErrors[chart.id]!)}</p>`
+                : html`<garmin-chart
+                    .payload=${this._charts[chart.id]}
+                    .fmt=${this._fmt}
+                    .t=${t}
+                    .heading=${t(`chart_${chart.id}` as MessageKey)}
+                    .seriesLabels=${this._seriesLabels(chart)}
+                    ?refreshing=${this._refreshing.has(chart.id) && this._charts[chart.id] !== undefined}
+                  ></garmin-chart>`}
+            </div>`)}
+        </div>
+      </section>
+    `;
+  }
+
+  private _seriesLabels(chart: ChartDef): Record<string, string> {
+    const t = this._t;
+    return Object.fromEntries(
+      chart.metrics.map((m) => [m, hasMessage(`metric_${m}`) ? t(`metric_${m}` as MessageKey) : m]),
+    );
+  }
+
+  private _renderSettings(): TemplateResult {
+    const snapshot = this._snapshot;
+    const available = new Set(
+      Object.values(snapshot?.metrics ?? {})
+        .filter((m) => !HIDDEN_STATUSES.has(m.status))
+        .map((m) => m.key),
+    );
+    return html`
+      <garmin-settings
+        .preferences=${this._prefs}
+        .available=${available}
+        .t=${this._t}
+        ?busy=${this._saving}
+        @save=${(e: CustomEvent<Preferences>) => this._savePreferences(e.detail)}
+        @reset=${() => this._savePreferences("reset")}
+        @cancel=${() => (this._view = "dashboard")}
+      ></garmin-settings>
     `;
   }
 
@@ -209,7 +408,9 @@ export class GarminDashboardPanel extends LitElement {
   }
 
   private _renderSection(snapshot: ProfileSnapshot, section: Section, keys: string[]): TemplateResult | typeof nothing {
+    const hiddenMetrics = new Set(this._prefs?.hidden_metrics ?? []);
     const metrics = keys
+      .filter((key) => !hiddenMetrics.has(key))
       .map((key) => snapshot.metrics[key])
       .filter((m): m is Metric => m !== undefined && !HIDDEN_STATUSES.has(m.status));
     // A section the account never provides is hidden (e.g. no sleep data on a bike-only setup).
@@ -299,6 +500,13 @@ export class GarminDashboardPanel extends LitElement {
 
   static override styles = css`
     :host {
+      /* Chart palette, validated on HA's light and dark card surfaces. */
+      --gd-series-1: #2a78d6;
+      --gd-series-2: #eb6834;
+      --gd-series-3: #1baf7a;
+      --gd-series-4: #eda100;
+      --gd-surface: var(--card-background-color, #fff);
+      --gd-grid: var(--divider-color, #e8e8e8);
       display: block;
       min-height: 100vh;
       background: var(--primary-background-color);
@@ -350,6 +558,28 @@ export class GarminDashboardPanel extends LitElement {
     .list li { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--divider-color, #eee); }
     .list li:last-child { border-bottom: 0; }
     @media (prefers-reduced-motion: no-preference) { .bar { transition: width 0.3s ease; } }
+    :host([dark]) {
+      --gd-series-1: #3987e5;
+      --gd-series-2: #d95926;
+      --gd-series-3: #199e70;
+      --gd-series-4: #c98500;
+    }
+    .notice { margin: 16px 16px 0; }
+    .link { border: 0; background: none; color: var(--primary-color); font: inherit; cursor: pointer; min-height: 44px; }
+    .charts { margin-top: 24px; }
+    .charts-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+    .charts-head h2 { margin: 0; }
+    .chart-grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
+    @media (min-width: 900px) { .chart-grid { grid-template-columns: repeat(2, 1fr); } }
+    .chart-title { font-size: 14px; font-weight: 500; margin: 0 0 6px; }
+    .segmented { display: inline-flex; border: 1px solid var(--divider-color, #ccc); border-radius: 8px; overflow: hidden; }
+    .segmented button {
+      min-height: 44px; padding: 0 14px; border: 0; background: var(--card-background-color);
+      color: var(--primary-text-color); font: inherit; cursor: pointer;
+    }
+    .segmented button + button { border-left: 1px solid var(--divider-color, #ccc); }
+    .segmented button[aria-checked="true"] { background: var(--primary-color); color: var(--text-primary-color, #fff); }
+    .segmented button:focus-visible { outline: 2px solid var(--primary-color); outline-offset: -2px; }
   `;
 }
 
