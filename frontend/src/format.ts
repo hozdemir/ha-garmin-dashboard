@@ -1,4 +1,4 @@
-import type { Metric } from "./types";
+import type { Metric, MetricKind } from "./types";
 
 export interface FormatContext {
   locale: string;
@@ -40,7 +40,12 @@ export function formatMetric(ctx: FormatContext, metric: Metric): string | null 
   if (value === null) return null;
   if (metric.kind === "category") return typeof value === "string" ? formatCategory(value) : null;
   if (typeof value !== "number" || !Number.isFinite(value)) return null;
-  switch (metric.kind) {
+  return formatNumber(ctx, metric.kind, value);
+}
+
+/** Format a normalized number of a given kind (meters, seconds, ...). */
+export function formatNumber(ctx: FormatContext, kind: MetricKind, value: number): string {
+  switch (kind) {
     case "distance":
       return formatDistance(ctx, value);
     case "duration":

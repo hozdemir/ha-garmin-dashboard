@@ -24,7 +24,8 @@ export type MetricKind =
   | "power"
   | "vo2max"
   | "category"
-  | "hrv";
+  | "hrv"
+  | "level";
 
 export type Section = "movement" | "recovery" | "training";
 
@@ -100,4 +101,5 @@ export interface HassLike {
     removeEventListener(event: string, callback: () => void): void;
   };
   callWS<T>(message: Record<string, unknown>): Promise<T>;
+  themes?: { darkMode?: boolean };
 }
