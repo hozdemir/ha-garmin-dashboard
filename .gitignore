@@ -11,3 +11,7 @@ __pycache__/
 # Built panel bundle; produced by `npm run build` and shipped in release archives
 custom_components/garmin_dashboard/www/
 .idea/
+
+# Local planning docs; never committed
+Garmin-Dashboard-SPEC-*.md
+docs/phase0-findings.md
