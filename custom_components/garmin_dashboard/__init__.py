@@ -14,6 +14,7 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.typing import ConfigType
 
 from . import websocket_api
+from .charts import ChartService
 from .const import (
     CONF_DISPLAY_NAME,
     CONF_PROFILE_ID,
@@ -26,6 +27,7 @@ from .const import (
     PANEL_URL_PATH,
     STATIC_URL,
 )
+from .preferences import PreferenceStore
 from .profile import ProfileRuntime
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
@@ -37,6 +39,8 @@ _WWW = Path(__file__).parent / "www"
 class DashboardData:
     """Runtime data of the single dashboard config entry."""
 
+    charts: ChartService
+    preferences: PreferenceStore
     profiles: dict[str, ProfileRuntime] = field(default_factory=dict)
 
 
@@ -60,7 +64,9 @@ def _asset_version() -> str:
 
 async def async_setup_entry(hass: HomeAssistant, entry: GarminDashboardConfigEntry) -> bool:
     """Start profiles and register the panel."""
-    data = DashboardData()
+    preferences = PreferenceStore(hass)
+    await preferences.async_load()
+    data = DashboardData(charts=ChartService(hass), preferences=preferences)
     for source in entry.data[CONF_SOURCES]:
         profile = ProfileRuntime(
             hass, source[CONF_PROFILE_ID], source[CONF_SOURCE_ENTRY_ID], source[CONF_DISPLAY_NAME]
@@ -91,3 +97,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: GarminDashboardConfigEn
     for profile in entry.runtime_data.profiles.values():
         profile.async_stop()
     return True
+
+
+async def async_remove_entry(hass: HomeAssistant, entry: GarminDashboardConfigEntry) -> None:
+    """Delete only this integration's own preferences."""
+    await PreferenceStore(hass).async_remove()
