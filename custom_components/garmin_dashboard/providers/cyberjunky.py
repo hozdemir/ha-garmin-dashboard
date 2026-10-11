@@ -15,7 +15,7 @@ SUPPORTED_VERSIONS: frozenset[str] = frozenset({"3.0.19"})
 
 Section = Literal["movement", "recovery", "training"]
 Kind = Literal["count", "distance", "duration", "energy", "percent", "score",
-               "heart_rate", "power", "vo2max", "category", "hrv"]
+               "heart_rate", "power", "vo2max", "category", "hrv", "level"]
 FreshnessClass = Literal["intraday", "daily", "nightly", "slow", "event"]
 
 
@@ -55,6 +55,13 @@ CATALOG: tuple[MetricSpec, ...] = (
                sport="cycling", date_attribute="calendar_date"),
     MetricSpec("ftp_running", "functional_threshold_power", "training", "power", "slow",
                sport="running", date_attribute="calendar_date"),
+    # Read by charts; not shown as tiles.
+    MetricSpec("weekly_step_avg", "weekly_step_avg", "movement", "count", "slow"),
+    MetricSpec("sleep_deep", "deep_sleep", "recovery", "duration", "nightly"),
+    MetricSpec("sleep_light", "light_sleep", "recovery", "duration", "nightly"),
+    MetricSpec("sleep_rem", "rem_sleep", "recovery", "duration", "nightly"),
+    MetricSpec("sleep_awake", "awake_sleep", "recovery", "duration", "nightly"),
+    MetricSpec("stress_avg", "avg_stress_level", "recovery", "level", "intraday"),
 )
 
 CATALOG_BY_KEY: dict[str, MetricSpec] = {spec.key: spec for spec in CATALOG}

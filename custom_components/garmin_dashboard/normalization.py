@@ -25,6 +25,7 @@ _PASSTHROUGH_UNITS: dict[str, set[str | None]] = {
     "power": {"W"},
     "vo2max": {"mL/(kg·min)", None},
     "hrv": {"ms"},
+    "level": {"level", None},
 }
 _STALE_AFTER: dict[FreshnessClass, timedelta] = {
     "intraday": timedelta(hours=6),
@@ -44,7 +45,7 @@ def _parse_number(raw: str) -> float | None:
     return number if math.isfinite(number) else None
 
 
-def _normalize_value(spec: MetricSpec, raw: str, unit: str | None) -> tuple[Any, str | None] | None:
+def normalize_value(spec: MetricSpec, raw: str, unit: str | None) -> tuple[Any, str | None] | None:
     """Return (value, canonical unit), or None when the value breaks the contract."""
     if spec.kind == "category":
         return (raw, None) if raw.strip() else None
@@ -121,7 +122,7 @@ def build_metric(
         metric["status"] = "unknown"
         return metric
 
-    normalized = _normalize_value(spec, state.state, state.attributes.get("unit_of_measurement"))
+    normalized = normalize_value(spec, state.state, state.attributes.get("unit_of_measurement"))
     if normalized is None:
         metric["status"] = "invalid"
         return metric
