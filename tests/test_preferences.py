@@ -87,6 +87,9 @@ async def test_preferences_api_roundtrip(hass: HomeAssistant, hass_ws_client: We
     )
     assert (await client.receive_json())["error"]["code"] == "invalid_preferences"
 
+    await client.send_json_auto_id({"type": f"{DOMAIN}/preferences/reset", "profile_id": PROFILE_ID})
+    assert (await client.receive_json())["result"] == default_preferences()
+
 
 async def test_non_admin_cannot_change_preferences(
     hass: HomeAssistant, hass_ws_client: WebSocketGenerator, hass_read_only_access_token: str

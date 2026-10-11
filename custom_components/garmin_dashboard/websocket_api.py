@@ -11,7 +11,7 @@ from homeassistant.core import HomeAssistant, callback
 
 from .charts import CHARTS_BY_ID
 from .const import DOMAIN, SCHEMA_VERSION
-from .preferences import validate as validate_preferences
+from .preferences import default_preferences, validate as validate_preferences
 from .profile import ProfileRuntime
 
 
@@ -24,6 +24,7 @@ def async_register(hass: HomeAssistant) -> None:
     websocket_api.async_register_command(hass, ws_chart)
     websocket_api.async_register_command(hass, ws_preferences_get)
     websocket_api.async_register_command(hass, ws_preferences_set)
+    websocket_api.async_register_command(hass, ws_preferences_reset)
 
 
 def _data(hass: HomeAssistant):
@@ -160,4 +161,19 @@ async def ws_preferences_set(
         connection.send_error(msg["id"], "invalid_preferences", str(err))
         return
     saved = await _data(hass).preferences.async_set(msg["profile_id"], msg["preferences"])
+    connection.send_result(msg["id"], saved)
+
+
+@websocket_api.websocket_command(
+    {vol.Required("type"): f"{DOMAIN}/preferences/reset", vol.Required("profile_id"): str}
+)
+@websocket_api.require_admin
+@websocket_api.async_response
+async def ws_preferences_reset(
+    hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Restore a profile's preferences to the defaults."""
+    if _get_profile(hass, connection, msg) is None:
+        return
+    saved = await _data(hass).preferences.async_set(msg["profile_id"], default_preferences())
     connection.send_result(msg["id"], saved)
