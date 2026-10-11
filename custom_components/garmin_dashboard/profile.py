@@ -154,6 +154,16 @@ class ProfileRuntime:
             "capabilities": self._capabilities(metrics),
         }
 
+    @callback
+    def metric(self, key: str) -> dict[str, Any] | None:
+        """One normalized metric, without bumping the snapshot revision."""
+        spec = provider.CATALOG_BY_KEY.get(key)
+        resolution = self.mapping.metrics.get(key)
+        if spec is None or resolution is None:
+            return None
+        state = self.hass.states.get(resolution.entity_id) if resolution.entity_id else None
+        return build_metric(spec, resolution, state, dt_util.utcnow())
+
     def _with_last_value(self, metric: dict[str, Any]) -> dict[str, Any]:
         """Keep showing the last good value (marked stale) during an outage."""
         key = metric["key"]
