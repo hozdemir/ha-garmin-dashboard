@@ -6,6 +6,9 @@ const tr = { locale: "tr", lengthUnit: "km" };
 const enMi = { locale: "en", lengthUnit: "mi" };
 
 describe("format", () => {
+  it("shows seconds instead of 0 minutes", () => {
+    expect(formatNumber(tr, "duration", 24)).toBe("24 sn.");
+  });
   it("uses unambiguous Turkish duration units", () => {
     expect(formatNumber(tr, "duration", 4 * 3600 + 16 * 60)).toBe("4 sa. 16 dk.");
   });

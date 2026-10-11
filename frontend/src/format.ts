@@ -19,6 +19,10 @@ export function formatDistance(ctx: FormatContext, meters: number): string {
 }
 
 export function formatDuration(ctx: FormatContext, seconds: number): string {
+  // Under a minute, show seconds rather than a misleading "0 min".
+  if (seconds > 0 && seconds < 60) {
+    return new Intl.NumberFormat(ctx.locale, { style: "unit", unit: "second", unitDisplay: "short" }).format(Math.round(seconds));
+  }
   const totalMinutes = Math.round(seconds / 60);
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
