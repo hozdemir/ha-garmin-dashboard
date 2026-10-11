@@ -1,7 +1,10 @@
 """Build panel preview data from a real HA install (read-only).
 
 Usage (repo root, inside the HA image):
-    HA_URL=... HA_TOKEN=... python dev/tools/preview_data.py <out.json> [trend_days]
+    HA_URL=... HA_TOKEN=... python dev/tools/preview_data.py <out.json> [trend_days] [activity_states.json]
+
+The optional third argument is a `/api/states` dump to read activity and
+route sensors from (e.g. another HA where those sensors are enabled).
 
 Resolves catalog metrics by translation_key exactly like the integration,
 reads current states, state history and hourly/daily statistics, and runs the
@@ -21,6 +24,7 @@ sys.path.insert(0, os.getcwd())
 from homeassistant.core import State  # noqa: E402
 from homeassistant.util import dt as dt_util  # noqa: E402
 
+from custom_components.garmin_dashboard.activities import normalize_activities, normalize_route  # noqa: E402
 from custom_components.garmin_dashboard.charts import (  # noqa: E402
     CHARTS,
     _canonical_unit,
@@ -55,7 +59,16 @@ def _state(raw: dict) -> State:
                  last_updated=dt_util.parse_datetime(raw["last_updated"]))
 
 
-async def main(out: str, trend_days: int) -> None:
+def _activity_data(states: dict) -> tuple[dict, dict | None]:
+    def find(suffix: str):
+        return next((s for e, s in states.items() if e.startswith("sensor.") and e.endswith(suffix)), None)
+    listing, latest, route = find("_last_activities"), find("_last_activity"), find("_last_activity_route")
+    result = normalize_activities(listing["attributes"].get("last_activities") if listing else None,
+                                  latest["attributes"] if latest else None)
+    return result, (normalize_route(route["attributes"]) if route else None)
+
+
+async def main(out: str, trend_days: int, activity_states: str | None) -> None:
     url = os.environ["HA_URL"].rstrip("/").replace("http", "ws", 1) + "/api/websocket"
     async with aiohttp.ClientSession() as session, session.ws_connect(url) as raw_ws:
         await raw_ws.receive_json()
@@ -132,15 +145,26 @@ async def main(out: str, trend_days: int) -> None:
                 payload["goal"] = goal["value"] if goal and goal["status"] == "available" else None
             charts[chart.id] = payload
 
+    activities, route = {"activities": [], "truncated": False}, None
+    if activity_states:
+        dump = {s["entity_id"]: s for s in json.load(open(activity_states))}
+        activities, route = _activity_data(dump)
+    capabilities = ["movement", "recovery", "training"]
+    if activities["activities"]:
+        capabilities.append("activities")
+    if route:
+        capabilities.append("route")
     snapshot = {
         "schema_version": 1, "profile_id": "preview", "display_name": "Garmin", "revision": 1,
         "source_status": "ready", "source_synced_at": None, "metrics": metrics, "gear": [],
-        "activities": [], "capabilities": ["movement", "recovery", "training"],
+        "activities": activities["activities"], "activities_truncated": activities["truncated"],
+        "capabilities": capabilities,
     }
     with open(out, "w") as f:
-        json.dump({"snapshot": snapshot, "charts": charts,
+        json.dump({"snapshot": snapshot, "charts": charts, "route": route,
                    "unit_length": config["unit_system"]["length"]}, f, ensure_ascii=False)
     print(f"wrote {out}: {len(metrics)} metrics, {len(charts)} charts")
 
 
-asyncio.run(main(sys.argv[1], int(sys.argv[2]) if len(sys.argv) > 2 else 30))
+asyncio.run(main(sys.argv[1], int(sys.argv[2]) if len(sys.argv) > 2 else 30,
+                 sys.argv[3] if len(sys.argv) > 3 else None))

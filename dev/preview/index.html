@@ -43,11 +43,14 @@
         switch (msg.type) {
           case "garmin_dashboard/profiles":
             return { schema_version: 1, profiles: [{ profile_id: "preview", display_name: "Garmin", source_status: "ready",
-              status: { source_version: "3.0.19", compatible: true, metric_status: {}, metric_counts: { resolved: 17 }, activity_sensors: {}, gear_count: 0 } }] };
+              status: { source_version: "3.0.19", compatible: true, metric_status: {}, metric_counts: { resolved: 17 },
+                activity_sensors: { last_activity: "resolved", last_activities: "resolved" }, gear_count: 0 } }] };
           case "garmin_dashboard/preferences/get":
             return prefs;
           case "garmin_dashboard/preferences/set":
             prefs = msg.preferences; return prefs;
+          case "garmin_dashboard/route":
+            return prefs.show_route ? { hidden: false, route: data.route ?? null } : { hidden: true };
           case "garmin_dashboard/chart": {
             const chart = data.charts[msg.chart_id];
             if (!chart) throw { code: "not_found" };
@@ -75,6 +78,14 @@
       document.body.append(frame);
     } else {
       document.body.append(panel);
+    }
+    // ?expand=1 opens the first activity's details.
+    if (params.get("expand") === "1") {
+      const expand = () => {
+        const row = panel.shadowRoot?.querySelector("garmin-activities")?.shadowRoot?.querySelector("button.row");
+        row ? row.click() : setTimeout(expand, 50);
+      };
+      expand();
     }
     // ?view=settings opens the settings screen once preferences are loaded.
     if (params.get("view") === "settings") {
