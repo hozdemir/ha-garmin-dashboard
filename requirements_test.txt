@@ -1,0 +1,4 @@
+# Pinned to the HA version in docs/compatibility (HA 2026.9.4).
+pytest-homeassistant-custom-component==0.13.367
+# Frontend package pinned by HA 2026.9.4; needed because the panel depends on frontend.
+home-assistant-frontend==20260826.7
