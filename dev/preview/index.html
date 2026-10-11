@@ -76,6 +76,11 @@
     } else {
       document.body.append(panel);
     }
+    // ?view=settings opens the settings screen once preferences are loaded.
+    if (params.get("view") === "settings") {
+      const open = () => (panel._prefs ? (panel._view = "settings") : setTimeout(open, 50));
+      open();
+    }
   </script>
 </body>
 </html>
