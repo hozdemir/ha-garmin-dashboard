@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panel preview</title>
+  <!--
+    Local preview of the built panel with a fake `hass` object.
+    Serve the repo root over HTTP and open:
+      /dev/preview/?data=/dev/raw/preview.json&lang=tr&dark=0&width=360&narrow=1
+    The data file comes from dev/tools/preview_data.py.
+  -->
+  <style>
+    :root {
+      --primary-color: #03a9f4; --primary-background-color: #fafafa; --card-background-color: #ffffff;
+      --primary-text-color: #212121; --secondary-text-color: #727272; --divider-color: #e0e0e0;
+      --app-header-background-color: #03a9f4; --app-header-text-color: #fff; --text-primary-color: #fff;
+    }
+    :root[data-dark] {
+      --primary-background-color: #111111; --card-background-color: #1c1c1c;
+      --primary-text-color: #e1e1e1; --secondary-text-color: #9b9b9b; --divider-color: #333333;
+      --app-header-background-color: #101e24;
+    }
+    body { margin: 0; background: var(--primary-background-color); font-family: Roboto, system-ui, sans-serif; }
+  </style>
+</head>
+<body>
+  <script type="module">
+    const params = new URLSearchParams(location.search);
+    const dark = params.get("dark") === "1";
+    if (dark) document.documentElement.setAttribute("data-dark", "");
+    const data = await (await fetch(params.get("data") ?? "/dev/raw/preview.json")).json();
+    let prefs = {
+      section_order: ["movement", "recovery", "training", "gear", "activities"],
+      hidden_sections: [], hidden_metrics: [], hidden_charts: ["stress_today"],
+      trend_range_days: Number(params.get("range") ?? 30), show_route: true,
+    };
+    const hass = {
+      language: params.get("lang") ?? "tr",
+      config: { unit_system: { length: data.unit_length ?? "km" }, time_zone: "Europe/Istanbul" },
+      themes: { darkMode: dark },
+      async callWS(msg) {
+        switch (msg.type) {
+          case "garmin_dashboard/profiles":
+            return { schema_version: 1, profiles: [{ profile_id: "preview", display_name: "Garmin", source_status: "ready",
+              status: { source_version: "3.0.19", compatible: true, metric_status: {}, metric_counts: { resolved: 17 }, activity_sensors: {}, gear_count: 0 } }] };
+          case "garmin_dashboard/preferences/get":
+            return prefs;
+          case "garmin_dashboard/preferences/set":
+            prefs = msg.preferences; return prefs;
+          case "garmin_dashboard/chart": {
+            const chart = data.charts[msg.chart_id];
+            if (!chart) throw { code: "not_found" };
+            return chart;
+          }
+          default:
+            throw { code: "unknown_command" };
+        }
+      },
+      connection: {
+        async subscribeMessage(cb) { setTimeout(() => cb(data.snapshot), 0); return async () => {}; },
+        addEventListener() {}, removeEventListener() {},
+      },
+    };
+    await import("/custom_components/garmin_dashboard/www/garmin-dashboard-panel.js");
+    const panel = document.createElement("garmin-dashboard-panel");
+    panel.narrow = params.get("narrow") === "1";
+    panel.hass = hass;
+    // Headless Chrome cannot open windows narrower than 500px; ?width= constrains the panel instead.
+    const width = params.get("width");
+    if (width) {
+      const frame = document.createElement("div");
+      frame.style.cssText = `width:${Number(width)}px;overflow-x:auto;outline:1px dashed red`;
+      frame.append(panel);
+      document.body.append(frame);
+    } else {
+      document.body.append(panel);
+    }
+  </script>
+</body>
+</html>
