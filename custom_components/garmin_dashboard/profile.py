@@ -12,6 +12,7 @@ from homeassistant.helpers.event import async_call_later, async_track_state_chan
 from homeassistant.loader import async_get_integration
 from homeassistant.util import dt as dt_util
 
+from .activities import normalize_activities, normalize_route
 from .const import SCHEMA_VERSION, SOURCE_DOMAIN, UPDATE_DEBOUNCE_SECONDS
 from .discovery import ProfileMapping, Resolution, resolve_profile
 from .normalization import build_metric
@@ -45,6 +46,7 @@ class ProfileRuntime:
         self._revision = 0
         self._listeners: set[SnapshotListener] = set()
         self._last_available: dict[str, dict[str, Any]] = {}
+        self._activity_report: dict[str, Any] = {}
         self._unsub_states: CALLBACK_TYPE | None = None
         self._unsub_registry: CALLBACK_TYPE | None = None
         self._unsub_debounce: CALLBACK_TYPE | None = None
@@ -150,7 +152,7 @@ class ProfileRuntime:
             "source_synced_at": self._source_synced_at(),
             "metrics": metrics,
             "gear": self._gear(),
-            "activities": [],
+            **self._activities(),
             "capabilities": self._capabilities(metrics),
         }
 
@@ -185,6 +187,42 @@ class ProfileRuntime:
             return None
         parsed = dt_util.parse_datetime(state.state)
         return dt_util.as_utc(parsed).isoformat() if parsed else None
+
+    def _activity_state(self, key: str):
+        resolution = self.mapping.activity_entities.get(key)
+        if resolution is None or resolution.status != "resolved" or resolution.entity_id is None:
+            return None
+        state = self.hass.states.get(resolution.entity_id)
+        if state is None or state.attributes.get("restored"):
+            return None
+        return state
+
+    def _activities(self) -> dict[str, Any]:
+        """Recent activities exactly as far as the source provides them."""
+        listing = self._activity_state("last_activities")
+        latest = self._activity_state("last_activity")
+        result = normalize_activities(
+            listing.attributes.get("last_activities") if listing else None,
+            dict(latest.attributes) if latest else None,
+        )
+        self._activity_report = {
+            "skipped": result["skipped"], "key_collisions_possible": result["key_collisions_possible"],
+        }
+        return {
+            "activities": result["activities"],
+            "activities_truncated": result["truncated"],
+        }
+
+    @callback
+    def route(self) -> dict[str, Any] | None:
+        """The last synced route; never linked to an activity (the source gives no ID)."""
+        resolution = self.mapping.route
+        if resolution.status != "resolved" or resolution.entity_id is None:
+            return None
+        state = self.hass.states.get(resolution.entity_id)
+        if state is None or state.attributes.get("restored"):
+            return None
+        return normalize_route(state.attributes)
 
     def _gear(self) -> list[dict[str, Any]]:
         gear: list[dict[str, Any]] = []
@@ -234,5 +272,7 @@ class ProfileRuntime:
             "metric_counts": counts,
             "activity_sensors": {key: r.status for key, r in self.mapping.activity_entities.items()},
             "gear_count": len(self.mapping.gear),
+            "route_sensor": self.mapping.route.status,
+            "activity_report": self._activity_report,
         }
 

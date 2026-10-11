@@ -25,6 +25,7 @@ def async_register(hass: HomeAssistant) -> None:
     websocket_api.async_register_command(hass, ws_preferences_get)
     websocket_api.async_register_command(hass, ws_preferences_set)
     websocket_api.async_register_command(hass, ws_preferences_reset)
+    websocket_api.async_register_command(hass, ws_route)
 
 
 def _data(hass: HomeAssistant):
@@ -177,3 +178,20 @@ async def ws_preferences_reset(
         return
     saved = await _data(hass).preferences.async_set(msg["profile_id"], default_preferences())
     connection.send_result(msg["id"], saved)
+
+
+@websocket_api.websocket_command(
+    {vol.Required("type"): f"{DOMAIN}/route", vol.Required("profile_id"): str}
+)
+@websocket_api.require_admin
+@callback
+def ws_route(
+    hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
+) -> None:
+    """Return the validated last synced route, unless the user turned routes off."""
+    if (profile := _get_profile(hass, connection, msg)) is None:
+        return
+    if not _data(hass).preferences.get(msg["profile_id"])["show_route"]:
+        connection.send_result(msg["id"], {"hidden": True})
+        return
+    connection.send_result(msg["id"], {"hidden": False, "route": profile.route()})
