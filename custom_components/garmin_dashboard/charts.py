@@ -18,7 +18,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 import math
 from typing import Any, Literal
 
@@ -58,6 +58,10 @@ class ChartSpec:
     goal_metric: str | None = None
     # Nightly values reset to 0 at the Garmin day change until the real value arrives.
     zero_is_placeholder: bool = False
+    # Keep only each HA day's last value: the source posts a provisional value
+    # overnight and the real one in the morning (resting HR), or updates a
+    # night's value more than once.
+    one_per_day: bool = False
 
 
 CHARTS: tuple[ChartSpec, ...] = (
@@ -68,13 +72,14 @@ CHARTS: tuple[ChartSpec, ...] = (
               ("sleep_deep", "sleep_light", "sleep_rem", "sleep_awake"), "current"),
     ChartSpec("body_battery_range", "trends", "range_columns", ("body_battery",), "daily_range"),
     ChartSpec("sleep_score", "trends", "dots", ("sleep_score",), "change_points",
-              zero_is_placeholder=True),
+              zero_is_placeholder=True, one_per_day=True),
     ChartSpec("sleep_duration", "trends", "columns", ("sleep_duration",), "change_points",
-              zero_is_placeholder=True),
-    ChartSpec("resting_hr", "trends", "line", ("resting_hr",), "change_points"),
+              zero_is_placeholder=True, one_per_day=True),
+    ChartSpec("resting_hr", "trends", "line", ("resting_hr",), "change_points", one_per_day=True),
     ChartSpec("hrv", "trends", "line", ("hrv_last_night",), "change_points",
-              zero_is_placeholder=True),
-    ChartSpec("weekly_steps", "trends", "line", ("weekly_step_avg",), "change_points"),
+              zero_is_placeholder=True, one_per_day=True),
+    ChartSpec("weekly_steps", "trends", "line", ("weekly_step_avg",), "change_points",
+              one_per_day=True),
     ChartSpec("vo2max", "trends", "step", ("vo2max",), "change_points"),
     ChartSpec("ftp_cycling", "trends", "step", ("ftp_cycling",), "change_points"),
 )
@@ -147,6 +152,29 @@ def change_points(
         points.append((start, value))
         last = value
     return points
+
+
+def last_per_day(points: list[Point]) -> list[Point]:
+    """One point per HA local day: the day's last value, placed at local midnight.
+
+    Gaps are kept so a hole in the records still breaks the line.
+    """
+    out: list[Point] = []
+    day_index: dict[date, int] = {}
+    for ms, value in points:
+        if value is None:
+            if out and out[-1][1] is not None:
+                out.append((ms, None))
+            continue
+        local = dt_util.as_local(dt_util.utc_from_timestamp(ms / 1000))
+        day = local.date()
+        midnight = int(dt_util.start_of_local_day(local).timestamp() * 1000)
+        if day in day_index and out[day_index[day]][1] is not None:
+            out[day_index[day]] = (midnight, value)
+        else:
+            day_index[day] = len(out)
+            out.append((midnight, value))
+    return out
 
 
 def daily_range(rows: Iterable[Mapping[str, Any]], convert) -> list[tuple[int, float, float]]:
@@ -248,9 +276,8 @@ class ChartService:
                 entry["points"] = downsample(history_points(states, convert))
             elif chart.method == "change_points":
                 rows = await self._statistics(entity_id, start, now, "hour")
-                entry["points"] = downsample(
-                    change_points(rows, convert, zero_is_placeholder=chart.zero_is_placeholder)
-                )
+                points = change_points(rows, convert, zero_is_placeholder=chart.zero_is_placeholder)
+                entry["points"] = downsample(last_per_day(points) if chart.one_per_day else points)
             else:
                 rows = await self._statistics(entity_id, start, now, "day")
                 entry["ranges"] = daily_range(rows, convert)
@@ -261,6 +288,7 @@ class ChartService:
             "group": chart.group,
             "form": chart.form,
             "method": chart.method,
+            "per_day": chart.one_per_day,
             "range_days": range_days,
             "start": start.isoformat(),
             "end": now.isoformat(),

@@ -20,6 +20,7 @@ from custom_components.garmin_dashboard.charts import (
     daily_range,
     downsample,
     history_points,
+    last_per_day,
 )
 from custom_components.garmin_dashboard.const import DOMAIN
 
@@ -65,6 +66,20 @@ def test_nightly_zero_placeholder_is_not_a_night() -> None:
     rows = _rows((343, 343), (0, 0), (0, 0), (372, 372), (0, 0), (320, 320))
     assert [v for _, v in change_points(rows, ident, zero_is_placeholder=True)] == [343, 372, 320]
     assert 0 in [v for _, v in change_points(rows, ident)]
+
+
+async def test_provisional_overnight_value_is_replaced_by_the_days_last(hass: HomeAssistant) -> None:
+    await hass.config.async_set_time_zone("Europe/Istanbul")
+    day = dt_util.parse_datetime("2026-10-05T00:00:00+03:00")
+    ms = lambda h: int((day + timedelta(hours=h)).timestamp() * 1000)  # noqa: E731
+    # Real resting-HR pattern: 62 at 02:00 (provisional), 54 at 09:00, next day 61 then 60.
+    points = [(ms(2), 62.0), (ms(9), 54.0), (ms(27), 61.0), (ms(33), 60.0)]
+    assert last_per_day(points) == [(ms(0), 54.0), (ms(24), 60.0)]
+
+
+def test_last_per_day_keeps_gaps() -> None:
+    points = [(0, 1.0), (1, None), (5 * 86_400_000, 2.0)]
+    assert [v for _, v in last_per_day(points)] == [1.0, None, 2.0]
 
 
 def test_unconvertible_values_are_skipped() -> None:
