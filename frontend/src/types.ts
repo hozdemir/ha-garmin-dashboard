@@ -51,6 +51,38 @@ export interface Gear {
   retired: boolean;
 }
 
+export interface Activity {
+  id: string;
+  id_source: "source" | "start_time";
+  sport: string;
+  title: string | null;
+  started_at: string | null;
+  duration_seconds: number | null;
+  moving_seconds: number | null;
+  distance_meters: number | null;
+  average_speed_mps: number | null;
+  max_speed_mps: number | null;
+  average_heart_rate_bpm: number | null;
+  max_heart_rate_bpm: number | null;
+  average_power_w: number | null;
+  normalized_power_w: number | null;
+  elevation_gain_m: number | null;
+  calories_kcal: number | null;
+  aerobic_effect: number | null;
+  anaerobic_effect: number | null;
+  training_load: number | null;
+  hr_zone_seconds: (number | null)[] | null;
+}
+
+export interface Route {
+  title: string | null;
+  points: [number, number][];
+  bounds: [number, number, number, number];
+  source_points: number;
+  invalid_points: number;
+  simplified: boolean;
+}
+
 export type SourceStatus = "ready" | "starting" | "offline" | "removed" | "unsupported";
 
 export interface ProfileSnapshot {
@@ -62,7 +94,8 @@ export interface ProfileSnapshot {
   source_synced_at: string | null;
   metrics: Record<string, Metric>;
   gear: Gear[];
-  activities: unknown[];
+  activities: Activity[];
+  activities_truncated?: boolean;
   capabilities: string[];
 }
 
