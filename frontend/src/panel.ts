@@ -1,6 +1,8 @@
 import { LitElement, css, html, nothing, type PropertyValues, type TemplateResult } from "lit";
 
+import "./activities";
 import "./chart";
+import "./route";
 import "./settings";
 import { CHARTS, TILE_SECTIONS, TREND_RANGES, type ChartDef, type Preferences, type SectionId } from "./catalog";
 import type { ChartPayload } from "./chart-data";
@@ -13,6 +15,7 @@ import {
   type ProfileInfo,
   type ProfileSnapshot,
   type ProfilesResult,
+  type Route,
   type Section,
 } from "./types";
 
@@ -38,6 +41,8 @@ export class GarminDashboardPanel extends LitElement {
     _trendRange: { state: true },
     _saving: { state: true },
     _notice: { state: true },
+    _route: { state: true },
+    _routeHidden: { state: true },
   };
 
   hass?: HassLike;
@@ -57,6 +62,10 @@ export class GarminDashboardPanel extends LitElement {
   private _todayLoadedAt = 0;
   // Preferences and the first snapshot arrive in either order; load charts once both are in.
   private _chartsLoaded = false;
+  private _route?: Route | null;
+  private _routeHidden = false;
+  // Refetch the route only when the newest activity changes.
+  private _routeKey?: string;
   private _profileId?: string;
   // Revisions restart after an HA restart, so ordering is tracked per subscription.
   private _lastRevision = -1;
@@ -132,6 +141,8 @@ export class GarminDashboardPanel extends LitElement {
       this._prefs = undefined;
       this._todayLoadedAt = 0;
       this._chartsLoaded = false;
+      this._route = undefined;
+      this._routeKey = undefined;
     }
     this._profileId = profileId;
     this._lastRevision = -1;
@@ -156,6 +167,7 @@ export class GarminDashboardPanel extends LitElement {
     this._lastRevision = snapshot.revision;
     this._snapshot = snapshot;
     if (!this._prefs) return;
+    this._maybeLoadRoute();
     if (!this._chartsLoaded) void this._loadCharts();
     else if (Date.now() - this._todayLoadedAt > TODAY_REFRESH_MS) void this._loadCharts("today");
   }
@@ -221,6 +233,25 @@ export class GarminDashboardPanel extends LitElement {
     }));
   }
 
+  private _maybeLoadRoute(force = false): void {
+    const snapshot = this._snapshot;
+    const profileId = this._profileId;
+    if (!this.hass || !snapshot || !profileId || !snapshot.capabilities.includes("route")) return;
+    const key = `${snapshot.activities[0]?.id ?? ""}`;
+    if (!force && key === this._routeKey) return;
+    this._routeKey = key;
+    void this.hass
+      .callWS<{ hidden: boolean; route?: Route | null }>({ type: "garmin_dashboard/route", profile_id: profileId })
+      .then((result) => {
+        if (profileId !== this._profileId) return;
+        this._routeHidden = result.hidden;
+        this._route = result.hidden ? null : (result.route ?? null);
+      })
+      .catch(() => {
+        if (profileId === this._profileId) this._route = null;
+      });
+  }
+
   private _setTrendRange(days: number): void {
     if (days === this._trendRange) return;
     this._trendRange = days;
@@ -243,6 +274,7 @@ export class GarminDashboardPanel extends LitElement {
       this._view = "dashboard";
       this._notice = "saved";
       void this._loadCharts();
+      this._maybeLoadRoute(true);
     } catch {
       this._notice = "save_failed";
     } finally {
@@ -320,6 +352,7 @@ export class GarminDashboardPanel extends LitElement {
     const shown = order.filter((s) => !hidden.has(s));
     const sections = shown.map((id) => {
       if (id === "gear") return this._renderGear(snapshot);
+      if (id === "activities") return this._renderActivities(snapshot);
       const def = TILE_SECTIONS.find((s) => s.id === id);
       return def ? this._renderSection(snapshot, def.id, def.keys) : nothing;
     });
@@ -335,6 +368,37 @@ export class GarminDashboardPanel extends LitElement {
       </div>
       ${this._renderChartGroup("today")}
       ${this._renderChartGroup("trends")}
+    `;
+  }
+
+  private _renderActivities(snapshot: ProfileSnapshot): TemplateResult | typeof nothing {
+    const t = this._t;
+    const info = this._profiles?.find((p) => p.profile_id === this._profileId);
+    const sensors = Object.values(info?.status.activity_sensors ?? {});
+    const hasList = snapshot.capabilities.includes("activities");
+    const disabled = !hasList && sensors.includes("disabled");
+    const hasRoute = snapshot.capabilities.includes("route");
+    // Nothing to show and nothing to switch on: this account has no activity data.
+    if (!hasList && !disabled && !hasRoute) return nothing;
+    return html`
+      <section class="card wide" aria-labelledby="h-activities">
+        <h2 id="h-activities">${t("section_activities")}</h2>
+        <div class="activities-layout">
+          <garmin-activities
+            .activities=${snapshot.activities}
+            ?truncated=${Boolean(snapshot.activities_truncated)}
+            ?disabled=${disabled}
+            .fmt=${this._fmt}
+            .t=${t}
+          ></garmin-activities>
+          ${hasRoute
+            ? html`<div class="route">
+                <h3>${t("route_title")}</h3>
+                <garmin-route .route=${this._route} ?hidden=${this._routeHidden} .t=${t}></garmin-route>
+              </div>`
+            : nothing}
+        </div>
+      </section>
     `;
   }
 
@@ -515,6 +579,11 @@ export class GarminDashboardPanel extends LitElement {
       --gd-series-4: #eda100;
       --gd-surface: var(--card-background-color, #fff);
       --gd-grid: var(--divider-color, #e8e8e8);
+      --gd-zone-1: #86b6ef;
+      --gd-zone-2: #5598e7;
+      --gd-zone-3: #2a78d6;
+      --gd-zone-4: #1c5cab;
+      --gd-zone-5: #104281;
       display: block;
       min-height: 100vh;
       background: var(--primary-background-color);
@@ -567,12 +636,21 @@ export class GarminDashboardPanel extends LitElement {
     .list li:last-child { border-bottom: 0; }
     @media (prefers-reduced-motion: no-preference) { .bar { transition: width 0.3s ease; } }
     :host([dark]) {
+      --gd-zone-1: #184f95;
+      --gd-zone-2: #256abf;
+      --gd-zone-3: #3987e5;
+      --gd-zone-4: #6da7ec;
+      --gd-zone-5: #9ec5f4;
       --gd-series-1: #3987e5;
       --gd-series-2: #d95926;
       --gd-series-3: #199e70;
       --gd-series-4: #c98500;
     }
     .notice { margin: 16px 16px 0; }
+    .card.wide { grid-column: 1 / -1; }
+    .activities-layout { display: grid; gap: 16px; grid-template-columns: 1fr; }
+    @media (min-width: 1000px) { .activities-layout { grid-template-columns: 3fr 2fr; } }
+    .route h3 { font-size: 14px; font-weight: 500; margin: 0 0 6px; }
     .link { border: 0; background: none; color: var(--primary-color); font: inherit; cursor: pointer; min-height: 44px; }
     .charts { margin-top: 24px; }
     .charts-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }

@@ -3,8 +3,7 @@ import { LitElement, css, html, nothing, type TemplateResult } from "lit";
 import { CHARTS, TILE_SECTIONS, TREND_RANGES, type Preferences, type SectionId } from "./catalog";
 import { hasMessage, type MessageKey, type Translate } from "./i18n";
 
-/** Sections that exist in this release (activities arrives with the Activities screen). */
-const SETTABLE_SECTIONS: SectionId[] = ["movement", "recovery", "training", "gear"];
+const SETTABLE_SECTIONS: SectionId[] = ["movement", "recovery", "training", "gear", "activities"];
 
 /** Settings view: edits a draft copy, emits `save` or `cancel`. */
 export class GarminSettings extends LitElement {
@@ -79,6 +78,14 @@ export class GarminSettings extends LitElement {
                 </span>
               </li>`)}
           </ol>
+        </fieldset>
+
+        <fieldset>
+          <legend>${t("route_title")}</legend>
+          <label><input type="checkbox" .checked=${draft.show_route}
+            @change=${(e: Event) => (this._draft = { ...draft, show_route: (e.target as HTMLInputElement).checked })} />
+            ${t("settings_route")}</label>
+          <p class="hint">${t("settings_route_hint")}</p>
         </fieldset>
 
         <fieldset>
