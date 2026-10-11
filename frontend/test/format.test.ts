@@ -6,12 +6,15 @@ const tr = { locale: "tr", lengthUnit: "km" };
 const enMi = { locale: "en", lengthUnit: "mi" };
 
 describe("format", () => {
+  it("uses unambiguous Turkish duration units", () => {
+    expect(formatNumber(tr, "duration", 4 * 3600 + 16 * 60)).toBe("4 sa. 16 dk.");
+  });
   it("converts meters to the HA length unit", () => {
     expect(formatDistance(tr, 6200)).toBe("6,2 km");
     expect(formatDistance(enMi, 1609.344)).toBe("1 mi");
   });
   it("formats durations in hours and minutes", () => {
-    expect(formatNumber({ locale: "en", lengthUnit: "km" }, "duration", 7 * 3600 + 32 * 60)).toBe("7h 32m");
+    expect(formatNumber({ locale: "en", lengthUnit: "km" }, "duration", 7 * 3600 + 32 * 60)).toBe("7 hr 32 min");
   });
   it("humanizes source enum text", () => {
     expect(formatCategory("BALANCED")).toBe("Balanced");

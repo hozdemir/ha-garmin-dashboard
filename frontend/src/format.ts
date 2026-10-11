@@ -22,8 +22,9 @@ export function formatDuration(ctx: FormatContext, seconds: number): string {
   const totalMinutes = Math.round(seconds / 60);
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
+  // "narrow" is ambiguous in some locales (Turkish "4s 16d"); "short" reads "4 sa. 16 dk.".
   const unit = (value: number, unitName: "hour" | "minute") =>
-    new Intl.NumberFormat(ctx.locale, { style: "unit", unit: unitName, unitDisplay: "narrow" }).format(value);
+    new Intl.NumberFormat(ctx.locale, { style: "unit", unit: unitName, unitDisplay: "short" }).format(value);
   if (hours === 0) return unit(minutes, "minute");
   return minutes === 0 ? unit(hours, "hour") : `${unit(hours, "hour")} ${unit(minutes, "minute")}`;
 }
