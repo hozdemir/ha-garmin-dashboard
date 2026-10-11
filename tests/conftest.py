@@ -19,8 +19,14 @@ FIXTURE = json.loads((Path(__file__).parent / "fixtures" / "cyberjunky_3_0_19.js
 
 
 @pytest.fixture(autouse=True)
-def auto_enable_custom_integrations(enable_custom_integrations: None) -> None:
-    """Load integrations from custom_components/."""
+def auto_enable_custom_integrations(request: pytest.FixtureRequest) -> None:
+    """Load integrations from custom_components/.
+
+    The recorder must be set up before `hass`, so tests that use it get it first.
+    """
+    if "recorder_mock" in request.fixturenames:
+        request.getfixturevalue("recorder_mock")
+    request.getfixturevalue("enable_custom_integrations")
 
 
 @pytest.fixture(autouse=True)
