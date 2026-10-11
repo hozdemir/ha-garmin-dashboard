@@ -1,4 +1,4 @@
-// Mirrors the backend snapshot contract (spec §11, schema_version 1).
+// Mirrors the backend snapshot contract.
 
 export const SCHEMA_VERSION = 1;
 

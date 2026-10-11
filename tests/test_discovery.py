@@ -1,4 +1,4 @@
-"""Metric resolution against the synthetic 3.0.19 fixture (spec §10)."""
+"""Metric resolution against the synthetic 3.0.19 fixture."""
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er

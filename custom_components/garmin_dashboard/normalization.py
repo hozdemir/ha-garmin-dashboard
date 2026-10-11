@@ -1,4 +1,4 @@
-"""Turn source states into the dashboard's own metric model (spec §8, §11)."""
+"""Turn source states into the dashboard's own metric model."""
 
 from __future__ import annotations
 
@@ -92,7 +92,7 @@ def _freshness(spec: MetricSpec, state: State, source_date: date | None, now: da
 def build_metric(
     spec: MetricSpec, resolution: Resolution, state: State | None, now: datetime
 ) -> dict[str, Any]:
-    """Build one Metric (spec §11) from a resolution and its current state."""
+    """Build one Metric from a resolution and its current state."""
     metric: dict[str, Any] = {
         "key": spec.key,
         "section": spec.section,

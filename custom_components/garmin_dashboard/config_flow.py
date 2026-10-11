@@ -75,7 +75,7 @@ class GarminDashboardConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_activities(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Offer to enable the source's activity sensors it ships disabled (spec §7.3.1)."""
+        """Offer to enable the source's activity sensors it ships disabled."""
         assert self._source is not None
         disabled = disabled_activity_entities(self.hass, self._source.entry_id)
         if disabled and user_input is None:

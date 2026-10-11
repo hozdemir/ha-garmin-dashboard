@@ -1,9 +1,9 @@
 """Contract for cyberjunky/home-assistant-garmin_connect.
 
-Everything here was verified against a live install of source version 3.0.19
-(see docs/phase0-findings.md). Metrics are matched by registry
-``translation_key``; unique IDs are only used to tell sport-specific
-duplicates apart and to find gear, never parsed by splitting on underscores.
+Everything here was verified against a live install of source version 3.0.19.
+Metrics are matched by registry ``translation_key``; unique IDs are only used
+to tell sport-specific duplicates apart and to find gear, never parsed by
+splitting on underscores.
 """
 
 from __future__ import annotations

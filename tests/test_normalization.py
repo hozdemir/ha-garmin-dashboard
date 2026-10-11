@@ -1,4 +1,4 @@
-"""Value, unit, status and freshness rules (spec §8, §11)."""
+"""Value, unit, status and freshness rules."""
 
 from datetime import timedelta
 

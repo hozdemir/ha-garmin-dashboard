@@ -1,4 +1,4 @@
-"""Lifecycle, panel registration and the admin-only WebSocket API (spec §6.4, §12, §14)."""
+"""Lifecycle, panel registration and the admin-only WebSocket API."""
 
 from typing import Any
 

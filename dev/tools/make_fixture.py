@@ -5,7 +5,7 @@ Usage: python make_fixture.py <source_dump.json> <fixture_out.json>
 Keeps only the *shape* of the source: translation keys, unique-ID schemes,
 disabled flags, units, device/state classes and attribute names. Every value,
 name, identifier and coordinate is replaced with synthetic data, so the output
-is safe to commit (spec §17: fixtures are never real personal data).
+is safe to commit.
 """
 
 import json

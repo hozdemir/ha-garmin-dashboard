@@ -1,4 +1,4 @@
-"""Diagnostics: versions, metric keys and status codes only (spec §14)."""
+"""Diagnostics: versions, metric keys and status codes only."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Admin-only local WebSocket API (spec §12)."""
+"""Admin-only local WebSocket API."""
 
 from __future__ import annotations
 

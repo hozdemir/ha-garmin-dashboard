@@ -1,4 +1,4 @@
-"""Config flow: source detection and activity sensor opt-in (spec §6, §7.3.1)."""
+"""Config flow: source detection and activity sensor opt-in."""
 
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 

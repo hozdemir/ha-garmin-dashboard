@@ -129,7 +129,7 @@ class ProfileRuntime:
 
     @callback
     def snapshot(self) -> dict[str, Any]:
-        """Build the ProfileSnapshot (spec §11) from current states."""
+        """Build the ProfileSnapshot from current states."""
         self._revision += 1
         now = dt_util.utcnow()
         metrics: dict[str, dict[str, Any]] = {}
