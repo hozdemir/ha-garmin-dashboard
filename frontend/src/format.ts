@@ -68,6 +68,23 @@ export function formatNumber(ctx: FormatContext, kind: MetricKind, value: number
   }
 }
 
+const PACE_SPORTS = /running|walking|hiking/;
+
+/** Speed for cycling-like sports, pace for running-like ones, per HA's unit system. */
+export function formatSpeedOrPace(ctx: FormatContext, sport: string, mps: number): string {
+  if (mps <= 0) return "—";
+  const imperial = ctx.lengthUnit === "mi";
+  if (PACE_SPORTS.test(sport)) {
+    const secondsPerUnit = (imperial ? METERS_PER_MILE : 1000) / mps;
+    const minutes = Math.floor(secondsPerUnit / 60);
+    const seconds = Math.round(secondsPerUnit % 60);
+    const [m, s] = seconds === 60 ? [minutes + 1, 0] : [minutes, seconds];
+    return `${m}:${String(s).padStart(2, "0")} /${imperial ? "mi" : "km"}`;
+  }
+  const perHour = (mps * 3600) / (imperial ? METERS_PER_MILE : 1000);
+  return `${number(ctx, perHour, 1)} ${imperial ? "mph" : "km/h"}`;
+}
+
 /** Progress toward a goal. The bar caps at 100%, the reported percent does not. */
 export function goalProgress(value: number | null, goal: number | null): { percent: number; bar: number } | null {
   if (value === null || goal === null || goal <= 0 || value < 0) return null;

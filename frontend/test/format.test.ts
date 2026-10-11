@@ -37,3 +37,15 @@ describe("categoryMessage", async () => {
     expect(categoryMessage("Something new")).toBeNull();
   });
 });
+
+describe("formatSpeedOrPace", async () => {
+  const { formatSpeedOrPace } = await import("../src/format");
+  it("shows speed for rides and pace for runs", () => {
+    expect(formatSpeedOrPace({ locale: "en", lengthUnit: "km" }, "road_biking", 6.6667)).toBe("24 km/h");
+    expect(formatSpeedOrPace({ locale: "en", lengthUnit: "km" }, "running", 1000 / 330)).toBe("5:30 /km");
+    expect(formatSpeedOrPace({ locale: "en", lengthUnit: "mi" }, "trail_running", 1609.344 / 600)).toBe("10:00 /mi");
+  });
+  it("never divides by zero", () => {
+    expect(formatSpeedOrPace({ locale: "en", lengthUnit: "km" }, "running", 0)).toBe("—");
+  });
+});
