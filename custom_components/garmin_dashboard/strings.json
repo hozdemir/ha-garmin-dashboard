@@ -1,0 +1,20 @@
+{
+  "config": {
+    "abort": {
+      "no_source": "Set up the Garmin Connect integration first. Garmin Dashboard shows the data it provides: {docs_url}",
+      "single_instance_allowed": "Garmin Dashboard is already set up."
+    },
+    "step": {
+      "pick_source": {
+        "title": "Choose a Garmin account",
+        "description": "More than one Garmin Connect account is set up. Choose the one to show.",
+        "data": { "source": "Garmin account" }
+      },
+      "activities": {
+        "title": "Activity sensors",
+        "description": "The Activities screen needs two Garmin Connect sensors that are turned off by default: last activity and last activities. Turn them on? Garmin Connect will reload, which may fetch fresh data from Garmin. Nothing else is changed.",
+        "data": { "enable_activities": "Turn on activity sensors" }
+      }
+    }
+  }
+}

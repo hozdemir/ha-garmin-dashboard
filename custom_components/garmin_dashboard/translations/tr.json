@@ -1,0 +1,20 @@
+{
+  "config": {
+    "abort": {
+      "no_source": "Önce Garmin Connect entegrasyonunu kurun. Garmin Dashboard onun sağladığı verileri gösterir: {docs_url}",
+      "single_instance_allowed": "Garmin Dashboard zaten kurulu."
+    },
+    "step": {
+      "pick_source": {
+        "title": "Garmin hesabı seçin",
+        "description": "Birden fazla Garmin Connect hesabı kurulu. Gösterilecek hesabı seçin.",
+        "data": { "source": "Garmin hesabı" }
+      },
+      "activities": {
+        "title": "Aktivite sensörleri",
+        "description": "Aktiviteler ekranı, Garmin Connect'in varsayılan olarak kapalı gelen iki sensörüne ihtiyaç duyar: son aktivite ve son aktiviteler. Açılsın mı? Garmin Connect yeniden yüklenir ve bu sırada Garmin'den yeni veri çekebilir. Başka hiçbir şey değiştirilmez.",
+        "data": { "enable_activities": "Aktivite sensörlerini aç" }
+      }
+    }
+  }
+}
