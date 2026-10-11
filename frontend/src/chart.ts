@@ -97,7 +97,7 @@ export class GarminChart extends LitElement {
     if (!t || !this.payload) return "";
     switch (this.payload.method) {
       case "change_points":
-        return t("chart_note_arrived");
+        return this.payload.per_day ? t("chart_note_day_last") : t("chart_note_arrived");
       case "daily_range":
         return t("chart_note_daily_range");
       default:
@@ -139,8 +139,9 @@ export class GarminChart extends LitElement {
     const end = Date.parse(payload.end);
     const range = extent(payload.series, payload.goal != null ? [payload.goal] : []);
     if (!range) return html``;
-    const ticks = ticksForKind(series.kind, range[0], range[1]);
-    const yMin = Math.min(ticks[0] ?? range[0], range[0]);
+    const ticks = ticksForKind(series.kind, payload.form === "columns" ? 0 : range[0], range[1]);
+    // Bar length encodes the value, so columns always start at zero.
+    const yMin = payload.form === "columns" ? 0 : Math.min(ticks[0] ?? range[0], range[0]);
     const yMax = Math.max(ticks[ticks.length - 1] ?? range[1], range[1]);
     const plotRight = width - MARGIN.right;
     const x = linearScale([start, end], [MARGIN.left, plotRight]);
@@ -228,7 +229,9 @@ export class GarminChart extends LitElement {
         return svg`${points.map(([t, v]) => {
           if (v === null) return nothing;
           const top = y(v);
-          return svg`<path class="bar" d=${columnPath(x(t), top, baseline, w)}></path>`;
+          // Per-day values sit at local midnight; centre the column on its day.
+          const cx = payload.per_day ? x(t + DAY / 2) : x(t);
+          return svg`<path class="bar" d=${columnPath(cx, top, baseline, w)}></path>`;
         })}`;
       }
       case "dots":
@@ -307,9 +310,15 @@ export class GarminChart extends LitElement {
     return this.payload?.form === "range_columns" ? (s?.ranges?.length ?? 0) : (s?.points?.length ?? 0);
   }
 
+  /** Per-day columns are drawn mid-day; hover and focus must use the same position. */
+  private get _offset(): number {
+    return this.payload?.per_day && this.payload.form === "columns" ? DAY / 2 : 0;
+  }
+
   private _indexNear(t: number): number {
     const s = this._primary;
     if (!s) return -1;
+    t -= this._offset;
     if (this.payload?.form === "range_columns") {
       const ranges = s.ranges ?? [];
       return nearestIndex(ranges.map(([day]) => [day + DAY / 2, 0] as Point), t);
@@ -332,7 +341,7 @@ export class GarminChart extends LitElement {
       if (near >= 0 && near !== index) this._activate(near, x, y);
       return;
     }
-    this._active = { index, x: x(point[0]), y: y(point[1]) };
+    this._active = { index, x: x(point[0] + this._offset), y: y(point[1]) };
   }
 
   private _summary(series: ChartSeries): string {

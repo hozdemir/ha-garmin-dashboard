@@ -23,6 +23,8 @@ export interface ChartPayload {
   form: ChartForm;
   method: ChartMethod;
   range_days: number;
+  /** One value per HA day (the day's last), drawn at local midnight. */
+  per_day?: boolean;
   start: string;
   end: string;
   series: ChartSeries[];
