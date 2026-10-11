@@ -140,19 +140,20 @@ export class GarminSettings extends LitElement {
     .order { list-style: none; margin: 0; padding: 0; }
     .order li { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--divider-color, #eee); }
     .order li:last-child { border-bottom: 0; }
-    .checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+    .checks { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); column-gap: 12px; }
     label { display: flex; align-items: center; gap: 8px; min-height: 44px; }
     label.inline { margin-top: 8px; flex-wrap: wrap; }
     input[type="checkbox"] { width: 20px; height: 20px; margin: 0; }
     select { min-height: 44px; font: inherit; }
     button {
-      min-height: 44px; min-width: 44px; font: inherit; border-radius: 8px; cursor: pointer;
+      min-height: 44px; min-width: 44px; padding: 0 16px; font: inherit; border-radius: 8px; cursor: pointer;
       border: 1px solid var(--divider-color, #ccc); background: var(--card-background-color); color: var(--primary-text-color);
     }
     button:disabled { opacity: 0.4; cursor: default; }
     button.primary { background: var(--primary-color); color: var(--text-primary-color, #fff); border-color: transparent; padding: 0 20px; }
     button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
     .moves { display: flex; gap: 4px; }
+    .moves button { padding: 0; }
     .actions { display: flex; flex-wrap: wrap; gap: 8px; }
     .actions .right { margin-left: auto; }
   `;
