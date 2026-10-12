@@ -60,6 +60,11 @@ const TARGETS: Record<string, { metric: string; label: MessageKey }> = {
   sleep_duration: { metric: "sleep_need", label: "of_need" },
 };
 
+/** Tiles with today's low and high from two other metrics. */
+const DAY_RANGES: Record<string, { low: string; high: string }> = {
+  body_battery: { low: "bb_lowest", high: "bb_highest" },
+};
+
 /** Amounts gained or spent today, shown like Garmin does (+62 / −41), not as a level. */
 const SIGNED: Record<string, string> = { bb_charged: "+", bb_drained: "−" };
 
@@ -679,6 +684,7 @@ export class GarminDashboardPanel extends LitElement {
             : html`<div class="value">${shown}</div>`
           : html`<div class="value empty">—</div>`}
         ${TARGETS[metric.key] ? this._renderGoal(snapshot, metric) : nothing}
+        ${DAY_RANGES[metric.key] ? this._renderDayRange(snapshot, metric.key) : nothing}
         ${SPARKS[metric.key] && metric.status === "available" ? this._renderSpark(metric) : nothing}
         ${metric.status !== "available" && hasMessage(statusKey)
           ? html`<div class="note">${t(statusKey)}</div>`
@@ -749,6 +755,19 @@ export class GarminDashboardPanel extends LitElement {
           : nothing}
       </ul>
     `;
+  }
+
+  private _renderDayRange(snapshot: ProfileSnapshot, key: string): TemplateResult | typeof nothing {
+    const range = DAY_RANGES[key]!;
+    const value = (k: string) => {
+      const m = snapshot.metrics[k];
+      return m?.status === "available" && typeof m.value === "number" ? m.value : null;
+    };
+    const low = value(range.low);
+    const high = value(range.high);
+    if (low === null || high === null || low > high) return nothing;
+    const nf = new Intl.NumberFormat(this._fmt.locale);
+    return html`<div class="note">${this._t("day_range", { low: nf.format(low), high: nf.format(high) })}</div>`;
   }
 
   private _renderGoal(snapshot: ProfileSnapshot, metric: Metric): TemplateResult | typeof nothing {
