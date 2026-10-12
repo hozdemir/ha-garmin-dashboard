@@ -4,6 +4,9 @@
       "no_source": "Set up the Garmin Connect integration first; Garmin Dashboard shows the data it provides.\n\n1. [Open Garmin Connect in HACS]({hacs_url}), download it and restart Home Assistant.\n2. [Add Garmin Connect]({setup_url}) and sign in.\n3. Add Garmin Dashboard again.\n\nMore: {docs_url}",
       "single_instance_allowed": "Garmin Dashboard is already set up. Use Configure to add or remove Garmin accounts."
     },
+    "create_entry": {
+      "default": "Garmin Dashboard is ready. Open **Garmin** in the sidebar, or [open it now](/garmin)."
+    },
     "error": {
       "no_accounts": "Choose at least one Garmin account.",
       "invalid_name": "Names must be 1–40 characters.",

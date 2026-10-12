@@ -4,6 +4,9 @@
       "no_source": "Önce Garmin Connect entegrasyonunu kurun; Garmin Dashboard onun sağladığı verileri gösterir.\n\n1. [Garmin Connect'i HACS'ta açın]({hacs_url}), indirin ve Home Assistant'ı yeniden başlatın.\n2. [Garmin Connect'i ekleyin]({setup_url}) ve giriş yapın.\n3. Garmin Dashboard'u yeniden ekleyin.\n\nAyrıntı: {docs_url}",
       "single_instance_allowed": "Garmin Dashboard zaten kurulu. Garmin hesabı eklemek veya çıkarmak için Yapılandır'ı kullanın."
     },
+    "create_entry": {
+      "default": "Garmin Dashboard hazır. Kenar çubuğundaki **Garmin**'i açın ya da [şimdi açın](/garmin)."
+    },
     "error": {
       "no_accounts": "En az bir Garmin hesabı seçin.",
       "invalid_name": "Ad 1–40 karakter olmalı.",
