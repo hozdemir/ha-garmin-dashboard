@@ -154,3 +154,21 @@ export function hasData(payload: ChartPayload): boolean {
     (s) => (s.points ?? []).some(([, v]) => v !== null) || (s.ranges ?? []).length > 0,
   );
 }
+
+const DAY_MS = 86_400_000;
+
+export interface Spark {
+  points: [number, number][];
+  /** Change of the last value from the previous day with data. */
+  delta: number;
+}
+
+/** The last `days` of a one-value-per-day series, for a tile sparkline; null when too thin. */
+export function sparkline(payload: ChartPayload, days = 7): Spark | null {
+  const series = payload.series[0];
+  if (!payload.per_day || !series) return null;
+  const from = Date.parse(payload.end) - days * DAY_MS;
+  const points = (series.points ?? []).filter((p): p is [number, number] => p[1] !== null && p[0] >= from);
+  if (points.length < 2) return null;
+  return { points, delta: points[points.length - 1]![1] - points[points.length - 2]![1] };
+}

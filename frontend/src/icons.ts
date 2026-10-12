@@ -4,6 +4,8 @@ import {
   mdiAlert,
   mdiAlertCircle,
   mdiArmFlex,
+  mdiArrowDown,
+  mdiArrowUp,
   mdiBatteryArrowDown,
   mdiBatteryArrowUp,
   mdiBatteryHeartVariant,
@@ -78,6 +80,9 @@ export const TONE_ICONS: Record<Tone, string> = {
   serious: mdiAlertCircle,
   neutral: mdiMinusCircle,
 };
+
+export const ARROW_UP = mdiArrowUp;
+export const ARROW_DOWN = mdiArrowDown;
 
 /** A 24×24 MDI path as inline SVG; decorative unless a label is given. */
 export function icon(path: string, size = 18, label?: string): TemplateResult {

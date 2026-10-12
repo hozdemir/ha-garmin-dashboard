@@ -6,10 +6,10 @@ import "./route";
 import "./settings";
 import { SUMMARY_RINGS } from "./summary";
 import { CHARTS, TILE_SECTIONS, TREND_RANGES, type ChartDef, type Preferences, type SectionId } from "./catalog";
-import type { ChartPayload } from "./chart-data";
+import { sparkline, type ChartPayload } from "./chart-data";
 import { categoryTone, formatDistance, formatMetric, formatNumber, goalProgress, type FormatContext } from "./format";
 import { categoryMessage, hasMessage, sensorLabel, sportLabel, translator, type MessageKey, type Translate } from "./i18n";
-import { METRIC_ICONS, SECTION_ICONS, TONE_ICONS, icon } from "./icons";
+import { ARROW_DOWN, ARROW_UP, METRIC_ICONS, SECTION_ICONS, TONE_ICONS, icon } from "./icons";
 import {
   SCHEMA_VERSION,
   type HassLike,
@@ -62,6 +62,16 @@ const TARGETS: Record<string, { metric: string; label: MessageKey }> = {
 /** Amounts gained or spent today, shown like Garmin does (+62 / −41), not as a level. */
 const SIGNED: Record<string, string> = { bb_charged: "+", bb_drained: "−" };
 
+/** Tiles with a 7-day sparkline, from the trend chart of the same metric. */
+const SPARKS: Record<string, string> = {
+  sleep_score: "sleep_score",
+  sleep_duration: "sleep_duration",
+  resting_hr: "resting_hr",
+  hrv_last_night: "hrv",
+  weight: "weight",
+};
+const SPARK_DAYS = 7;
+
 // "Today" charts follow live data; refetch them at most this often.
 const TODAY_REFRESH_MS = 60_000;
 
@@ -79,6 +89,7 @@ export class GarminDashboardPanel extends LitElement {
     _prefs: { state: true },
     _view: { state: true },
     _charts: { state: true },
+    _sparks: { state: true },
     _chartErrors: { state: true },
     _refreshing: { state: true },
     _trendRange: { state: true },
@@ -98,6 +109,8 @@ export class GarminDashboardPanel extends LitElement {
   private _prefs?: Preferences;
   private _view: "dashboard" | "settings" = "dashboard";
   private _charts: Record<string, ChartPayload> = {};
+  // Week-long payloads for tiles whose trend chart is hidden.
+  private _sparks: Record<string, ChartPayload> = {};
   private _chartErrors: Record<string, MessageKey> = {};
   private _refreshing = new Set<string>();
   private _trendRange = 30;
@@ -186,6 +199,7 @@ export class GarminDashboardPanel extends LitElement {
     if (profileId !== this._profileId) {
       this._snapshot = undefined;
       this._charts = {};
+      this._sparks = {};
       this._chartErrors = {};
       this._prefs = undefined;
       this._todayLoadedAt = 0;
@@ -257,6 +271,7 @@ export class GarminDashboardPanel extends LitElement {
     if (!group) this._chartsLoaded = true;
     if (groups.includes("today")) this._todayLoadedAt = Date.now();
     const charts = groups.flatMap((g) => this._visibleCharts(g));
+    if (groups.includes("trends")) void this._loadSparks(profileId, charts);
     await Promise.all(charts.map(async (chart) => {
       this._refreshing = new Set(this._refreshing).add(chart.id);
       try {
@@ -279,6 +294,27 @@ export class GarminDashboardPanel extends LitElement {
         const next = new Set(this._refreshing);
         next.delete(chart.id);
         this._refreshing = next;
+      }
+    }));
+  }
+
+  /** Sparkline data for shown tiles whose trend chart is not loaded anyway. */
+  private async _loadSparks(profileId: string, loaded: ChartDef[]): Promise<void> {
+    const snapshot = this._snapshot;
+    const hidden = new Set(this._prefs?.hidden_metrics ?? []);
+    const have = new Set(loaded.map((c) => c.id));
+    const wanted = Object.entries(SPARKS).filter(([key, chartId]) => {
+      const metric = snapshot?.metrics[key];
+      return metric !== undefined && !HIDDEN_STATUSES.has(metric.status) && !hidden.has(key) && !have.has(chartId);
+    });
+    await Promise.all(wanted.map(async ([, chartId]) => {
+      try {
+        const payload = await this.hass!.callWS<ChartPayload>({
+          type: "garmin_dashboard/chart", profile_id: profileId, chart_id: chartId, range_days: SPARK_DAYS,
+        });
+        if (profileId === this._profileId) this._sparks = { ...this._sparks, [chartId]: payload };
+      } catch {
+        // A tile without its sparkline is still complete.
       }
     }));
   }
@@ -642,10 +678,37 @@ export class GarminDashboardPanel extends LitElement {
             : html`<div class="value">${shown}</div>`
           : html`<div class="value empty">—</div>`}
         ${TARGETS[metric.key] ? this._renderGoal(snapshot, metric) : nothing}
+        ${SPARKS[metric.key] && metric.status === "available" ? this._renderSpark(metric) : nothing}
         ${metric.status !== "available" && hasMessage(statusKey)
           ? html`<div class="note">${t(statusKey)}</div>`
           : nothing}
         ${stale ? html`<div class="note warn">⚠ ${t("stale")}</div>` : nothing}
+      </div>
+    `;
+  }
+
+  private _renderSpark(metric: Metric): TemplateResult | typeof nothing {
+    const chartId = SPARKS[metric.key]!;
+    const payload = this._charts[chartId] ?? this._sparks[chartId];
+    const spark = payload ? sparkline(payload, SPARK_DAYS) : null;
+    if (!spark) return nothing;
+    const values = spark.points.map(([, v]) => v);
+    const low = Math.min(...values);
+    const span = Math.max(...values) - low || 1;
+    const t0 = spark.points[0]![0];
+    const tSpan = spark.points[spark.points.length - 1]![0] - t0 || 1;
+    // Fixed 100×24 box stretched to the tile; the stroke keeps its width.
+    const d = spark.points
+      .map(([t, v], i) => `${i ? "L" : "M"}${(((t - t0) / tSpan) * 100).toFixed(1)},${(22 - ((v - low) / span) * 20).toFixed(1)}`)
+      .join("");
+    const kind = payload!.series[0]!.kind;
+    const amount = formatNumber(this._fmt, kind, Math.abs(spark.delta));
+    const delta = spark.delta === 0 ? amount : `${spark.delta > 0 ? "+" : "−"}${amount}`;
+    const hint = this._t("spark_hint", { delta });
+    return html`
+      <div class="spark" title=${hint}>
+        <svg class="trend" viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><path d=${d}></path></svg>
+        <span class="delta">${spark.delta ? icon(spark.delta > 0 ? ARROW_UP : ARROW_DOWN, 14) : nothing}<span class="sr">${hint}</span><span aria-hidden="true">${delta}</span></span>
       </div>
     `;
   }
@@ -861,6 +924,11 @@ export class GarminDashboardPanel extends LitElement {
     .value.serious .mdi { color: var(--gd-serious); }
     .value.neutral .mdi { color: var(--secondary-text-color); }
     .value.empty { color: var(--disabled-text-color, var(--secondary-text-color)); }
+    .spark { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+    .spark .trend { flex: 1; min-width: 0; height: 24px; overflow: visible; }
+    .spark .trend path { fill: none; stroke: var(--gd-series-1); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+    .delta { display: inline-flex; align-items: center; gap: 1px; font-size: 12px; color: var(--secondary-text-color); white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
     .note { font-size: 12px; color: var(--secondary-text-color); margin-top: 2px; }
     .warn { color: var(--warning-color, #b26a00); }
     .progress { height: 6px; border-radius: 3px; background: var(--divider-color, #ddd); margin-top: 6px; overflow: hidden; }

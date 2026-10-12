@@ -9,6 +9,7 @@ import {
   nearestIndex,
   niceTicks,
   segments,
+  sparkline,
   ticksForKind,
   type ChartPayload,
   type Point,
@@ -80,5 +81,24 @@ describe("extent and data checks", () => {
   it("caps bar width at 24px", () => {
     expect(barWidth(1000, 7)).toBe(24);
     expect(barWidth(300, 90)).toBe(2);
+  });
+});
+
+describe("sparkline", () => {
+  const day = 86_400_000;
+  const end = Date.parse("2026-10-12T21:00:00Z");
+  const payload = (points: Point[], per_day = true): ChartPayload => ({
+    chart_id: "resting_hr", group: "trends", form: "line", method: "change_points", range_days: 30, per_day,
+    start: new Date(end - 30 * day).toISOString(), end: new Date(end).toISOString(),
+    series: [{ metric: "resting_hr", kind: "heart_rate", unit: "bpm", points }],
+  });
+  it("keeps the last week and the change from the previous day with data", () => {
+    const spark = sparkline(payload([[end - 10 * day, 60], [end - 3 * day, 52], [end - 2 * day, null], [end - day, 54]]));
+    expect(spark?.points).toEqual([[end - 3 * day, 52], [end - day, 54]]);
+    expect(spark?.delta).toBe(2);
+  });
+  it("needs two values and one value per day", () => {
+    expect(sparkline(payload([[end - day, 54]]))).toBeNull();
+    expect(sparkline(payload([[end - 2 * day, 50], [end - day, 54]], false))).toBeNull();
   });
 });
