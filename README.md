@@ -99,10 +99,6 @@ python3 -m http.server 8765             # then open /dev/preview/?data=/dev/prev
 
 The preview runs the built panel against synthetic data with a fake Home Assistant connection.
 
-## Türkçe
-
-Garmin verileriniz [Garmin Connect entegrasyonu](https://github.com/cyberjunky/home-assistant-garmin_connect) ile Home Assistant'a geliyorsa, Garmin Dashboard doğru sensörleri kendisi bulur ve kenar çubuğunda hazır bir Garmin ekranı açar. Kart kurmak, entity ID yazmak veya YAML gerekmez. Arayüz Türkçe ve İngilizcedir; Home Assistant dilinizi kullanır. Kurulum adımları yukarıdaki *Installation* bölümündedir.
-
 ## License
 
 [MIT](LICENSE)
