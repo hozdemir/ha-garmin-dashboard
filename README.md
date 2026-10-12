@@ -9,11 +9,11 @@ A ready-made Garmin screen for Home Assistant. If your Garmin data already reach
 ## What you get
 
 - **At a glance:** rings for steps against your goal, Body Battery, sleep score and training readiness at the top.
-- **Today in detail:** floors climbed against your goal and floors descended, distance, calories, Body Battery with today's charge and drain, sleep against your sleep need, HRV, resting heart rate, SpO2, training status, VO2 max. Sleep, HRV, resting heart rate and weight carry a 7-day sparkline and the change from the previous day; HRV and training status show Garmin's status with an icon.
+- **Today in detail:** floors climbed against your goal and floors descended, distance, calories, Body Battery with today's charge, drain, low and high, sleep against your sleep need, HRV, resting heart rate, SpO2, training status, VO2 max. Sleep, HRV, resting heart rate and weight carry a 7-day sparkline and the change from the previous day; HRV and training status show Garmin's status with an icon.
 - **For cyclists and runners:** FTP and power-to-weight, lactate threshold heart rate (cycling and running), gear distance, and the battery state of paired sensors such as power meters and heart-rate straps.
 - **Training plan:** today's and the next scheduled workout, and a countdown to your goal race, when you use a Garmin plan or calendar.
 - **Body:** weight, in your Home Assistant unit system.
-- **Charts** from Home Assistant's own history: Body Battery over the last 24 hours, today's steps against your goal, last night's sleep stages, and 7/30/90-day trends for Body Battery, sleep, resting heart rate, HRV (with Garmin's current balanced range), weekly steps, VO2 max, FTP, power-to-weight and weight, with the average of the days shown and the latest value marked. Every chart has a table view.
+- **Charts** from Home Assistant's own history: Body Battery over the last 24 hours, today's steps against your goal, last night's sleep stages, today's stress from rest to high, and 7/30/90-day trends for Body Battery, sleep, resting heart rate, HRV (with Garmin's current balanced range), weekly steps, VO2 max, FTP, power-to-weight and weight, with the average of the days shown and the latest value marked. Every chart has a table view.
 - **Activities:** the latest activities Garmin Connect provides, with a sport filter, details and time in heart-rate zones.
 - **Route trace** of the last synced activity, drawn locally without a map.
 - **Several Garmin accounts**, each as its own profile.
@@ -74,7 +74,7 @@ Garmin Dashboard shows what Home Assistant has recorded, and avoids showing numb
 
 | Garmin Dashboard | Home Assistant | Garmin Connect |
 |---|---|---|
-| 0.6.1 | 2026.9, 2026.10 | 3.0.x (verified on 3.0.19) |
+| 0.7.0 | 2026.9, 2026.10 | 3.0.x (verified on 3.0.19) |
 
 Every 3.0.x release of Garmin Connect is accepted: each sensor is still matched and checked one by one, so a value whose sensor changed is hidden as "not provided" rather than shown wrongly. The status card says whether your exact release was verified. A release outside the series (3.1, 4.x) raises a Repairs notice until a compatible Garmin Dashboard release is out.
 
