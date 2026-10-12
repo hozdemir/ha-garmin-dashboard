@@ -8,6 +8,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@mdi/js": "7.4.47",
     "lit": "3.3.3"
   },
   "devDependencies": {

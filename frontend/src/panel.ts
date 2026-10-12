@@ -8,6 +8,7 @@ import { CHARTS, TILE_SECTIONS, TREND_RANGES, type ChartDef, type Preferences, t
 import type { ChartPayload } from "./chart-data";
 import { formatDistance, formatMetric, formatNumber, goalProgress, type FormatContext } from "./format";
 import { categoryMessage, hasMessage, sensorLabel, sportLabel, translator, type MessageKey, type Translate } from "./i18n";
+import { METRIC_ICONS, SECTION_ICONS, icon } from "./icons";
 import {
   SCHEMA_VERSION,
   type HassLike,
@@ -469,7 +470,7 @@ export class GarminDashboardPanel extends LitElement {
     if (!hasList && !disabled && !hasRoute) return nothing;
     return html`
       <section class="card wide" aria-labelledby="h-activities">
-        <h2 id="h-activities">${t("section_activities")}</h2>
+        <h2 id="h-activities">${this._heading("activities")}</h2>
         <div class="activities-layout">
           <garmin-activities
             .activities=${snapshot.activities}
@@ -586,11 +587,16 @@ export class GarminDashboardPanel extends LitElement {
     if (metrics.length === 0 && !plan) return nothing;
     return html`
       <section class="card" aria-labelledby="h-${section}">
-        <h2 id="h-${section}">${this._t(`section_${section}`)}</h2>
+        <h2 id="h-${section}">${this._heading(section)}</h2>
         ${metrics.length ? html`<div class="tiles">${metrics.map((m) => this._renderMetric(snapshot, m))}</div>` : nothing}
         ${plan ? this._renderPlan(plan) : nothing}
       </section>
     `;
+  }
+
+  /** Card heading with its section icon in a tinted badge. */
+  private _heading(section: keyof typeof SECTION_ICONS): TemplateResult {
+    return html`<span class="badge" aria-hidden="true">${icon(SECTION_ICONS[section], 18)}</span>${this._t(`section_${section}`)}`;
   }
 
   private _renderMetric(snapshot: ProfileSnapshot, metric: Metric): TemplateResult {
@@ -611,7 +617,7 @@ export class GarminDashboardPanel extends LitElement {
     const stale = metric.freshness === "stale";
     return html`
       <div class="tile">
-        <div class="label">${label}</div>
+        <div class="label">${METRIC_ICONS[metric.key] ? icon(METRIC_ICONS[metric.key]!, 16) : nothing}<span>${label}</span></div>
         ${shown !== null
           ? html`<div class="value">${shown}</div>`
           : html`<div class="value empty">—</div>`}
@@ -686,7 +692,7 @@ export class GarminDashboardPanel extends LitElement {
     if (gear.length === 0 && sensors.length === 0) return nothing;
     return html`
       <section class="card" aria-labelledby="h-gear">
-        <h2 id="h-gear">${t("section_gear")}</h2>
+        <h2 id="h-gear">${this._heading("gear")}</h2>
         ${gear.length
           ? html`<ul class="list">
               ${gear.map(
@@ -730,7 +736,7 @@ export class GarminDashboardPanel extends LitElement {
     return html`
       <section class="card" aria-labelledby="h-status">
         <div class="status-head">
-          <h2 id="h-status">${t("section_status")}</h2>
+          <h2 id="h-status">${this._heading("status")}</h2>
           <button class="refresh" ?disabled=${this._refreshBusy} title=${t("status_refresh_hint")}
             @click=${() => this._refresh()}>${this._refreshBusy ? t("status_refreshing") : t("status_refresh")}</button>
         </div>
@@ -809,14 +815,21 @@ export class GarminDashboardPanel extends LitElement {
       background: var(--card-background-color, #fff);
       border-radius: var(--ha-card-border-radius, 12px);
       border: 1px solid var(--divider-color, transparent);
+      box-shadow: var(--ha-card-box-shadow, none);
       padding: 16px;
       min-width: 0;
     }
-    h2 { font-size: 16px; font-weight: 500; margin: 0 0 12px; }
-    .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+    h2 { font-size: 16px; font-weight: 500; margin: 0 0 14px; display: flex; align-items: center; gap: 10px; }
+    .badge {
+      display: inline-grid; place-items: center; width: 32px; height: 32px; flex: none; border-radius: 50%;
+      color: var(--primary-color); background: color-mix(in srgb, var(--primary-color) 14%, transparent);
+    }
+    .mdi { display: block; flex: none; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 16px 12px; }
     .tile { min-width: 0; }
-    .label { font-size: 13px; color: var(--secondary-text-color); }
-    .value { font-size: 22px; font-weight: 500; overflow-wrap: anywhere; }
+    .label { font-size: 13px; color: var(--secondary-text-color); display: flex; align-items: flex-start; gap: 6px; }
+    .label .mdi { margin-top: 1px; opacity: 0.8; }
+    .value { font-size: 24px; font-weight: 500; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; margin-top: 2px; }
     .value.empty { color: var(--disabled-text-color, var(--secondary-text-color)); }
     .note { font-size: 12px; color: var(--secondary-text-color); margin-top: 2px; }
     .warn { color: var(--warning-color, #b26a00); }
