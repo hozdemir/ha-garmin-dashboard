@@ -118,6 +118,8 @@ export interface ProfileSnapshot {
   profile_id: string;
   display_name: string;
   revision: number;
+  /** When the dashboard read Home Assistant's states for this snapshot. */
+  observed_at?: string;
   source_status: SourceStatus;
   source_synced_at: string | null;
   /** Model of the device that last synced (any Garmin device type), if known. */

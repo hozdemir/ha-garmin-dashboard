@@ -23,6 +23,7 @@ import {
 
 const LAST_PROFILE_KEY = "garmin-dashboard:last-profile";
 const SOURCE_PAGE = "/config/integrations/integration/garmin_connect";
+const DASHBOARD_PAGE = "/config/integrations/integration/garmin_dashboard";
 
 /** Navigate inside the HA frontend without a full page load. */
 function navigateInApp(e: Event): void {
@@ -83,6 +84,7 @@ export class GarminDashboardPanel extends LitElement {
     _notice: { state: true },
     _route: { state: true },
     _routeHidden: { state: true },
+    _refreshBusy: { state: true },
   };
 
   hass?: HassLike;
@@ -104,6 +106,7 @@ export class GarminDashboardPanel extends LitElement {
   private _chartsLoaded = false;
   private _route?: Route | null;
   private _routeHidden = false;
+  private _refreshBusy = false;
   // Refetch the route only when the newest activity changes.
   private _routeKey?: string;
   private _profileId?: string;
@@ -295,6 +298,43 @@ export class GarminDashboardPanel extends LitElement {
       .catch(() => {
         if (profileId === this._profileId) this._route = null;
       });
+  }
+
+  /** Re-read HA's data (never Garmin), then reload charts, route and status counts. */
+  private async _refresh(): Promise<void> {
+    const profileId = this._profileId;
+    if (!this.hass || !profileId || this._refreshBusy) return;
+    this._refreshBusy = true;
+    try {
+      await this.hass.callWS({ type: "garmin_dashboard/refresh", profile_id: profileId });
+      const result = await this.hass.callWS<ProfilesResult>({ type: "garmin_dashboard/profiles" });
+      if (profileId !== this._profileId) return;
+      this._profiles = result.profiles;
+      this._todayLoadedAt = 0;
+      void this._loadCharts();
+      this._maybeLoadRoute(true);
+      this._notice = "status_refreshed";
+    } catch {
+      this._notice = "chart_error";
+    } finally {
+      this._refreshBusy = false;
+    }
+  }
+
+  /** Sections hidden because this account has no data for them, with their names. */
+  private _emptySections(snapshot: ProfileSnapshot): string[] {
+    const t = this._t;
+    const empty = TILE_SECTIONS.filter((section) =>
+      section.keys.every((key) => {
+        const metric = snapshot.metrics[key];
+        return metric === undefined || HIDDEN_STATUSES.has(metric.status);
+      }),
+    ).map((section) => t(`section_${section.id}`));
+    if (!snapshot.gear.length && !(snapshot.sensors ?? []).length) empty.push(t("section_gear"));
+    if (!snapshot.capabilities.includes("activities") && !snapshot.capabilities.includes("route")) {
+      empty.push(t("section_activities"));
+    }
+    return empty;
   }
 
   private _setTrendRange(days: number): void {
@@ -682,16 +722,37 @@ export class GarminDashboardPanel extends LitElement {
     const info = this._profiles?.find((p) => p.profile_id === this._profileId);
     if (!info) return nothing;
     const counts = info.status.metric_counts;
+    const snapshot = this._snapshot;
+    const empty = snapshot ? this._emptySections(snapshot) : [];
+    const readAt = snapshot?.observed_at
+      ? new Date(snapshot.observed_at).toLocaleTimeString(this._fmt.locale, { hour: "2-digit", minute: "2-digit" })
+      : "—";
     return html`
       <section class="card" aria-labelledby="h-status">
-        <h2 id="h-status">${t("section_status")}</h2>
+        <div class="status-head">
+          <h2 id="h-status">${t("section_status")}</h2>
+          <button class="refresh" ?disabled=${this._refreshBusy} title=${t("status_refresh_hint")}
+            @click=${() => this._refresh()}>${this._refreshBusy ? t("status_refreshing") : t("status_refresh")}</button>
+        </div>
         <ul class="list">
+          <li><span>${t("status_read_at")}</span><strong>${readAt}</strong></li>
           <li><span>${t("source_version")}</span><strong>${info.status.source_version ?? "—"}</strong></li>
           <li><span>${t("compatible")}</span><strong>${info.status.compatible ? t("compatible_yes") : t("compatible_no")}</strong></li>
           <li><span>${t("metrics_found")}</span><strong>${counts.resolved ?? 0}</strong></li>
           <li><span>${t("metrics_off")}</span><strong>${counts.disabled ?? 0}</strong></li>
           <li><span>${t("metrics_missing")}</span><strong>${(counts.missing ?? 0) + (counts.ambiguous ?? 0)}</strong></li>
+          ${empty.length
+            ? html`<li><span>${t("status_no_data_sections")}</span><strong class="wrap">${empty.join(", ")}</strong></li>`
+            : nothing}
+          <li>
+            <span>${t("status_diagnostics")}</span>
+            <span class="stack-right">
+              <a href=${DASHBOARD_PAGE} @click=${navigateInApp}>${t("status_diagnostics_open")}</a>
+              <small>${t("status_diagnostics_hint")}</small>
+            </span>
+          </li>
         </ul>
+        <p class="hint">${t("status_refresh_hint")}</p>
       </section>
     `;
   }
@@ -785,6 +846,19 @@ export class GarminDashboardPanel extends LitElement {
     }
     .notice { margin: 16px 16px 0; }
     .card.wide { grid-column: 1 / -1; }
+    .status-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+    .status-head h2 { margin: 0; }
+    button.refresh {
+      min-height: 44px; padding: 0 16px; border-radius: 8px; font: inherit; cursor: pointer;
+      border: 1px solid var(--divider-color, #ccc); background: var(--card-background-color); color: var(--primary-text-color);
+    }
+    button.refresh:disabled { opacity: 0.6; cursor: default; }
+    button.refresh:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+    .list strong.wrap { text-align: right; }
+    .list a { color: var(--primary-color); text-align: right; }
+    .stack-right { display: flex; flex-direction: column; align-items: flex-end; text-align: right; }
+    .stack-right small { color: var(--secondary-text-color); font-size: 12px; }
+    .hint { font-size: 12px; color: var(--secondary-text-color); margin: 8px 0 0; }
     h3.sub { font-size: 13px; font-weight: 500; color: var(--secondary-text-color); margin: 12px 0 4px; }
     .plan li {
       display: grid; grid-template-columns: 1fr auto; grid-template-areas: "label when" "main main";
