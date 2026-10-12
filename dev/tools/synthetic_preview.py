@@ -182,6 +182,7 @@ def main(out):
         "sleep_need": metric("sleep_need", "recovery", "duration", 8 * 3600, "s"),
         "hrv_balanced_low": metric("hrv_balanced_low", "recovery", "hrv", 48, "ms"),
         "hrv_balanced_high": metric("hrv_balanced_high", "recovery", "hrv", 62, "ms"),
+        "weight": metric("weight", "body", "mass", 74.3, "kg"),
         "ptw_cycling": metric("ptw_cycling", "training", "power_ratio", 3.42, "W/kg", source_date="2026-10-02"),
         "lthr_cycling": metric("lthr_cycling", "training", "heart_rate", 165, "bpm", source_date="2026-09-28"),
         "lthr_running": metric("lthr_running", "training", "heart_rate", 172, "bpm", source_date="2026-09-28"),
@@ -272,6 +273,14 @@ def main(out):
         ),
         "vo2max": chart("vo2max", "trends", "step", "change_points", [s("vo2max", "vo2max", "mL/(kg·min)", vo2)]),
         "ftp_cycling": chart("ftp_cycling", "trends", "step", "change_points", [s("ftp_cycling", "power", "W", ftp)]),
+        "weight": chart(
+            "weight",
+            "trends",
+            "dots",
+            "change_points",
+            [s("weight", "mass", "kg", [[t, round(v / 10, 1)] for t, v in daily(30, 743, 4, 735, 752)][::3])],
+            per_day=True,
+        ),
         "ptw_cycling": chart(
             "ptw_cycling",
             "trends",
@@ -293,6 +302,18 @@ def main(out):
             {"id": "g1", "name": "Road bike", "status": "available", "distance_meters": 8_412_000, "retired": False},
             {"id": "g2", "name": "Running shoes", "status": "available", "distance_meters": 512_000, "retired": False},
         ],
+        "plan": {
+            "today": {"title": "Sweet spot 3x12", "sport": "cycling", "date": "2026-10-12"},
+            "next": {"title": "Endurance ride", "sport": "cycling", "date": "2026-10-14"},
+            "upcoming": [{"title": "Tempo run", "sport": "running", "date": "2026-10-16"}],
+            "goal": {
+                "name": "Autumn Gran Fondo",
+                "date": "2026-11-08",
+                "days_until": 27,
+                "distance_meters": 128000,
+                "predicted_seconds": 16200,
+            },
+        },
         "sensors": [
             {"type": "BIKE_POWER", "manufacturer": "Garmin", "battery_status": "LOW", "battery_level": None},
             {"type": "HEART_RATE", "manufacturer": "Garmin", "battery_status": "GOOD", "battery_level": 86},
