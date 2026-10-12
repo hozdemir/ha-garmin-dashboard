@@ -134,7 +134,7 @@ export class GarminActivities extends LitElement {
     .note { font-size: 13px; color: var(--secondary-text-color); margin: 0 0 8px; }
     .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
     .chips button {
-      min-height: 36px; padding: 0 12px; border-radius: 18px; font: inherit; font-size: 13px; cursor: pointer;
+      min-height: 44px; padding: 0 14px; border-radius: 22px; font: inherit; font-size: 13px; cursor: pointer;
       border: 1px solid var(--divider-color, #ccc); background: none; color: var(--primary-text-color);
     }
     .chips button[aria-checked="true"] { background: var(--primary-color); border-color: var(--primary-color); color: var(--text-primary-color, #fff); }
