@@ -6,4 +6,5 @@ cd "$(dirname "$0")/.."
 series="${HA_SERIES:-2026.10}"
 image="garmin-dashboard-test:${series}"
 docker build -q --build-arg "HA_SERIES=${series}" -t "$image" -f scripts/test.Dockerfile . >/dev/null
-exec docker run --rm -v "$PWD:/repo" "$image" python -m pytest "$@"
+# A hung test must not block forever.
+exec docker run --rm -v "$PWD:/repo" "$image" timeout 600 python -m pytest "$@"
