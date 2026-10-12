@@ -6,7 +6,13 @@ export type SectionId = Section | "gear" | "activities";
 
 export const TILE_SECTIONS: { id: Section; keys: string[] }[] = [
   { id: "movement", keys: ["steps", "distance_day", "calories_active", "calories_total"] },
-  { id: "recovery", keys: ["body_battery", "sleep_score", "sleep_duration", "hrv_status", "hrv_last_night", "resting_hr"] },
+  {
+    id: "recovery",
+    keys: [
+      "body_battery", "bb_charged", "bb_drained", "sleep_score", "sleep_duration",
+      "hrv_status", "hrv_last_night", "resting_hr", "spo2_avg",
+    ],
+  },
   {
     id: "training",
     keys: [

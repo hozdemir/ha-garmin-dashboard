@@ -29,6 +29,8 @@ export interface ChartPayload {
   end: string;
   series: ChartSeries[];
   goal?: number | null;
+  /** A reference range drawn behind the series; `current_only` means it is today's range for the whole chart. */
+  band?: { low: number; high: number; current_only: boolean } | null;
 }
 
 export interface Scale {

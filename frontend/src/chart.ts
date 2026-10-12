@@ -146,7 +146,8 @@ export class GarminChart extends LitElement {
         end = Math.max(end, Math.max(...days) + DAY);
       }
     }
-    const range = extent(payload.series, payload.goal != null ? [payload.goal] : []);
+    const band = payload.band ?? null;
+    const range = extent(payload.series, [payload.goal, band?.low, band?.high]);
     if (!range) return html``;
     const ticks = ticksForKind(series.kind, payload.form === "columns" ? 0 : range[0], range[1]);
     // Bar length encodes the value, so columns always start at zero.
@@ -173,6 +174,10 @@ export class GarminChart extends LitElement {
         >
           ${this._grid(ticks, y, series, plotRight)}
           ${this._xAxis(start, end, x, height)}
+          ${band
+            ? svg`<rect class="band" x=${MARGIN.left} width=${plotRight - MARGIN.left}
+                y=${y(band.high)} height=${Math.max(1, y(band.low) - y(band.high))}></rect>`
+            : nothing}
           ${payload.goal != null ? this._goalLine(payload.goal, y, plotRight) : nothing}
           ${this._marks(payload, series, points, x, y, plotRight)}
           ${this._crosshair(payload, series, points, x, y)}
@@ -180,7 +185,16 @@ export class GarminChart extends LitElement {
         ${this._tooltip(payload, series, points, width)}
       </div>
       <p class="summary">${this._summary(series)}${this._timeNote() ? html` · ${this._timeNote()}` : nothing}</p>
+      ${band
+        ? html`<p class="summary"><span class="band-key" aria-hidden="true"></span>${this._bandNote(series, band)}</p>`
+        : nothing}
     `;
+  }
+
+  private _bandNote(series: ChartSeries, band: { low: number; high: number }): string {
+    const t = this.t;
+    if (!t) return "";
+    return `${t("chart_band_hrv")}: ${this._fmtValue(series, band.low)} – ${this._fmtValue(series, band.high)}`;
   }
 
   private _grid(ticks: number[], y: Scale, series: ChartSeries, plotRight: number): SVGTemplateResult {
@@ -443,6 +457,8 @@ export class GarminChart extends LitElement {
     .line { fill: none; stroke: var(--gd-series-1); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
     .line.thin { stroke-width: 1; opacity: 0.6; }
     .area { fill: var(--gd-series-1); opacity: 0.1; stroke: none; }
+    .band { fill: var(--gd-series-3); opacity: 0.12; stroke: none; }
+    .band-key { display: inline-block; width: 10px; height: 10px; margin-right: 6px; border-radius: 2px; background: var(--gd-series-3); opacity: 0.35; vertical-align: -1px; }
     .bar { fill: var(--gd-series-1); }
     .dot { fill: var(--gd-series-1); stroke: var(--gd-surface); stroke-width: 2; }
     .dot.active { r: 5; }

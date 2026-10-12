@@ -48,6 +48,15 @@ function rememberProfile(profileId: string): void {
   }
 }
 
+/** Tiles that show progress toward a target from another metric. */
+const TARGETS: Record<string, { metric: string; label: MessageKey }> = {
+  steps: { metric: "steps_goal", label: "of_goal" },
+  sleep_duration: { metric: "sleep_need", label: "of_need" },
+};
+
+/** Amounts gained or spent today, shown like Garmin does (+62 / −41), not as a level. */
+const SIGNED: Record<string, string> = { bb_charged: "+", bb_drained: "−" };
+
 // "Today" charts follow live data; refetch them at most this often.
 const TODAY_REFRESH_MS = 60_000;
 
@@ -545,7 +554,14 @@ export class GarminDashboardPanel extends LitElement {
     const label = hasMessage(labelKey) ? t(labelKey) : metric.key;
     const showable = metric.status === "available" || metric.status === "unavailable";
     const category = metric.kind === "category" && typeof metric.value === "string" ? categoryMessage(metric.value) : null;
-    const shown = !showable ? null : category ? t(category) : formatMetric(this._fmt, metric);
+    const signed = SIGNED[metric.key];
+    const shown = !showable
+      ? null
+      : category
+        ? t(category)
+        : signed && typeof metric.value === "number"
+          ? `${signed}${new Intl.NumberFormat(this._fmt.locale).format(metric.value)}`
+          : formatMetric(this._fmt, metric);
     const statusKey = `status_${metric.status}`;
     const stale = metric.freshness === "stale";
     return html`
@@ -554,7 +570,7 @@ export class GarminDashboardPanel extends LitElement {
         ${shown !== null
           ? html`<div class="value">${shown}</div>`
           : html`<div class="value empty">—</div>`}
-        ${metric.key === "steps" ? this._renderGoal(snapshot, metric) : nothing}
+        ${TARGETS[metric.key] ? this._renderGoal(snapshot, metric) : nothing}
         ${metric.status !== "available" && hasMessage(statusKey)
           ? html`<div class="note">${t(statusKey)}</div>`
           : nothing}
@@ -563,10 +579,12 @@ export class GarminDashboardPanel extends LitElement {
     `;
   }
 
-  private _renderGoal(snapshot: ProfileSnapshot, steps: Metric): TemplateResult | typeof nothing {
-    const goal = snapshot.metrics["steps_goal"];
+  private _renderGoal(snapshot: ProfileSnapshot, metric: Metric): TemplateResult | typeof nothing {
+    const target = TARGETS[metric.key];
+    if (!target) return nothing;
+    const goal = snapshot.metrics[target.metric];
     const progress = goalProgress(
-      typeof steps.value === "number" ? steps.value : null,
+      typeof metric.value === "number" ? metric.value : null,
       goal?.status === "available" && typeof goal.value === "number" ? goal.value : null,
     );
     if (!progress || !goal) return nothing;
@@ -575,7 +593,7 @@ export class GarminDashboardPanel extends LitElement {
       <div class="progress" role="progressbar" aria-valuenow=${Math.round(progress.percent)} aria-valuemin="0">
         <div class="bar" style="width: ${progress.bar}%"></div>
       </div>
-      <div class="note">${Math.round(progress.percent)}% · ${this._t("of_goal", { goal: goalText })}</div>
+      <div class="note">${Math.round(progress.percent)}% · ${this._t(target.label, { goal: goalText })}</div>
     `;
   }
 
