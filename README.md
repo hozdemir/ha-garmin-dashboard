@@ -9,7 +9,7 @@ A ready-made Garmin screen for Home Assistant. If your Garmin data already reach
 ## What you get
 
 - **At a glance:** rings for steps against your goal, Body Battery, sleep score and training readiness at the top.
-- **Today in detail:** distance, calories, Body Battery with today's charge and drain, sleep against your sleep need, HRV, resting heart rate, SpO2, training status, VO2 max. Sleep, HRV, resting heart rate and weight carry a 7-day sparkline and the change from the previous day; HRV and training status show Garmin's status with an icon.
+- **Today in detail:** floors climbed against your goal and floors descended, distance, calories, Body Battery with today's charge and drain, sleep against your sleep need, HRV, resting heart rate, SpO2, training status, VO2 max. Sleep, HRV, resting heart rate and weight carry a 7-day sparkline and the change from the previous day; HRV and training status show Garmin's status with an icon.
 - **For cyclists and runners:** FTP and power-to-weight, lactate threshold heart rate (cycling and running), gear distance, and the battery state of paired sensors such as power meters and heart-rate straps.
 - **Training plan:** today's and the next scheduled workout, and a countdown to your goal race, when you use a Garmin plan or calendar.
 - **Body:** weight, in your Home Assistant unit system.
