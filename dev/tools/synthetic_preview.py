@@ -262,6 +262,7 @@ def main(out):
         "revision": 1,
         "source_status": "ready",
         "source_synced_at": (NOW - timedelta(minutes=12)).isoformat(),
+        "source_sync_device": "Edge 840",
         "metrics": m,
         "gear": [
             {"id": "g1", "name": "Road bike", "status": "available", "distance_meters": 8_412_000, "retired": False},
