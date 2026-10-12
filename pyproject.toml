@@ -1,0 +1,21 @@
+[tool.ruff]
+target-version = "py314"
+line-length = 120
+extend-exclude = ["frontend", "dev/raw", "dev/config"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "PL", "ASYNC", "BLE"]
+ignore = [
+    "PLR0911", "PLR0912", "PLR0913", "PLR2004",  # branchy normalizers and test literals are clearer inline
+    "RUF001",  # Turkish/English dashes in user-facing strings are intentional
+]
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
+known-first-party = ["custom_components"]
+combine-as-imports = true
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["PLC0415"]
+# One-off developer scripts: blocking I/O and long mains are fine there.
+"dev/tools/*" = ["E402", "BLE001", "PLC0415", "ASYNC230", "SIM115", "PLR0915", "B905", "RUF007", "RUF015", "SIM108"]
