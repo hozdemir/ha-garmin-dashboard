@@ -125,6 +125,8 @@ CATALOG: tuple[MetricSpec, ...] = (
     MetricSpec("sleep_need", "sleep_need", "recovery", "duration", "nightly"),
     MetricSpec("bb_charged", "body_battery_charged", "recovery", "percent", "daily"),
     MetricSpec("bb_drained", "body_battery_drained", "recovery", "percent", "daily"),
+    MetricSpec("bb_highest", "body_battery_highest", "recovery", "percent", "daily"),
+    MetricSpec("bb_lowest", "body_battery_lowest", "recovery", "percent", "daily"),
     MetricSpec("spo2_avg", "avg_spo2", "recovery", "percent", "nightly"),
     MetricSpec("spo2_latest", "latest_spo2", "recovery", "percent", "intraday"),
     # Garmin's personal "balanced" HRV range; only the current range is available.
