@@ -158,6 +158,8 @@ export class GarminChart extends LitElement {
     const y = linearScale([yMin, yMax], [MARGIN.top + PLOT_HEIGHT, MARGIN.top]);
     const height = MARGIN.top + PLOT_HEIGHT + AXIS_BAND;
     const points = series.points ?? [];
+    // Through columns the line only adds clutter; their average stays in the summary below.
+    const mean = payload.per_day && payload.form !== "columns" ? average(points) : null;
 
     return html`
       <div class="plot" style="height:${height}px">
@@ -172,13 +174,20 @@ export class GarminChart extends LitElement {
           @keydown=${(e: KeyboardEvent) => this._onKey(e, x, y)}
           @blur=${() => (this._active = undefined)}
         >
+          <defs>
+            <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+              <stop class="fade-top" offset="0"></stop>
+              <stop class="fade-bottom" offset="1"></stop>
+            </linearGradient>
+          </defs>
           ${this._grid(ticks, y, series, plotRight)}
           ${this._xAxis(start, end, x, height)}
           ${band
             ? svg`<rect class="band" x=${MARGIN.left} width=${plotRight - MARGIN.left}
                 y=${y(band.high)} height=${Math.max(1, y(band.low) - y(band.high))}></rect>`
             : nothing}
-          ${payload.goal != null ? this._goalLine(payload.goal, y, plotRight) : nothing}
+          ${payload.goal != null ? this._goalLine(series, payload.goal, y, plotRight) : nothing}
+          ${mean !== null ? this._meanLine(series, mean, y, plotRight) : nothing}
           ${this._marks(payload, series, points, x, y, plotRight)}
           ${this._crosshair(payload, series, points, x, y)}
         </svg>
@@ -228,10 +237,24 @@ export class GarminChart extends LitElement {
       </text>`)}`;
   }
 
-  private _goalLine(goal: number, y: Scale, plotRight: number): SVGTemplateResult {
+  private _goalLine(series: ChartSeries, goal: number, y: Scale, plotRight: number): SVGTemplateResult {
     return svg`
       <line class="goal" x1=${MARGIN.left} x2=${plotRight} y1=${y(goal)} y2=${y(goal)}></line>
-      <text class="tick" x=${plotRight} y=${y(goal) - 4} text-anchor="end">${this.t?.("chart_goal") ?? ""}</text>`;
+      <text class="ref" x=${MARGIN.left + 4} y=${y(goal) - 5}>${this.t?.("chart_goal_value", { value: this._fmtValue(series, goal) }) ?? ""}</text>`;
+  }
+
+  /** Dashed average of the days shown, labelled at the left so it never meets the latest value. */
+  private _meanLine(series: ChartSeries, mean: number, y: Scale, plotRight: number): SVGTemplateResult {
+    return svg`
+      <line class="mean" x1=${MARGIN.left} x2=${plotRight} y1=${y(mean)} y2=${y(mean)}></line>
+      <text class="ref halo" x=${MARGIN.left + 4} y=${y(mean) - 5}>${this.t?.("chart_avg", { value: this._fmtValue(series, mean) }) ?? ""}</text>`;
+  }
+
+  /** The latest value, written next to its mark. */
+  private _lastLabel(series: ChartSeries, point: [number, number], x: Scale, y: Scale): SVGTemplateResult {
+    const px = x(point[0]);
+    const py = y(point[1]);
+    return svg`<text class="last halo" x=${px - 8} y=${py - 10} text-anchor="end">${this._fmtValue(series, point[1])}</text>`;
   }
 
   private _marks(
@@ -243,35 +266,44 @@ export class GarminChart extends LitElement {
       case "range_columns": {
         const ranges = series.ranges ?? [];
         const w = barWidth(plotWidth, payload.range_days);
-        return svg`${ranges.map(([t, lo, hi]) => {
+        return svg`${ranges.map(([t, lo, hi], i) => {
           const cx = x(t + DAY / 2);
           const top = y(hi);
           const h = Math.max(2, y(lo) - top);
-          return svg`<rect class="bar" x=${cx - w / 2} y=${top} width=${w} height=${h} rx=${Math.min(4, w / 2)}></rect>`;
+          const dim = this._active !== undefined && this._active.index !== i;
+          return svg`<rect class=${dim ? "bar dim" : "bar"} x=${cx - w / 2} y=${top} width=${w} height=${h} rx=${Math.min(4, w / 2)}></rect>`;
         })}`;
       }
       case "columns": {
         const w = barWidth(plotWidth, payload.range_days);
-        return svg`${points.map(([t, v]) => {
+        return svg`${points.map(([t, v], i) => {
           if (v === null) return nothing;
           const top = y(v);
           // Per-day values sit at local midnight; centre the column on its day.
           const cx = payload.per_day ? x(t + DAY / 2) : x(t);
-          return svg`<path class="bar" d=${columnPath(cx, top, baseline, w)}></path>`;
+          const dim = this._active !== undefined && this._active.index !== i;
+          return svg`<path class=${dim ? "bar dim" : "bar"} d=${columnPath(cx, top, baseline, w)}></path>`;
         })}`;
       }
-      case "dots":
+      case "dots": {
+        const runs = segments(points);
+        const last = runs[runs.length - 1]?.[runs[runs.length - 1]!.length - 1];
         return svg`
-          ${segments(points).map((run) => svg`<path class="line thin" d=${linePath(run, x, y)}></path>`)}
-          ${points.map(([t, v]) => (v === null ? nothing : svg`<circle class="dot" cx=${x(t)} cy=${y(v)} r="4"></circle>`))}`;
+          ${runs.map((run) => svg`<path class="line thin" d=${linePath(run, x, y)}></path>`)}
+          ${points.map(([t, v]) => (v === null ? nothing : svg`<circle class="dot" cx=${x(t)} cy=${y(v)} r="4"></circle>`))}
+          ${last ? this._lastLabel(series, last, x, y) : nothing}`;
+      }
       default: {
         const step = payload.form === "step";
         const runs = segments(points);
         const last = runs[runs.length - 1]?.[runs[runs.length - 1]!.length - 1];
+        // Cumulative counts and levels read as a filled area; trends stay plain lines.
+        const filled = payload.form === "area" || payload.method === "cumulative_today";
         return svg`
-          ${payload.form === "area" ? runs.map((run) => svg`<path class="area" d=${areaPath(run, x, y, baseline)}></path>`) : nothing}
+          ${filled ? runs.map((run) => svg`<path class="area" d=${areaPath(run, x, y, baseline)}></path>`) : nothing}
           ${runs.map((run, i) => svg`<path class="line" d=${linePath(step && i === runs.length - 1 ? extendToNow(run, x) : run, x, y, step)}></path>`)}
-          ${last ? svg`<circle class="dot" cx=${x(last[0])} cy=${y(last[1])} r="4"></circle>` : nothing}`;
+          ${last ? svg`<circle class="dot" cx=${x(last[0])} cy=${y(last[1])} r="4"></circle>` : nothing}
+          ${last && !step ? this._lastLabel(series, last, x, y) : nothing}`;
       }
     }
   }
@@ -301,9 +333,10 @@ export class GarminChart extends LitElement {
       value = this._fmtValue(series, point[1]);
       time = point[0];
     }
-    const left = Math.min(Math.max(active.x - 70, 0), width - 140);
+    const left = Math.min(Math.max(active.x - 80, 0), width - 160);
     return html`
       <div class="tooltip" style="left:${left}px" role="status">
+        <span class="series"><i class="swatch s1"></i>${this._label(series.metric)}</span>
         <strong>${value}</strong>
         <span>${this._fmtTime(time)}</span>
         ${this._timeNote() ? html`<small>${this._timeNote()}</small>` : nothing}
@@ -381,11 +414,13 @@ export class GarminChart extends LitElement {
     const last = series.ranges?.length
       ? series.ranges[series.ranges.length - 1]![2]
       : values[values.length - 1]!;
-    return t("chart_summary", {
+    const text = t("chart_summary", {
       last: this._fmtValue(series, last),
       min: this._fmtValue(series, Math.min(...values)),
       max: this._fmtValue(series, Math.max(...values)),
     });
+    const mean = this.payload?.per_day ? average(series.points ?? []) : null;
+    return mean === null ? text : `${text} · ${t("chart_avg", { value: this._fmtValue(series, mean) })}`;
   }
 
   private _renderStacked(payload: ChartPayload): TemplateResult {
@@ -457,28 +492,36 @@ export class GarminChart extends LitElement {
     .grid { stroke: var(--gd-grid); stroke-width: 1; }
     .tick { fill: var(--secondary-text-color); font-size: 11px; font-variant-numeric: tabular-nums; }
     .goal { stroke: var(--secondary-text-color); stroke-width: 1; }
+    .mean { stroke: var(--secondary-text-color); stroke-width: 1; stroke-dasharray: 4 4; opacity: 0.8; }
+    .ref { fill: var(--secondary-text-color); font-size: 11px; }
+    .last { fill: var(--primary-text-color); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .halo { paint-order: stroke; stroke: var(--gd-surface); stroke-width: 3px; stroke-linejoin: round; }
+    .fade-top { stop-color: var(--gd-series-1); stop-opacity: 0.32; }
+    .fade-bottom { stop-color: var(--gd-series-1); stop-opacity: 0.02; }
     .line { fill: none; stroke: var(--gd-series-1); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
     .line.thin { stroke-width: 1; opacity: 0.6; }
-    .area { fill: var(--gd-series-1); opacity: 0.1; stroke: none; }
+    .area { fill: url(#fade); stroke: none; }
     .band { fill: var(--gd-series-3); opacity: 0.12; stroke: none; }
     .band-key { display: inline-block; width: 10px; height: 10px; margin-right: 6px; border-radius: 2px; background: var(--gd-series-3); opacity: 0.35; vertical-align: -1px; }
     .bar { fill: var(--gd-series-1); }
+    .bar.dim { opacity: 0.45; }
     .dot { fill: var(--gd-series-1); stroke: var(--gd-surface); stroke-width: 2; }
     .dot.active { r: 5; }
     .crosshair { stroke: var(--secondary-text-color); stroke-width: 1; }
     .tooltip {
-      position: absolute; top: 0; width: 140px; box-sizing: border-box; pointer-events: none;
+      position: absolute; top: 0; width: 160px; box-sizing: border-box; pointer-events: none;
       background: var(--gd-surface); color: var(--primary-text-color);
       border: 1px solid var(--gd-grid); border-radius: 8px; padding: 6px 8px;
       display: flex; flex-direction: column; gap: 2px; font-size: 12px;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
     }
-    .tooltip strong { font-size: 15px; }
+    .tooltip strong { font-size: 15px; font-variant-numeric: tabular-nums; }
+    .tooltip .series { display: flex; align-items: center; gap: 6px; color: var(--primary-text-color); }
     .tooltip span, .tooltip small { color: var(--secondary-text-color); }
     .summary, .empty { font-size: 12px; color: var(--secondary-text-color); margin: 4px 0 0; }
     .empty { padding: 24px 0; text-align: center; }
     .placeholder { width: 100%; }
-    .stack { display: flex; gap: 2px; height: 20px; margin: 8px 0; }
+    .stack { display: flex; gap: 2px; height: 28px; margin: 8px 0 12px; }
     .seg { min-width: 2px; height: 100%; }
     .seg:first-child { border-radius: 4px 0 0 4px; }
     .seg:last-child { border-radius: 0 4px 4px 0; }
@@ -490,13 +533,19 @@ export class GarminChart extends LitElement {
     .legend li { display: flex; align-items: center; gap: 6px; }
     .legend strong { margin-left: auto; }
     .legend small { color: var(--secondary-text-color); }
-    .swatch { width: 10px; height: 10px; border-radius: 2px; flex: none; }
+    .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; flex: none; }
     .table-wrap { max-height: 220px; overflow: auto; }
     table { width: 100%; border-collapse: collapse; font-size: 13px; font-variant-numeric: tabular-nums; }
     th, td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--gd-grid); }
     th { color: var(--secondary-text-color); font-weight: 500; position: sticky; top: 0; background: var(--gd-surface); }
     @media (prefers-reduced-motion: no-preference) { .plot, .stack { transition: opacity 0.2s; } }
   `;
+}
+
+/** Mean of the defined values, or null when there are fewer than two. */
+function average(points: Point[]): number | null {
+  const values = points.map(([, v]) => v).filter((v): v is number => v !== null);
+  return values.length < 2 ? null : values.reduce((a, b) => a + b, 0) / values.length;
 }
 
 /** Column with a 4px rounded data end and a square baseline. */
