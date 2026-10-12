@@ -139,6 +139,14 @@ DEVICE_LIST_ATTRIBUTE = "devices"
 # Unique-ID infixes after "{entry_id}_" for sport-specific sensors.
 _SPORT_PREFIXES: dict[str, str] = {"functional_threshold_power": "ftp_", "power_to_weight": "ptw_"}
 
+# Training calendar: today's and the next scheduled workout, and the goal race.
+# Fields verified in ha_garmin 0.1.49 (_trim_calendar_workout_item, _trim_goal_event).
+PLAN_TRANSLATION_KEYS = {
+    "today": "today_scheduled_workout",
+    "next": "next_scheduled_workout",
+    "goal": "training_plan_goal_event",
+}
+
 # Paired ANT+/BLE sensors (power meters, HR straps...) with battery state in `sensors[]`.
 CONNECTED_SENSORS_TRANSLATION_KEY = "connected_sensors"
 _GEAR_PREFIX = "gear_"

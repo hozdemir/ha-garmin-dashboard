@@ -43,6 +43,7 @@ class ProfileMapping:
     last_synced: Resolution = field(default_factory=lambda: Resolution("missing"))
     devices: Resolution = field(default_factory=lambda: Resolution("missing"))
     connected_sensors: Resolution = field(default_factory=lambda: Resolution("missing"))
+    plan: dict[str, Resolution] = field(default_factory=dict)
 
     @property
     def entity_ids(self) -> set[str]:
@@ -52,7 +53,7 @@ class ProfileMapping:
         found += [r.entity_id for r in self.activity_entities.values() if r.status == "resolved"]
         found += [
             r.entity_id
-            for r in (self.route, self.last_synced, self.devices, self.connected_sensors)
+            for r in (self.route, self.last_synced, self.devices, self.connected_sensors, *self.plan.values())
             if r.status == "resolved"
         ]
         return {entity_id for entity_id in found if entity_id}
@@ -101,6 +102,7 @@ def resolve_profile(hass: HomeAssistant, source_entry_id: str) -> ProfileMapping
     mapping.last_synced = _to_resolution(by_key.get(provider.LAST_SYNCED_TRANSLATION_KEY, []))
     mapping.devices = _to_resolution(by_key.get(provider.DEVICES_TRANSLATION_KEY, []))
     mapping.connected_sensors = _to_resolution(by_key.get(provider.CONNECTED_SENSORS_TRANSLATION_KEY, []))
+    mapping.plan = {name: _to_resolution(by_key.get(key, [])) for name, key in provider.PLAN_TRANSLATION_KEYS.items()}
     mapping.gear.sort(key=lambda gear: gear.gear_id)
     return mapping
 

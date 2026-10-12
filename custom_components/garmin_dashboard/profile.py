@@ -16,6 +16,7 @@ from .activities import normalize_activities, normalize_route, parse_aware_time
 from .const import DOMAIN, SCHEMA_VERSION, SOURCE_DOMAIN, UPDATE_DEBOUNCE_SECONDS
 from .discovery import ProfileMapping, Resolution, resolve_profile
 from .normalization import build_metric
+from .plan import training_plan
 from .providers import cyberjunky as provider
 
 SnapshotListener = Callable[[dict[str, Any]], None]
@@ -185,6 +186,7 @@ class ProfileRuntime:
             "metrics": metrics,
             "gear": self._gear(),
             "sensors": self._connected_sensors(),
+            "plan": self._plan(),
             **self._activities(),
             "capabilities": self._capabilities(metrics),
         }
@@ -243,6 +245,14 @@ class ProfileRuntime:
         if summary_time is not None:
             return {"source_synced_at": dt_util.as_utc(summary_time).isoformat(), "source_sync_device": None}
         return {"source_synced_at": None, "source_sync_device": None}
+
+    def _plan(self) -> dict[str, Any] | None:
+        """Scheduled workouts and the goal race, dated by HA's local calendar day."""
+        attrs = {}
+        for name, resolution in self.mapping.plan.items():
+            state = self._resolved_state(resolution)
+            attrs[name] = dict(state.attributes) if state is not None else None
+        return training_plan(attrs.get("today"), attrs.get("next"), attrs.get("goal"), dt_util.now().date())
 
     def _connected_sensors(self) -> list[dict[str, Any]]:
         """Paired sensors and their batteries; never serial numbers, IDs or image URLs.
