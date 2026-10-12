@@ -175,6 +175,13 @@ def main(out):
         "sleep_rem": metric("sleep_rem", "recovery", "duration", 1.6 * 3600, "s"),
         "sleep_awake": metric("sleep_awake", "recovery", "duration", 0.4 * 3600, "s"),
         "stress_avg": metric("stress_avg", "recovery", "level", 28, "level"),
+        "bb_charged": metric("bb_charged", "recovery", "percent", 62, "%"),
+        "bb_drained": metric("bb_drained", "recovery", "percent", 41, "%"),
+        "spo2_avg": metric("spo2_avg", "recovery", "percent", 95, "%"),
+        "spo2_latest": metric("spo2_latest", "recovery", "percent", 96, "%"),
+        "sleep_need": metric("sleep_need", "recovery", "duration", 8 * 3600, "s"),
+        "hrv_balanced_low": metric("hrv_balanced_low", "recovery", "hrv", 48, "ms"),
+        "hrv_balanced_high": metric("hrv_balanced_high", "recovery", "hrv", 62, "ms"),
         "ptw_cycling": metric("ptw_cycling", "training", "power_ratio", 3.42, "W/kg", source_date="2026-10-02"),
         "lthr_cycling": metric("lthr_cycling", "training", "heart_rate", 165, "bpm", source_date="2026-09-28"),
         "lthr_running": metric("lthr_running", "training", "heart_rate", 172, "bpm", source_date="2026-09-28"),
@@ -244,9 +251,17 @@ def main(out):
             [s("resting_hr", "heart_rate", "bpm", daily(30, 52, 1.5))],
             per_day=True,
         ),
-        "hrv": chart(
-            "hrv", "trends", "line", "change_points", [s("hrv_last_night", "hrv", "ms", daily(30, 55, 5))], per_day=True
-        ),
+        "hrv": {
+            **chart(
+                "hrv",
+                "trends",
+                "line",
+                "change_points",
+                [s("hrv_last_night", "hrv", "ms", daily(30, 55, 5))],
+                per_day=True,
+            ),
+            "band": {"low": 48, "high": 62, "current_only": True},
+        },
         "weekly_steps": chart(
             "weekly_steps",
             "trends",
