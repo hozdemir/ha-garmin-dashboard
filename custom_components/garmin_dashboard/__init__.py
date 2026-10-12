@@ -50,9 +50,7 @@ type GarminDashboardConfigEntry = ConfigEntry[DashboardData]
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Register things that live for the whole HA run (cannot be unregistered)."""
     websocket_api.async_register(hass)
-    await hass.http.async_register_static_paths(
-        [StaticPathConfig(STATIC_URL, str(_WWW), cache_headers=False)]
-    )
+    await hass.http.async_register_static_paths([StaticPathConfig(STATIC_URL, str(_WWW), cache_headers=False)])
     return True
 
 
@@ -69,9 +67,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: GarminDashboardConfigEnt
     await preferences.async_prune({s[CONF_PROFILE_ID] for s in entry.data[CONF_SOURCES]})
     data = DashboardData(charts=ChartService(hass), preferences=preferences)
     for source in entry.data[CONF_SOURCES]:
-        profile = ProfileRuntime(
-            hass, source[CONF_PROFILE_ID], source[CONF_SOURCE_ENTRY_ID], source[CONF_DISPLAY_NAME]
-        )
+        profile = ProfileRuntime(hass, source[CONF_PROFILE_ID], source[CONF_SOURCE_ENTRY_ID], source[CONF_DISPLAY_NAME])
         await profile.async_start()
         data.profiles[profile.profile_id] = profile
     entry.runtime_data = data

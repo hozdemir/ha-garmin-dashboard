@@ -10,9 +10,7 @@ from . import GarminDashboardConfigEntry
 from .const import SCHEMA_VERSION
 
 
-async def async_get_config_entry_diagnostics(
-    hass: HomeAssistant, entry: GarminDashboardConfigEntry
-) -> dict[str, Any]:
+async def async_get_config_entry_diagnostics(hass: HomeAssistant, entry: GarminDashboardConfigEntry) -> dict[str, Any]:
     """Return a report without values, names, entity IDs or unique IDs."""
     return {
         "schema_version": SCHEMA_VERSION,

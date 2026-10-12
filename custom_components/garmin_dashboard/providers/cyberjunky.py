@@ -14,8 +14,20 @@ from typing import Literal
 SUPPORTED_VERSIONS: frozenset[str] = frozenset({"3.0.19"})
 
 Section = Literal["movement", "recovery", "training"]
-Kind = Literal["count", "distance", "duration", "energy", "percent", "score",
-               "heart_rate", "power", "vo2max", "category", "hrv", "level"]
+Kind = Literal[
+    "count",
+    "distance",
+    "duration",
+    "energy",
+    "percent",
+    "score",
+    "heart_rate",
+    "power",
+    "vo2max",
+    "category",
+    "hrv",
+    "level",
+]
 FreshnessClass = Literal["intraday", "daily", "nightly", "slow", "event"]
 
 
@@ -43,18 +55,31 @@ CATALOG: tuple[MetricSpec, ...] = (
     MetricSpec("body_battery", "body_battery_most_recent", "recovery", "percent", "intraday"),
     MetricSpec("sleep_score", "sleep_score", "recovery", "score", "nightly"),
     MetricSpec("sleep_duration", "sleep_duration", "recovery", "duration", "nightly"),
-    MetricSpec("hrv_status", "hrv_status", "recovery", "category", "nightly",
-               date_attribute="calendarDate"),
+    MetricSpec("hrv_status", "hrv_status", "recovery", "category", "nightly", date_attribute="calendarDate"),
     MetricSpec("hrv_last_night", "hrv_last_night_avg", "recovery", "hrv", "nightly"),
     MetricSpec("resting_hr", "resting_heart_rate", "recovery", "heart_rate", "daily"),
     MetricSpec("training_readiness", "training_readiness", "training", "percent", "daily"),
     MetricSpec("training_status", "training_status", "training", "category", "daily"),
     MetricSpec("recovery_time", "recovery_time", "training", "duration", "intraday"),
     MetricSpec("vo2max", "vo2_max", "training", "vo2max", "slow"),
-    MetricSpec("ftp_cycling", "functional_threshold_power", "training", "power", "slow",
-               sport="cycling", date_attribute="calendar_date"),
-    MetricSpec("ftp_running", "functional_threshold_power", "training", "power", "slow",
-               sport="running", date_attribute="calendar_date"),
+    MetricSpec(
+        "ftp_cycling",
+        "functional_threshold_power",
+        "training",
+        "power",
+        "slow",
+        sport="cycling",
+        date_attribute="calendar_date",
+    ),
+    MetricSpec(
+        "ftp_running",
+        "functional_threshold_power",
+        "training",
+        "power",
+        "slow",
+        sport="running",
+        date_attribute="calendar_date",
+    ),
     # Read by charts; not shown as tiles.
     MetricSpec("weekly_step_avg", "weekly_step_avg", "movement", "count", "slow"),
     MetricSpec("sleep_deep", "deep_sleep", "recovery", "duration", "nightly"),
@@ -81,7 +106,7 @@ def unique_id_suffix(unique_id: str, source_entry_id: str) -> str | None:
     prefix = f"{source_entry_id}_"
     if not unique_id.startswith(prefix):
         return None
-    return unique_id[len(prefix):]
+    return unique_id[len(prefix) :]
 
 
 def sport_of(translation_key: str, unique_id: str, source_entry_id: str) -> str | None:
@@ -90,7 +115,7 @@ def sport_of(translation_key: str, unique_id: str, source_entry_id: str) -> str 
     suffix = unique_id_suffix(unique_id, source_entry_id)
     if infix is None or suffix is None or not suffix.startswith(infix):
         return None
-    return suffix[len(infix):] or None
+    return suffix[len(infix) :] or None
 
 
 def gear_uuid_of(unique_id: str, source_entry_id: str) -> str | None:
@@ -98,4 +123,4 @@ def gear_uuid_of(unique_id: str, source_entry_id: str) -> str | None:
     suffix = unique_id_suffix(unique_id, source_entry_id)
     if suffix is None or not suffix.startswith(_GEAR_PREFIX):
         return None
-    return suffix[len(_GEAR_PREFIX):] or None
+    return suffix[len(_GEAR_PREFIX) :] or None

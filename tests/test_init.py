@@ -2,12 +2,11 @@
 
 from typing import Any
 
-from pytest_homeassistant_custom_component.common import MockConfigEntry
-from pytest_homeassistant_custom_component.typing import WebSocketGenerator
-
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
+from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant_custom_component.typing import WebSocketGenerator
 
 from custom_components.garmin_dashboard.const import DOMAIN, PANEL_URL_PATH
 
@@ -21,8 +20,11 @@ async def _setup(hass: HomeAssistant, **source_kwargs: Any) -> MockConfigEntry:
     entry = MockConfigEntry(
         domain=DOMAIN,
         title="Garmin",
-        data={"sources": [{"profile_id": PROFILE_ID, "source_entry_id": FIXTURE["source_entry_id"],
-                           "display_name": "Garmin"}]},
+        data={
+            "sources": [
+                {"profile_id": PROFILE_ID, "source_entry_id": FIXTURE["source_entry_id"], "display_name": "Garmin"}
+            ]
+        },
     )
     entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(entry.entry_id)
@@ -86,9 +88,7 @@ async def test_unknown_profile_is_rejected(hass: HomeAssistant, hass_ws_client: 
     assert reply["error"]["code"] == "profile_not_found"
 
 
-async def test_subscription_pushes_on_state_change(
-    hass: HomeAssistant, hass_ws_client: WebSocketGenerator
-) -> None:
+async def test_subscription_pushes_on_state_change(hass: HomeAssistant, hass_ws_client: WebSocketGenerator) -> None:
     await _setup(hass)
     client = await hass_ws_client(hass)
     await client.send_json_auto_id({"type": f"{DOMAIN}/subscribe", "profile_id": PROFILE_ID})
@@ -103,9 +103,7 @@ async def test_subscription_pushes_on_state_change(
     assert pushed["metrics"]["steps"]["value"] == 9200
 
 
-async def test_last_value_is_kept_during_outage(
-    hass: HomeAssistant, hass_ws_client: WebSocketGenerator
-) -> None:
+async def test_last_value_is_kept_during_outage(hass: HomeAssistant, hass_ws_client: WebSocketGenerator) -> None:
     entry = await _setup(hass)
     profile = entry.runtime_data.profiles[PROFILE_ID]
     profile.snapshot()

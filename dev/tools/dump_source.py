@@ -46,14 +46,14 @@ async def main(out_dir):
         entry_ids = {e["entry_id"] for e in entries}
         registry = await c.call({"type": "config/entity_registry/list"})
         source_entities = [e for e in registry if e.get("config_entry_id") in entry_ids]
-        full = await c.call({
-            "type": "config/entity_registry/get_entries",
-            "entity_ids": [e["entity_id"] for e in source_entities],
-        })
+        full = await c.call(
+            {
+                "type": "config/entity_registry/get_entries",
+                "entity_ids": [e["entity_id"] for e in source_entities],
+            }
+        )
         devices = await c.call({"type": "config/device_registry/list"})
-        source_devices = [
-            d for d in devices if entry_ids & set(d.get("config_entries", []))
-        ]
+        source_devices = [d for d in devices if entry_ids & set(d.get("config_entries", []))]
         states = await c.call({"type": "get_states"})
         ids = {e["entity_id"] for e in source_entities}
         source_states = [s for s in states if s["entity_id"] in ids]
@@ -77,8 +77,10 @@ async def main(out_dir):
     path = os.path.join(out_dir, "source_dump.json")
     with open(path, "w") as f:
         json.dump(dump, f, indent=2, ensure_ascii=False, default=str)
-    print(f"wrote {path}: {len(entries)} entries, {len(source_entities)} entities, "
-          f"{len(source_states)} states, {len(source_devices)} devices")
+    print(
+        f"wrote {path}: {len(entries)} entries, {len(source_entities)} entities, "
+        f"{len(source_states)} states, {len(source_devices)} devices"
+    )
 
 
 asyncio.run(main(sys.argv[1]))

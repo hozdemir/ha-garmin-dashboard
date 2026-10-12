@@ -83,7 +83,8 @@ def resolve_profile(hass: HomeAssistant, source_entry_id: str) -> ProfileMapping
         candidates = by_key.get(spec.translation_key, [])
         if spec.sport is not None:
             candidates = [
-                c for c in candidates
+                c
+                for c in candidates
                 if provider.sport_of(spec.translation_key, c.unique_id, source_entry_id) == spec.sport
             ]
         mapping.metrics[spec.key] = _to_resolution(candidates)

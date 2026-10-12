@@ -1,11 +1,10 @@
 """Config flow: source detection and activity sensor opt-in."""
 
-from pytest_homeassistant_custom_component.common import MockConfigEntry
-
 from homeassistant.config_entries import SOURCE_USER
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.helpers import entity_registry as er
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.garmin_dashboard.const import DOMAIN
 
@@ -73,15 +72,14 @@ async def test_multiple_accounts_are_chosen_and_named(hass: HomeAssistant) -> No
     defaults = {str(k): k.default() for k in result["data_schema"].schema}
     assert defaults == {"name_1": "Garmin", "name_2": "Partner"}
 
-    result = await hass.config_entries.flow.async_configure(
-        result["flow_id"], {"name_1": "Me", "name_2": "Partner"}
-    )
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {"name_1": "Me", "name_2": "Partner"})
     assert result["step_id"] == "activities"
     result = await hass.config_entries.flow.async_configure(result["flow_id"], {"enable_activities": True})
     assert result["type"] is FlowResultType.CREATE_ENTRY
     profiles = result["data"]["sources"]
     assert [(p["source_entry_id"], p["display_name"]) for p in profiles] == [
-        (FIXTURE["source_entry_id"], "Me"), (SECOND_SOURCE_ENTRY_ID, "Partner"),
+        (FIXTURE["source_entry_id"], "Me"),
+        (SECOND_SOURCE_ENTRY_ID, "Partner"),
     ]
     assert profiles[0]["profile_id"] != profiles[1]["profile_id"]
     # Activity sensors of both accounts were enabled.

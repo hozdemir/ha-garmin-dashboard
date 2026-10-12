@@ -2,6 +2,7 @@
 
 A message may reference the previous result with "$profile" (first profile_id).
 """
+
 import asyncio
 import json
 import os
@@ -26,5 +27,6 @@ async def main(messages):
             result = reply.get("result") if isinstance(reply, dict) else None
             if isinstance(result, dict) and result.get("profiles"):
                 profile = result["profiles"][0]["profile_id"]
+
 
 asyncio.run(main(sys.argv[1:]))

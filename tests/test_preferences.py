@@ -2,11 +2,10 @@
 
 from typing import Any
 
-import pytest
-import voluptuous as vol
-from pytest_homeassistant_custom_component.typing import WebSocketGenerator
-
 from homeassistant.core import HomeAssistant
+import pytest
+from pytest_homeassistant_custom_component.typing import WebSocketGenerator
+import voluptuous as vol
 
 from custom_components.garmin_dashboard.const import DOMAIN
 from custom_components.garmin_dashboard.preferences import (
@@ -82,8 +81,11 @@ async def test_preferences_api_roundtrip(hass: HomeAssistant, hass_ws_client: We
     assert (await client.receive_json())["result"]["hidden_sections"] == ["gear"]
 
     await client.send_json_auto_id(
-        {"type": f"{DOMAIN}/preferences/set", "profile_id": PROFILE_ID,
-         "preferences": {**prefs, "hidden_charts": ["nope"]}}
+        {
+            "type": f"{DOMAIN}/preferences/set",
+            "profile_id": PROFILE_ID,
+            "preferences": {**prefs, "hidden_charts": ["nope"]},
+        }
     )
     assert (await client.receive_json())["error"]["code"] == "invalid_preferences"
 
@@ -102,9 +104,7 @@ async def test_non_admin_cannot_change_preferences(
     assert (await client.receive_json())["error"]["code"] == "unauthorized"
 
 
-async def test_removing_the_entry_deletes_preferences(
-    hass: HomeAssistant, hass_storage: dict[str, Any]
-) -> None:
+async def test_removing_the_entry_deletes_preferences(hass: HomeAssistant, hass_storage: dict[str, Any]) -> None:
     entry = await _setup(hass)
     await entry.runtime_data.preferences.async_set(PROFILE_ID, default_preferences())
     assert f"{DOMAIN}.preferences" in hass_storage

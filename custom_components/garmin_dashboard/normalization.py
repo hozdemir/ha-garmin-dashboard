@@ -40,7 +40,7 @@ def _iso(value: datetime | None) -> str | None:
 def _parse_number(raw: str) -> float | None:
     try:
         number = float(raw)
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         return None
     return number if math.isfinite(number) else None
 
@@ -90,9 +90,7 @@ def _freshness(spec: MetricSpec, state: State, source_date: date | None, now: da
     return "fresh" if now - state.last_updated <= _STALE_AFTER[spec.freshness] else "stale"
 
 
-def build_metric(
-    spec: MetricSpec, resolution: Resolution, state: State | None, now: datetime
-) -> dict[str, Any]:
+def build_metric(spec: MetricSpec, resolution: Resolution, state: State | None, now: datetime) -> dict[str, Any]:
     """Build one Metric from a resolution and its current state."""
     metric: dict[str, Any] = {
         "key": spec.key,

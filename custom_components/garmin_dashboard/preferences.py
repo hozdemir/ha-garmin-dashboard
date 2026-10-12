@@ -9,10 +9,9 @@ from __future__ import annotations
 
 from typing import Any
 
-import voluptuous as vol
-
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.storage import Store
+import voluptuous as vol
 
 from .charts import CHARTS, DEFAULT_TREND_RANGE, TREND_RANGES
 from .const import DOMAIN

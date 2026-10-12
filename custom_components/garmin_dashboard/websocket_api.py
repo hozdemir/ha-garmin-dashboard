@@ -4,10 +4,9 @@ from __future__ import annotations
 
 from typing import Any
 
-import voluptuous as vol
-
 from homeassistant.components import websocket_api
 from homeassistant.core import HomeAssistant, callback
+import voluptuous as vol
 
 from .charts import CHARTS_BY_ID
 from .const import DOMAIN, SCHEMA_VERSION
@@ -50,45 +49,38 @@ def _get_profile(
 @websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/profiles"})
 @websocket_api.require_admin
 @callback
-def ws_profiles(
-    hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
-) -> None:
+def ws_profiles(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]) -> None:
     """List profiles and their source status."""
-    connection.send_result(msg["id"], {
-        "schema_version": SCHEMA_VERSION,
-        "profiles": [
-            {
-                "profile_id": profile.profile_id,
-                "display_name": profile.display_name,
-                "source_status": profile.source_status,
-                "status": profile.status_summary(),
-            }
-            for profile in _profiles(hass).values()
-        ],
-    })
+    connection.send_result(
+        msg["id"],
+        {
+            "schema_version": SCHEMA_VERSION,
+            "profiles": [
+                {
+                    "profile_id": profile.profile_id,
+                    "display_name": profile.display_name,
+                    "source_status": profile.source_status,
+                    "status": profile.status_summary(),
+                }
+                for profile in _profiles(hass).values()
+            ],
+        },
+    )
 
 
-@websocket_api.websocket_command(
-    {vol.Required("type"): f"{DOMAIN}/snapshot", vol.Required("profile_id"): str}
-)
+@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/snapshot", vol.Required("profile_id"): str})
 @websocket_api.require_admin
 @callback
-def ws_snapshot(
-    hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
-) -> None:
+def ws_snapshot(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]) -> None:
     """Return the current snapshot of one profile."""
     if (profile := _get_profile(hass, connection, msg)) is not None:
         connection.send_result(msg["id"], profile.snapshot())
 
 
-@websocket_api.websocket_command(
-    {vol.Required("type"): f"{DOMAIN}/subscribe", vol.Required("profile_id"): str}
-)
+@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/subscribe", vol.Required("profile_id"): str})
 @websocket_api.require_admin
 @callback
-def ws_subscribe(
-    hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
-) -> None:
+def ws_subscribe(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]) -> None:
     """Send a full snapshot, then a full snapshot on every change."""
     if (profile := _get_profile(hass, connection, msg)) is None:
         return
@@ -113,9 +105,7 @@ def ws_subscribe(
 )
 @websocket_api.require_admin
 @websocket_api.async_response
-async def ws_chart(
-    hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
-) -> None:
+async def ws_chart(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]) -> None:
     """Return one chart's series, read from HA's own records."""
     if (profile := _get_profile(hass, connection, msg)) is None:
         return
@@ -128,14 +118,10 @@ async def ws_chart(
     connection.send_result(msg["id"], await service.async_chart(profile, chart, range_days))
 
 
-@websocket_api.websocket_command(
-    {vol.Required("type"): f"{DOMAIN}/preferences/get", vol.Required("profile_id"): str}
-)
+@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/preferences/get", vol.Required("profile_id"): str})
 @websocket_api.require_admin
 @callback
-def ws_preferences_get(
-    hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
-) -> None:
+def ws_preferences_get(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]) -> None:
     """Return a profile's display preferences."""
     if _get_profile(hass, connection, msg) is not None:
         connection.send_result(msg["id"], _data(hass).preferences.get(msg["profile_id"]))
@@ -165,9 +151,7 @@ async def ws_preferences_set(
     connection.send_result(msg["id"], saved)
 
 
-@websocket_api.websocket_command(
-    {vol.Required("type"): f"{DOMAIN}/preferences/reset", vol.Required("profile_id"): str}
-)
+@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/preferences/reset", vol.Required("profile_id"): str})
 @websocket_api.require_admin
 @websocket_api.async_response
 async def ws_preferences_reset(
@@ -180,14 +164,10 @@ async def ws_preferences_reset(
     connection.send_result(msg["id"], saved)
 
 
-@websocket_api.websocket_command(
-    {vol.Required("type"): f"{DOMAIN}/route", vol.Required("profile_id"): str}
-)
+@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/route", vol.Required("profile_id"): str})
 @websocket_api.require_admin
 @callback
-def ws_route(
-    hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]
-) -> None:
+def ws_route(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]) -> None:
     """Return the validated last synced route, unless the user turned routes off."""
     if (profile := _get_profile(hass, connection, msg)) is None:
         return

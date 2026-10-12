@@ -13,7 +13,7 @@ personal data: write it under dev/raw/ (gitignored) only.
 """
 
 import asyncio
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 import json
 import os
 import sys
@@ -21,11 +21,11 @@ import sys
 import aiohttp
 
 sys.path.insert(0, os.getcwd())
-from homeassistant.core import State  # noqa: E402
-from homeassistant.util import dt as dt_util  # noqa: E402
+from homeassistant.core import State
+from homeassistant.util import dt as dt_util
 
-from custom_components.garmin_dashboard.activities import normalize_activities, normalize_route  # noqa: E402
-from custom_components.garmin_dashboard.charts import (  # noqa: E402
+from custom_components.garmin_dashboard.activities import normalize_activities, normalize_route
+from custom_components.garmin_dashboard.charts import (
     CHARTS,
     _canonical_unit,
     _converter,
@@ -35,9 +35,9 @@ from custom_components.garmin_dashboard.charts import (  # noqa: E402
     history_points,
     last_per_day,
 )
-from custom_components.garmin_dashboard.discovery import Resolution  # noqa: E402
-from custom_components.garmin_dashboard.normalization import build_metric  # noqa: E402
-from custom_components.garmin_dashboard.providers.cyberjunky import CATALOG, sport_of  # noqa: E402
+from custom_components.garmin_dashboard.discovery import Resolution
+from custom_components.garmin_dashboard.normalization import build_metric
+from custom_components.garmin_dashboard.providers.cyberjunky import CATALOG, sport_of
 
 
 class Ws:
@@ -54,17 +54,23 @@ class Ws:
 
 
 def _state(raw: dict) -> State:
-    return State(raw["entity_id"], raw["state"], raw["attributes"],
-                 last_changed=dt_util.parse_datetime(raw["last_changed"]),
-                 last_updated=dt_util.parse_datetime(raw["last_updated"]))
+    return State(
+        raw["entity_id"],
+        raw["state"],
+        raw["attributes"],
+        last_changed=dt_util.parse_datetime(raw["last_changed"]),
+        last_updated=dt_util.parse_datetime(raw["last_updated"]),
+    )
 
 
 def _activity_data(states: dict) -> tuple[dict, dict | None]:
     def find(suffix: str):
         return next((s for e, s in states.items() if e.startswith("sensor.") and e.endswith(suffix)), None)
+
     listing, latest, route = find("_last_activities"), find("_last_activity"), find("_last_activity_route")
-    result = normalize_activities(listing["attributes"].get("last_activities") if listing else None,
-                                  latest["attributes"] if latest else None)
+    result = normalize_activities(
+        listing["attributes"].get("last_activities") if listing else None, latest["attributes"] if latest else None
+    )
     return result, (normalize_route(route["attributes"]) if route else None)
 
 
@@ -76,15 +82,22 @@ async def main(out: str, trend_days: int, activity_states: str | None) -> None:
         await raw_ws.receive_json()
         ws = Ws(raw_ws)
         entry_id = (await ws.call(type="config_entries/get", domain="garmin_connect"))[0]["entry_id"]
-        registry = [e for e in await ws.call(type="config/entity_registry/list")
-                    if e.get("config_entry_id") == entry_id and e["unique_id"].startswith(entry_id + "_")]
+        registry = [
+            e
+            for e in await ws.call(type="config/entity_registry/list")
+            if e.get("config_entry_id") == entry_id and e["unique_id"].startswith(entry_id + "_")
+        ]
         states = {s["entity_id"]: s for s in await ws.call(type="get_states")}
         config = await ws.call(type="get_config")
 
         entity_of: dict[str, str] = {}
         for spec in CATALOG:
-            matches = [e for e in registry if e.get("translation_key") == spec.translation_key
-                       and (spec.sport is None or sport_of(spec.translation_key, e["unique_id"], entry_id) == spec.sport)]
+            matches = [
+                e
+                for e in registry
+                if e.get("translation_key") == spec.translation_key
+                and (spec.sport is None or sport_of(spec.translation_key, e["unique_id"], entry_id) == spec.sport)
+            ]
             if len(matches) == 1 and not matches[0].get("disabled_by"):
                 entity_of[spec.key] = matches[0]["entity_id"]
 
@@ -111,24 +124,45 @@ async def main(out: str, trend_days: int, activity_states: str | None) -> None:
                     continue
                 unit = states.get(entity_id, {}).get("attributes", {}).get("unit_of_measurement")
                 convert = _converter(key, unit)
-                entry = {"metric": key, "kind": next(s.kind for s in CATALOG if s.key == key),
-                         "unit": _canonical_unit(key, unit)}
+                entry = {
+                    "metric": key,
+                    "kind": next(s.kind for s in CATALOG if s.key == key),
+                    "unit": _canonical_unit(key, unit),
+                }
                 if chart.method == "current":
                     st = states.get(entity_id)
-                    entry["points"] = [] if st is None else [
-                        (int(dt_util.parse_datetime(st["last_changed"]).timestamp() * 1000), convert(st["state"]))]
+                    entry["points"] = (
+                        []
+                        if st is None
+                        else [
+                            (int(dt_util.parse_datetime(st["last_changed"]).timestamp() * 1000), convert(st["state"]))
+                        ]
+                    )
                 elif chart.method in ("intraday", "cumulative_today"):
-                    hist = await ws.call(type="history/history_during_period", start_time=start.isoformat(),
-                                         entity_ids=[entity_id], minimal_response=True, no_attributes=True,
-                                         significant_changes_only=False)
-                    items = [{"state": h["s"], "last_changed": datetime.fromtimestamp(h["lu"], timezone.utc).isoformat()}
-                             for h in hist.get(entity_id, [])]
+                    hist = await ws.call(
+                        type="history/history_during_period",
+                        start_time=start.isoformat(),
+                        entity_ids=[entity_id],
+                        minimal_response=True,
+                        no_attributes=True,
+                        significant_changes_only=False,
+                    )
+                    items = [
+                        {"state": h["s"], "last_changed": datetime.fromtimestamp(h["lu"], UTC).isoformat()}
+                        for h in hist.get(entity_id, [])
+                    ]
                     entry["points"] = downsample(history_points(items, convert))
                 else:
                     period = "day" if chart.method == "daily_range" else "hour"
-                    rows = (await ws.call(type="recorder/statistics_during_period", start_time=start.isoformat(),
-                                          statistic_ids=[entity_id], period=period,
-                                          types=["min", "max", "mean"])).get(entity_id, [])
+                    rows = (
+                        await ws.call(
+                            type="recorder/statistics_during_period",
+                            start_time=start.isoformat(),
+                            statistic_ids=[entity_id],
+                            period=period,
+                            types=["min", "max", "mean"],
+                        )
+                    ).get(entity_id, [])
                     rows = [{**r, "start": r["start"] / 1000} for r in rows]
                     if chart.method == "daily_range":
                         entry["ranges"] = daily_range(rows, convert)
@@ -136,10 +170,17 @@ async def main(out: str, trend_days: int, activity_states: str | None) -> None:
                         points = change_points(rows, convert, zero_is_placeholder=chart.zero_is_placeholder)
                         entry["points"] = downsample(last_per_day(points) if chart.one_per_day else points)
                 series.append(entry)
-            payload = {"chart_id": chart.id, "group": chart.group, "form": chart.form, "method": chart.method,
-                       "per_day": chart.one_per_day,
-                       "range_days": 1 if chart.group == "today" else trend_days,
-                       "start": start.isoformat(), "end": now.isoformat(), "series": series}
+            payload = {
+                "chart_id": chart.id,
+                "group": chart.group,
+                "form": chart.form,
+                "method": chart.method,
+                "per_day": chart.one_per_day,
+                "range_days": 1 if chart.group == "today" else trend_days,
+                "start": start.isoformat(),
+                "end": now.isoformat(),
+                "series": series,
+            }
             if chart.goal_metric:
                 goal = metrics.get(chart.goal_metric)
                 payload["goal"] = goal["value"] if goal and goal["status"] == "available" else None
@@ -155,16 +196,27 @@ async def main(out: str, trend_days: int, activity_states: str | None) -> None:
     if route:
         capabilities.append("route")
     snapshot = {
-        "schema_version": 1, "profile_id": "preview", "display_name": "Garmin", "revision": 1,
-        "source_status": "ready", "source_synced_at": None, "metrics": metrics, "gear": [],
-        "activities": activities["activities"], "activities_truncated": activities["truncated"],
+        "schema_version": 1,
+        "profile_id": "preview",
+        "display_name": "Garmin",
+        "revision": 1,
+        "source_status": "ready",
+        "source_synced_at": None,
+        "metrics": metrics,
+        "gear": [],
+        "activities": activities["activities"],
+        "activities_truncated": activities["truncated"],
         "capabilities": capabilities,
     }
     with open(out, "w") as f:
-        json.dump({"snapshot": snapshot, "charts": charts, "route": route,
-                   "unit_length": config["unit_system"]["length"]}, f, ensure_ascii=False)
+        json.dump(
+            {"snapshot": snapshot, "charts": charts, "route": route, "unit_length": config["unit_system"]["length"]},
+            f,
+            ensure_ascii=False,
+        )
     print(f"wrote {out}: {len(metrics)} metrics, {len(charts)} charts")
 
 
-asyncio.run(main(sys.argv[1], int(sys.argv[2]) if len(sys.argv) > 2 else 30,
-                 sys.argv[3] if len(sys.argv) > 3 else None))
+asyncio.run(
+    main(sys.argv[1], int(sys.argv[2]) if len(sys.argv) > 2 else 30, sys.argv[3] if len(sys.argv) > 3 else None)
+)

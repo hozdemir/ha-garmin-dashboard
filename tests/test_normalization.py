@@ -2,10 +2,9 @@
 
 from datetime import timedelta
 
-import pytest
-
 from homeassistant.core import State
 from homeassistant.util import dt as dt_util
+import pytest
 
 from custom_components.garmin_dashboard.discovery import Resolution
 from custom_components.garmin_dashboard.normalization import build_metric

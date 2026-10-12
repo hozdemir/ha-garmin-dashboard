@@ -12,9 +12,7 @@ from .conftest import FIXTURE, entity_for, load_source
 async def test_every_catalog_metric_resolves(hass: HomeAssistant) -> None:
     load_source(hass)
     mapping = resolve_profile(hass, FIXTURE["source_entry_id"])
-    assert {key: r.status for key, r in mapping.metrics.items()} == {
-        spec.key: "resolved" for spec in CATALOG
-    }
+    assert {key: r.status for key, r in mapping.metrics.items()} == {spec.key: "resolved" for spec in CATALOG}
 
 
 async def test_sport_specific_ftp_is_not_mixed_up(hass: HomeAssistant) -> None:
@@ -49,8 +47,11 @@ async def test_gear_found_by_unique_id(hass: HomeAssistant) -> None:
 async def test_duplicate_translation_key_is_ambiguous(hass: HomeAssistant) -> None:
     source = load_source(hass)
     er.async_get(hass).async_get_or_create(
-        "sensor", "garmin_connect", f"{source.entry_id}_totalStepsCopy",
-        config_entry=source, translation_key="total_steps",
+        "sensor",
+        "garmin_connect",
+        f"{source.entry_id}_totalStepsCopy",
+        config_entry=source,
+        translation_key="total_steps",
     )
     mapping = resolve_profile(hass, FIXTURE["source_entry_id"])
     assert mapping.metrics["steps"].status == "ambiguous"
@@ -62,7 +63,5 @@ async def test_only_integration_disabled_activity_sensors_are_offered(hass: Home
     offered = disabled_activity_entities(hass, FIXTURE["source_entry_id"])
     assert sorted(offered) == sorted([entity_for("last_activity"), entity_for("last_activities")])
 
-    er.async_get(hass).async_update_entity(
-        entity_for("last_activity"), disabled_by=er.RegistryEntryDisabler.USER
-    )
+    er.async_get(hass).async_update_entity(entity_for("last_activity"), disabled_by=er.RegistryEntryDisabler.USER)
     assert disabled_activity_entities(hass, FIXTURE["source_entry_id"]) == [entity_for("last_activities")]

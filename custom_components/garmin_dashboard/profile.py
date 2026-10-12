@@ -34,9 +34,7 @@ _SOURCE_STATUS = {
 class ProfileRuntime:
     """Tracks the entities of one source entry and pushes snapshots."""
 
-    def __init__(
-        self, hass: HomeAssistant, profile_id: str, source_entry_id: str, display_name: str
-    ) -> None:
+    def __init__(self, hass: HomeAssistant, profile_id: str, source_entry_id: str, display_name: str) -> None:
         self.hass = hass
         self.profile_id = profile_id
         self.source_entry_id = source_entry_id
@@ -58,9 +56,7 @@ class ProfileRuntime:
         except Exception:  # noqa: BLE001 - a missing source is reported via source_status
             self.source_version = None
         self._remap()
-        self._unsub_registry = self.hass.bus.async_listen(
-            er.EVENT_ENTITY_REGISTRY_UPDATED, self._on_registry_updated
-        )
+        self._unsub_registry = self.hass.bus.async_listen(er.EVENT_ENTITY_REGISTRY_UPDATED, self._on_registry_updated)
 
     @callback
     def async_stop(self) -> None:
@@ -104,16 +100,24 @@ class ProfileRuntime:
             "source_removed": (status == "removed", {"profile": self.display_name}),
             "unsupported_source": (
                 status == "unsupported",
-                {"profile": self.display_name, "version": self.source_version or "?",
-                 "supported": ", ".join(sorted(provider.SUPPORTED_VERSIONS))},
+                {
+                    "profile": self.display_name,
+                    "version": self.source_version or "?",
+                    "supported": ", ".join(sorted(provider.SUPPORTED_VERSIONS)),
+                },
             ),
         }
         for key, (active, placeholders) in issues.items():
             issue_id = f"{key}_{self.profile_id}"
             if active:
                 ir.async_create_issue(
-                    self.hass, DOMAIN, issue_id, is_fixable=False, severity=ir.IssueSeverity.WARNING,
-                    translation_key=key, translation_placeholders=placeholders,
+                    self.hass,
+                    DOMAIN,
+                    issue_id,
+                    is_fixable=False,
+                    severity=ir.IssueSeverity.WARNING,
+                    translation_key=key,
+                    translation_placeholders=placeholders,
                 )
             else:
                 ir.async_delete_issue(self.hass, DOMAIN, issue_id)
@@ -199,8 +203,13 @@ class ProfileRuntime:
             return metric
         last = self._last_available.get(key)
         if metric["status"] == "unavailable" and last is not None:
-            return {**metric, "value": last["value"], "unit": last["unit"],
-                    "source_date": last["source_date"], "freshness": "stale"}
+            return {
+                **metric,
+                "value": last["value"],
+                "unit": last["unit"],
+                "source_date": last["source_date"],
+                "freshness": "stale",
+            }
         return metric
 
     def _source_synced_at(self) -> str | None:
@@ -231,7 +240,8 @@ class ProfileRuntime:
             dict(latest.attributes) if latest else None,
         )
         self._activity_report = {
-            "skipped": result["skipped"], "key_collisions_possible": result["key_collisions_possible"],
+            "skipped": result["skipped"],
+            "key_collisions_possible": result["key_collisions_possible"],
         }
         return {
             "activities": result["activities"],
@@ -258,16 +268,21 @@ class ProfileRuntime:
             if state is None or state.attributes.get("restored"):
                 continue
             metric = build_metric(
-                _GEAR_SPEC, Resolution("resolved", item.entity_id), state, dt_util.utcnow(),
+                _GEAR_SPEC,
+                Resolution("resolved", item.entity_id),
+                state,
+                dt_util.utcnow(),
             )
             name = state.attributes.get("friendly_name") or state.attributes.get("gear_model_name")
-            gear.append({
-                "id": item.gear_id,
-                "name": name if isinstance(name, str) else None,
-                "status": metric["status"],
-                "distance_meters": metric["value"],
-                "retired": str(state.attributes.get("gear_status_name", "")).lower() == "retired",
-            })
+            gear.append(
+                {
+                    "id": item.gear_id,
+                    "name": name if isinstance(name, str) else None,
+                    "status": metric["status"],
+                    "distance_meters": metric["value"],
+                    "retired": str(state.attributes.get("gear_status_name", "")).lower() == "retired",
+                }
+            )
         return gear
 
     def _capabilities(self, metrics: dict[str, dict[str, Any]]) -> list[str]:
@@ -300,4 +315,3 @@ class ProfileRuntime:
             "route_sensor": self.mapping.route.status,
             "activity_report": self._activity_report,
         }
-

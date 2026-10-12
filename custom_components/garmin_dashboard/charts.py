@@ -68,18 +68,27 @@ CHARTS: tuple[ChartSpec, ...] = (
     ChartSpec("body_battery_today", "today", "area", ("body_battery",), "intraday"),
     ChartSpec("steps_today", "today", "line", ("steps",), "cumulative_today", goal_metric="steps_goal"),
     ChartSpec("stress_today", "today", "line", ("stress_avg",), "intraday", default_visible=False),
-    ChartSpec("sleep_stages", "today", "stacked_bar",
-              ("sleep_deep", "sleep_light", "sleep_rem", "sleep_awake"), "current"),
+    ChartSpec(
+        "sleep_stages", "today", "stacked_bar", ("sleep_deep", "sleep_light", "sleep_rem", "sleep_awake"), "current"
+    ),
     ChartSpec("body_battery_range", "trends", "range_columns", ("body_battery",), "daily_range"),
-    ChartSpec("sleep_score", "trends", "dots", ("sleep_score",), "change_points",
-              zero_is_placeholder=True, one_per_day=True),
-    ChartSpec("sleep_duration", "trends", "columns", ("sleep_duration",), "change_points",
-              zero_is_placeholder=True, one_per_day=True),
+    ChartSpec(
+        "sleep_score", "trends", "dots", ("sleep_score",), "change_points", zero_is_placeholder=True, one_per_day=True
+    ),
+    ChartSpec(
+        "sleep_duration",
+        "trends",
+        "columns",
+        ("sleep_duration",),
+        "change_points",
+        zero_is_placeholder=True,
+        one_per_day=True,
+    ),
     ChartSpec("resting_hr", "trends", "line", ("resting_hr",), "change_points", one_per_day=True),
-    ChartSpec("hrv", "trends", "line", ("hrv_last_night",), "change_points",
-              zero_is_placeholder=True, one_per_day=True),
-    ChartSpec("weekly_steps", "trends", "line", ("weekly_step_avg",), "change_points",
-              one_per_day=True),
+    ChartSpec(
+        "hrv", "trends", "line", ("hrv_last_night",), "change_points", zero_is_placeholder=True, one_per_day=True
+    ),
+    ChartSpec("weekly_steps", "trends", "line", ("weekly_step_avg",), "change_points", one_per_day=True),
     ChartSpec("vo2max", "trends", "step", ("vo2max",), "change_points"),
     ChartSpec("ftp_cycling", "trends", "step", ("ftp_cycling",), "change_points"),
 )
@@ -98,7 +107,7 @@ def _finite(value: Any) -> float | None:
         return None
     try:
         number = float(value)
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         return None
     return number if math.isfinite(number) else None
 
@@ -123,9 +132,7 @@ def history_points(states: Iterable[State | Mapping[str, Any]], convert) -> list
     return points
 
 
-def change_points(
-    rows: Iterable[Mapping[str, Any]], convert, *, zero_is_placeholder: bool = False
-) -> list[Point]:
+def change_points(rows: Iterable[Mapping[str, Any]], convert, *, zero_is_placeholder: bool = False) -> list[Point]:
     """Emit a point at the first stable hour of each new value.
 
     Hours whose min and max differ are transitions; their mean is a blend of
@@ -232,9 +239,7 @@ class ChartService:
             return 1
         return requested if requested in TREND_RANGES else DEFAULT_TREND_RANGE
 
-    async def async_chart(
-        self, profile, chart: ChartSpec, range_days: int
-    ) -> dict[str, Any]:
+    async def async_chart(self, profile, chart: ChartSpec, range_days: int) -> dict[str, Any]:
         key = (profile.profile_id, chart.id, range_days)
         now = dt_util.utcnow()
         cached = self._cache.get(key)
@@ -268,9 +273,7 @@ class ChartService:
                 "unit": _canonical_unit(metric_key, unit),
             }
             if chart.method == "current":
-                entry["points"] = [] if state is None else [
-                    (_ms(state.last_changed), convert(state.state))
-                ]
+                entry["points"] = [] if state is None else [(_ms(state.last_changed), convert(state.state))]
             elif chart.method in ("intraday", "cumulative_today"):
                 states = await self._history(entity_id, start, now)
                 entry["points"] = downsample(history_points(states, convert))
@@ -302,9 +305,14 @@ class ChartService:
     async def _history(self, entity_id: str, start: datetime, end: datetime) -> list[Any]:
         result = await get_instance(self.hass).async_add_executor_job(
             lambda: history.get_significant_states(
-                self.hass, start, end, [entity_id],
-                include_start_time_state=True, significant_changes_only=False,
-                minimal_response=True, no_attributes=True,
+                self.hass,
+                start,
+                end,
+                [entity_id],
+                include_start_time_state=True,
+                significant_changes_only=False,
+                minimal_response=True,
+                no_attributes=True,
             )
         )
         return result.get(entity_id, [])
@@ -312,6 +320,12 @@ class ChartService:
     async def _statistics(self, entity_id: str, start: datetime, end: datetime, period: str) -> list[Any]:
         result = await get_instance(self.hass).async_add_executor_job(
             statistics.statistics_during_period,
-            self.hass, start, end, {entity_id}, period, None, {"min", "max", "mean"},
+            self.hass,
+            start,
+            end,
+            {entity_id},
+            period,
+            None,
+            {"min", "max", "mean"},
         )
         return result.get(entity_id, [])

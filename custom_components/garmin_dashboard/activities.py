@@ -29,7 +29,7 @@ def _number(value: Any, *, minimum: float = 0.0) -> float | None:
         return None
     try:
         number = float(value)
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         return None
     if not math.isfinite(number) or number < minimum:
         return None

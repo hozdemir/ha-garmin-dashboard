@@ -3,14 +3,13 @@
 from datetime import timedelta
 from typing import Any
 
+from homeassistant.core import HomeAssistant, State
+from homeassistant.util import dt as dt_util
 import pytest
 from pytest_homeassistant_custom_component.components.recorder.common import (
     async_wait_recording_done,
 )
 from pytest_homeassistant_custom_component.typing import WebSocketGenerator
-
-from homeassistant.core import HomeAssistant, State
-from homeassistant.util import dt as dt_util
 
 from custom_components.garmin_dashboard.charts import (
     CHARTS_BY_ID,
@@ -54,7 +53,7 @@ def test_transition_hours_are_not_averaged_into_a_fake_value() -> None:
 
 
 def test_long_hole_becomes_a_gap_not_a_bridge() -> None:
-    rows = _rows((50, 50)) + [{"start": T0 + 72 * HOUR, "min": 50, "max": 50}]
+    rows = [*_rows((50, 50)), {"start": T0 + 72 * HOUR, "min": 50, "max": 50}]
     points = change_points(rows, ident)
     assert [v for _, v in points] == [50, None, 50]
     assert points[1][0] - points[0][0] < GAP_MS
@@ -136,9 +135,7 @@ async def test_chart_command_reads_recorder(
     await async_wait_recording_done(hass)
 
     client = await hass_ws_client(hass)
-    await client.send_json_auto_id(
-        {"type": f"{DOMAIN}/chart", "profile_id": PROFILE_ID, "chart_id": "steps_today"}
-    )
+    await client.send_json_auto_id({"type": f"{DOMAIN}/chart", "profile_id": PROFILE_ID, "chart_id": "steps_today"})
     reply = await client.receive_json()
     assert reply["success"], reply
     result = reply["result"]
@@ -148,31 +145,21 @@ async def test_chart_command_reads_recorder(
     assert values[-3:] == [9000, None, 9500]
 
 
-async def test_chart_without_recorder_reports_it(
-    hass: HomeAssistant, hass_ws_client: WebSocketGenerator
-) -> None:
+async def test_chart_without_recorder_reports_it(hass: HomeAssistant, hass_ws_client: WebSocketGenerator) -> None:
     await _setup(hass)
     client = await hass_ws_client(hass)
-    await client.send_json_auto_id(
-        {"type": f"{DOMAIN}/chart", "profile_id": PROFILE_ID, "chart_id": "resting_hr"}
-    )
+    await client.send_json_auto_id({"type": f"{DOMAIN}/chart", "profile_id": PROFILE_ID, "chart_id": "resting_hr"})
     reply = await client.receive_json()
     assert reply["error"]["code"] == "recorder_unavailable"
 
 
-async def test_current_chart_works_without_recorder(
-    hass: HomeAssistant, hass_ws_client: WebSocketGenerator
-) -> None:
+async def test_current_chart_works_without_recorder(hass: HomeAssistant, hass_ws_client: WebSocketGenerator) -> None:
     await _setup(hass)
     client = await hass_ws_client(hass)
-    await client.send_json_auto_id(
-        {"type": f"{DOMAIN}/chart", "profile_id": PROFILE_ID, "chart_id": "sleep_stages"}
-    )
+    await client.send_json_auto_id({"type": f"{DOMAIN}/chart", "profile_id": PROFILE_ID, "chart_id": "sleep_stages"})
     reply = await client.receive_json()
     assert reply["success"]
-    assert [s["metric"] for s in reply["result"]["series"]] == [
-        "sleep_deep", "sleep_light", "sleep_rem", "sleep_awake"
-    ]
+    assert [s["metric"] for s in reply["result"]["series"]] == ["sleep_deep", "sleep_light", "sleep_rem", "sleep_awake"]
     # Minutes from the source arrive as seconds.
     assert reply["result"]["series"][0]["points"][0][1] == 60
 
@@ -182,7 +169,5 @@ async def test_non_admin_cannot_read_charts(
 ) -> None:
     await _setup(hass)
     client = await hass_ws_client(hass, hass_read_only_access_token)
-    await client.send_json_auto_id(
-        {"type": f"{DOMAIN}/chart", "profile_id": PROFILE_ID, "chart_id": "sleep_stages"}
-    )
+    await client.send_json_auto_id({"type": f"{DOMAIN}/chart", "profile_id": PROFILE_ID, "chart_id": "sleep_stages"})
     assert (await client.receive_json())["error"]["code"] == "unauthorized"

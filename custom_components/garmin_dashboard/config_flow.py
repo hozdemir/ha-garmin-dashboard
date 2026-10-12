@@ -5,8 +5,6 @@ from __future__ import annotations
 from typing import Any
 import uuid
 
-import voluptuous as vol
-
 from homeassistant.config_entries import (
     ConfigEntry,
     ConfigFlow,
@@ -22,6 +20,7 @@ from homeassistant.helpers.selector import (
     SelectSelectorMode,
     TextSelector,
 )
+import voluptuous as vol
 
 from .const import (
     CONF_DISPLAY_NAME,
@@ -46,9 +45,7 @@ MAX_NAME_LENGTH = 40
 
 def _available_sources(hass: HomeAssistant) -> dict[str, ConfigEntry]:
     return {
-        entry.entry_id: entry
-        for entry in hass.config_entries.async_entries(SOURCE_DOMAIN)
-        if entry.disabled_by is None
+        entry.entry_id: entry for entry in hass.config_entries.async_entries(SOURCE_DOMAIN) if entry.disabled_by is None
     }
 
 
@@ -85,12 +82,15 @@ class _AccountSteps:
     def _accounts_form(self, step_id: str, default: list[str], errors: dict[str, str] | None = None):
         return self.async_show_form(  # type: ignore[attr-defined]
             step_id=step_id,
-            data_schema=vol.Schema({
-                vol.Required(CONF_ACCOUNTS, default=default): SelectSelector(
-                    SelectSelectorConfig(options=self._account_options(), multiple=True,
-                                         mode=SelectSelectorMode.LIST)
-                )
-            }),
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_ACCOUNTS, default=default): SelectSelector(
+                        SelectSelectorConfig(
+                            options=self._account_options(), multiple=True, mode=SelectSelectorMode.LIST
+                        )
+                    )
+                }
+            ),
             errors=errors or {},
         )
 
@@ -109,7 +109,8 @@ class _AccountSteps:
         schema: dict[Any, Any] = {}
         for index, entry_id in enumerate(self._selected, start=1):
             current = self._names.get(entry_id) or (
-                self._existing[entry_id][CONF_DISPLAY_NAME] if entry_id in self._existing
+                self._existing[entry_id][CONF_DISPLAY_NAME]
+                if entry_id in self._existing
                 else _default_name(sources.get(entry_id), taken)
             )
             taken.add(current.casefold())
@@ -176,11 +177,13 @@ class _AccountSteps:
             name = self._names.get(entry_id) or (
                 existing[CONF_DISPLAY_NAME] if existing else _default_name(sources.get(entry_id), taken)
             )
-            profiles.append({
-                CONF_PROFILE_ID: existing[CONF_PROFILE_ID] if existing else uuid.uuid4().hex,
-                CONF_SOURCE_ENTRY_ID: entry_id,
-                CONF_DISPLAY_NAME: name,
-            })
+            profiles.append(
+                {
+                    CONF_PROFILE_ID: existing[CONF_PROFILE_ID] if existing else uuid.uuid4().hex,
+                    CONF_SOURCE_ENTRY_ID: entry_id,
+                    CONF_DISPLAY_NAME: name,
+                }
+            )
         return profiles
 
 
@@ -204,7 +207,9 @@ class GarminDashboardConfigFlow(_AccountSteps, ConfigFlow, domain=DOMAIN):
             return self.async_abort(
                 reason="no_source",
                 description_placeholders={
-                    "docs_url": SOURCE_DOCS_URL, "hacs_url": HACS_SOURCE_URL, "setup_url": SOURCE_SETUP_URL,
+                    "docs_url": SOURCE_DOCS_URL,
+                    "hacs_url": HACS_SOURCE_URL,
+                    "setup_url": SOURCE_SETUP_URL,
                 },
             )
         if len(sources) == 1:
