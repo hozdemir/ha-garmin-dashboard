@@ -73,7 +73,7 @@ Garmin Dashboard shows what Home Assistant has recorded, and avoids showing numb
 
 | Garmin Dashboard | Home Assistant | Garmin Connect |
 |---|---|---|
-| 0.5.0 | 2026.9, 2026.10 | 3.0.19 |
+| 0.5.1 | 2026.9, 2026.10 | 3.0.19 |
 
 Only tested combinations are listed. With another Garmin Connect version you get a Repairs notice; values that can no longer be matched safely are hidden rather than shown wrongly.
 
