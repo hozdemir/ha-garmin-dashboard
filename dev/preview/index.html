@@ -45,7 +45,7 @@
     Object.assign(partner, { profile_id: "partner", display_name: "Partner", source_status: partnerStatus });
     const snapshots = { preview: data.snapshot, partner };
     let prefs = {
-      section_order: ["movement", "recovery", "training", "body", "gear", "activities"],
+      section_order: ["summary", "movement", "recovery", "training", "body", "gear", "activities"],
       hidden_sections: [], hidden_metrics: [], hidden_charts: ["stress_today"],
       trend_range_days: Number(params.get("range") ?? 30), show_route: params.get("showRoute") !== "0",
     };

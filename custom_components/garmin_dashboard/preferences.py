@@ -20,7 +20,9 @@ from .providers.cyberjunky import CATALOG
 STORAGE_VERSION = 1
 STORAGE_KEY = f"{DOMAIN}.preferences"
 
-SECTIONS: tuple[str, ...] = ("movement", "recovery", "training", "body", "gear", "activities")
+SECTIONS: tuple[str, ...] = ("summary", "movement", "recovery", "training", "body", "gear", "activities")
+# Sections added after a release open where they belong instead of at the end.
+_LEADING_SECTIONS: frozenset[str] = frozenset({"summary"})
 METRIC_KEYS: frozenset[str] = frozenset(spec.key for spec in CATALOG)
 CHART_IDS: frozenset[str] = frozenset(chart.id for chart in CHARTS)
 
@@ -64,7 +66,9 @@ def sanitize(raw: Any) -> dict[str, Any]:
         return prefs
     if isinstance(order := raw.get("section_order"), list):
         known = _dedupe([s for s in order if s in SECTIONS])
-        prefs["section_order"] = known + [s for s in SECTIONS if s not in known]
+        new = [s for s in SECTIONS if s not in known]
+        leading = [s for s in new if s in _LEADING_SECTIONS]
+        prefs["section_order"] = leading + known + [s for s in new if s not in leading]
     for key, allowed in (
         ("hidden_sections", SECTIONS),
         ("hidden_metrics", METRIC_KEYS),

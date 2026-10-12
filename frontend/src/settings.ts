@@ -3,7 +3,7 @@ import { LitElement, css, html, nothing, type TemplateResult } from "lit";
 import { CHARTS, TILE_SECTIONS, TREND_RANGES, type Preferences, type SectionId } from "./catalog";
 import { hasMessage, type MessageKey, type Translate } from "./i18n";
 
-const SETTABLE_SECTIONS: SectionId[] = ["movement", "recovery", "training", "body", "gear", "activities"];
+const SETTABLE_SECTIONS: SectionId[] = ["summary", "movement", "recovery", "training", "body", "gear", "activities"];
 
 /** Settings view: edits a draft copy, emits `save` or `cancel`. */
 export class GarminSettings extends LitElement {

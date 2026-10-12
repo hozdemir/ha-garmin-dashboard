@@ -49,7 +49,8 @@ def test_loads_drop_removed_keys_and_add_new_sections() -> None:
         "trend_range_days": 7,
     }
     prefs = sanitize(stored)
-    assert prefs["section_order"][:2] == ["training", "movement"]
+    # The summary added in a later release opens on top; other new sections go last.
+    assert prefs["section_order"][:3] == ["summary", "training", "movement"]
     assert sorted(prefs["section_order"]) == sorted(SECTIONS)
     assert prefs["hidden_metrics"] == ["steps"]
     assert prefs["hidden_charts"] == []

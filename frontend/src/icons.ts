@@ -26,6 +26,7 @@ import {
   mdiSleep,
   mdiSpeedometer,
   mdiTimerSand,
+  mdiViewDashboardVariant,
   mdiWalk,
   mdiWater,
 } from "@mdi/js";
@@ -35,6 +36,7 @@ import type { SectionId } from "./catalog";
 import type { Tone } from "./format";
 
 export const SECTION_ICONS: Record<SectionId | "status", string> = {
+  summary: mdiViewDashboardVariant,
   movement: mdiWalk,
   recovery: mdiBatteryHeartVariant,
   training: mdiArmFlex,

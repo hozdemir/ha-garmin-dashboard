@@ -2,7 +2,7 @@
 
 import type { Section } from "./types";
 
-export type SectionId = Section | "gear" | "activities";
+export type SectionId = "summary" | Section | "gear" | "activities";
 
 export const TILE_SECTIONS: { id: Section; keys: string[] }[] = [
   { id: "movement", keys: ["steps", "distance_day", "calories_active", "calories_total"] },

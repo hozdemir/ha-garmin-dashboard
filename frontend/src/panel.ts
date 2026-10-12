@@ -4,6 +4,7 @@ import "./activities";
 import "./chart";
 import "./route";
 import "./settings";
+import { SUMMARY_RINGS } from "./summary";
 import { CHARTS, TILE_SECTIONS, TREND_RANGES, type ChartDef, type Preferences, type SectionId } from "./catalog";
 import type { ChartPayload } from "./chart-data";
 import { categoryTone, formatDistance, formatMetric, formatNumber, goalProgress, type FormatContext } from "./format";
@@ -435,10 +436,11 @@ export class GarminDashboardPanel extends LitElement {
     const snapshot = this._snapshot;
     if (!snapshot) return html`<p class="muted">${t("loading")}</p>`;
     const prefs = this._prefs;
-    const order: SectionId[] = prefs?.section_order ?? ["movement", "recovery", "training", "body", "gear"];
+    const order: SectionId[] = prefs?.section_order ?? ["summary", "movement", "recovery", "training", "body", "gear"];
     const hidden = new Set(prefs?.hidden_sections ?? []);
     const shown = order.filter((s) => !hidden.has(s));
     const sections = shown.map((id) => {
+      if (id === "summary") return this._renderSummary(snapshot);
       if (id === "gear") return this._renderGear(snapshot);
       if (id === "activities") return this._renderActivities(snapshot);
       const def = TILE_SECTIONS.find((s) => s.id === id);
@@ -456,6 +458,21 @@ export class GarminDashboardPanel extends LitElement {
       </div>
       ${this._renderChartGroup("today")}
       ${this._renderChartGroup("trends")}
+    `;
+  }
+
+  private _renderSummary(snapshot: ProfileSnapshot): TemplateResult | typeof nothing {
+    const hidden = this._prefs?.hidden_metrics ?? [];
+    const any = SUMMARY_RINGS.some((key) => {
+      const metric = snapshot.metrics[key];
+      return metric !== undefined && !hidden.includes(key) && !HIDDEN_STATUSES.has(metric.status);
+    });
+    if (!any) return nothing;
+    return html`
+      <section class="card wide" aria-labelledby="h-summary">
+        <h2 id="h-summary">${this._heading("summary")}</h2>
+        <garmin-summary .snapshot=${snapshot} .hiddenMetrics=${hidden} .fmt=${this._fmt} .t=${this._t}></garmin-summary>
+      </section>
     `;
   }
 
