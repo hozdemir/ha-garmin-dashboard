@@ -175,6 +175,9 @@ def main(out):
         "sleep_rem": metric("sleep_rem", "recovery", "duration", 1.6 * 3600, "s"),
         "sleep_awake": metric("sleep_awake", "recovery", "duration", 0.4 * 3600, "s"),
         "stress_avg": metric("stress_avg", "recovery", "level", 28, "level"),
+        "ptw_cycling": metric("ptw_cycling", "training", "power_ratio", 3.42, "W/kg", source_date="2026-10-02"),
+        "lthr_cycling": metric("lthr_cycling", "training", "heart_rate", 165, "bpm", source_date="2026-09-28"),
+        "lthr_running": metric("lthr_running", "training", "heart_rate", 172, "bpm", source_date="2026-09-28"),
     }
     t_last = ms(NOW - timedelta(hours=9))
 
@@ -254,6 +257,13 @@ def main(out):
         ),
         "vo2max": chart("vo2max", "trends", "step", "change_points", [s("vo2max", "vo2max", "mL/(kg·min)", vo2)]),
         "ftp_cycling": chart("ftp_cycling", "trends", "step", "change_points", [s("ftp_cycling", "power", "W", ftp)]),
+        "ptw_cycling": chart(
+            "ptw_cycling",
+            "trends",
+            "step",
+            "change_points",
+            [s("ptw_cycling", "power_ratio", "W/kg", [[t, round(v / 74.3, 2)] for t, v in ftp])],
+        ),
     }
     snapshot = {
         "schema_version": 1,
@@ -267,6 +277,11 @@ def main(out):
         "gear": [
             {"id": "g1", "name": "Road bike", "status": "available", "distance_meters": 8_412_000, "retired": False},
             {"id": "g2", "name": "Running shoes", "status": "available", "distance_meters": 512_000, "retired": False},
+        ],
+        "sensors": [
+            {"type": "BIKE_POWER", "manufacturer": "Garmin", "battery_status": "LOW", "battery_level": None},
+            {"type": "HEART_RATE", "manufacturer": "Garmin", "battery_status": "GOOD", "battery_level": 86},
+            {"type": "BIKE_RADAR", "manufacturer": "Garmin", "battery_status": "GOOD", "battery_level": None},
         ],
         "activities": activities(),
         "activities_truncated": False,
