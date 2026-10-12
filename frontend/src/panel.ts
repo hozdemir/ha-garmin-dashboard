@@ -19,6 +19,25 @@ import {
   type Section,
 } from "./types";
 
+const LAST_PROFILE_KEY = "garmin-dashboard:last-profile";
+
+/** Per-browser convenience only; storage may be unavailable (private mode). */
+function rememberedProfile(): string | null {
+  try {
+    return localStorage.getItem(LAST_PROFILE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function rememberProfile(profileId: string): void {
+  try {
+    localStorage.setItem(LAST_PROFILE_KEY, profileId);
+  } catch {
+    // Not persisted; the first profile is used next time.
+  }
+}
+
 // "Today" charts follow live data; refetch them at most this often.
 const TODAY_REFRESH_MS = 60_000;
 
@@ -123,7 +142,8 @@ export class GarminDashboardPanel extends LitElement {
       }
       this._error = undefined;
       this._profiles = result.profiles;
-      const keep = result.profiles.find((p) => p.profile_id === this._profileId);
+      const wanted = this._profileId ?? rememberedProfile();
+      const keep = result.profiles.find((p) => p.profile_id === wanted);
       const next = keep ?? result.profiles[0];
       if (next) this._selectProfile(next.profile_id);
     } catch {
@@ -133,6 +153,9 @@ export class GarminDashboardPanel extends LitElement {
 
   private _selectProfile(profileId: string): void {
     if (!this.hass) return;
+    rememberProfile(profileId);
+    // An open settings draft belongs to the previous profile.
+    if (profileId !== this._profileId) this._view = "dashboard";
     this._stopSnapshot();
     if (profileId !== this._profileId) {
       this._snapshot = undefined;
@@ -327,7 +350,8 @@ export class GarminDashboardPanel extends LitElement {
     }
     return html`
       <select
-        aria-label="Profile"
+        class="profiles"
+        aria-label=${this._t("profile")}
         @change=${(e: Event) => this._selectProfile((e.target as HTMLSelectElement).value)}
       >
         ${profiles.map(
@@ -603,6 +627,11 @@ export class GarminDashboardPanel extends LitElement {
     h1 { font-size: 20px; font-weight: 400; margin: 0; flex: 1; }
     .profile { opacity: 0.85; }
     select { min-height: 44px; font: inherit; }
+    select.profiles {
+      max-width: 40vw; padding: 0 8px; border-radius: 8px; color: inherit; cursor: pointer;
+      background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+    select.profiles option { color: var(--primary-text-color); background: var(--card-background-color); }
     button.icon {
       min-width: 44px; min-height: 44px; border: 0; background: none;
       color: inherit; font-size: 22px; cursor: pointer;
