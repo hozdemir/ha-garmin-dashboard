@@ -107,6 +107,29 @@
       };
       expand();
     }
+    // ?perf=1 records when the first value tiles and all charts have rendered
+    // (ms since navigation start), written to <pre id="perf">.
+    if (params.get("perf") === "1") {
+      const marks = {};
+      const poll = () => {
+        const root = panel.shadowRoot;
+        if (!marks.tiles && root?.querySelector(".tile")) marks.tiles = performance.now();
+        const charts = [...(root?.querySelectorAll("garmin-chart") ?? [])];
+        if (!marks.charts && charts.length && charts.every((c) => c.shadowRoot?.querySelector("svg, .stack, .empty"))) {
+          marks.charts = performance.now();
+          marks.chart_count = charts.length;
+        }
+        if (marks.tiles && marks.charts) {
+          const pre = document.createElement("pre");
+          pre.id = "perf";
+          pre.textContent = JSON.stringify(marks);
+          document.body.append(pre);
+        } else {
+          requestAnimationFrame(poll);
+        }
+      };
+      requestAnimationFrame(poll);
+    }
     // ?audit=1 lists every request the page made (Resource Timing) after the panel has
     // rendered, to show the panel talks to nothing but its own host.
     if (params.get("audit") === "1") {
