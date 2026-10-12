@@ -43,7 +43,7 @@ def _text(value: Any, limit: int = 200) -> str | None:
     return value[:limit] or None
 
 
-def _start_time(value: Any) -> datetime | None:
+def parse_aware_time(value: Any) -> datetime | None:
     """Live state attributes hold a datetime; JSON dumps hold an ISO string."""
     if isinstance(value, datetime):
         parsed = value
@@ -61,7 +61,7 @@ def normalize_activity(raw: Any) -> dict[str, Any] | None:
     """One activity, or None when it cannot be identified at all."""
     if not isinstance(raw, Mapping):
         return None
-    started = _start_time(raw.get("startTime"))
+    started = parse_aware_time(raw.get("startTime"))
     activity_id = raw.get("activityId")
     if isinstance(activity_id, bool) or not isinstance(activity_id, (int, str)) or str(activity_id) == "":
         activity_id = None
