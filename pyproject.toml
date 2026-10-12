@@ -18,4 +18,4 @@ combine-as-imports = true
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["PLC0415"]
 # One-off developer scripts: blocking I/O and long mains are fine there.
-"dev/tools/*" = ["E402", "BLE001", "PLC0415", "ASYNC230", "SIM115", "PLR0915", "B905", "RUF007", "RUF015", "SIM108"]
+"dev/tools/*" = ["E402", "BLE001", "PLC0415", "ASYNC230", "SIM115", "PLR0915", "PLR0917", "B905", "RUF007", "RUF015", "SIM108"]

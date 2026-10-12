@@ -123,17 +123,30 @@ def activities():
     for i, (title, sport, dist, dur, hr) in enumerate(names):
         start = NOW - timedelta(days=i * 1.7 + 0.3)
         zones = [dur * f for f in (0.08, 0.27, 0.38, 0.22, 0.05)]
-        out.append({
-            "id": str(1000 + i), "id_source": "source", "sport": sport, "title": title,
-            "started_at": start.isoformat(), "duration_seconds": dur, "moving_seconds": dur * 0.97,
-            "distance_meters": dist, "average_speed_mps": dist / dur, "max_speed_mps": dist / dur * 1.8,
-            "average_heart_rate_bpm": hr, "max_heart_rate_bpm": hr + 24,
-            "average_power_w": 182 if "biking" in sport else None,
-            "normalized_power_w": 201 if "biking" in sport else None,
-            "elevation_gain_m": round(dist / 90), "calories_kcal": round(dur / 4.5),
-            "aerobic_effect": 3.1, "anaerobic_effect": 1.2, "training_load": 96 + i * 7,
-            "hr_zone_seconds": zones,
-        })
+        out.append(
+            {
+                "id": str(1000 + i),
+                "id_source": "source",
+                "sport": sport,
+                "title": title,
+                "started_at": start.isoformat(),
+                "duration_seconds": dur,
+                "moving_seconds": dur * 0.97,
+                "distance_meters": dist,
+                "average_speed_mps": dist / dur,
+                "max_speed_mps": dist / dur * 1.8,
+                "average_heart_rate_bpm": hr,
+                "max_heart_rate_bpm": hr + 24,
+                "average_power_w": 182 if "biking" in sport else None,
+                "normalized_power_w": 201 if "biking" in sport else None,
+                "elevation_gain_m": round(dist / 90),
+                "calories_kcal": round(dur / 4.5),
+                "aerobic_effect": 3.1,
+                "anaerobic_effect": 1.2,
+                "training_load": 96 + i * 7,
+                "hr_zone_seconds": zones,
+            }
+        )
     return out
 
 
@@ -198,10 +211,19 @@ def main(out):
         ),
         "stress_today": chart("stress_today", "today", "line", "intraday", []),
         "body_battery_range": chart(
-            "body_battery_range", "trends", "range_columns", "daily_range", [s("body_battery", "percent", "%", ranges=bb_ranges)]
+            "body_battery_range",
+            "trends",
+            "range_columns",
+            "daily_range",
+            [s("body_battery", "percent", "%", ranges=bb_ranges)],
         ),
         "sleep_score": chart(
-            "sleep_score", "trends", "dots", "change_points", [s("sleep_score", "score", None, daily(30, 78, 9, 40, 98))], per_day=True
+            "sleep_score",
+            "trends",
+            "dots",
+            "change_points",
+            [s("sleep_score", "score", None, daily(30, 78, 9, 40, 98))],
+            per_day=True,
         ),
         "sleep_duration": chart(
             "sleep_duration",
@@ -212,11 +234,23 @@ def main(out):
             per_day=True,
         ),
         "resting_hr": chart(
-            "resting_hr", "trends", "line", "change_points", [s("resting_hr", "heart_rate", "bpm", daily(30, 52, 1.5))], per_day=True
+            "resting_hr",
+            "trends",
+            "line",
+            "change_points",
+            [s("resting_hr", "heart_rate", "bpm", daily(30, 52, 1.5))],
+            per_day=True,
         ),
-        "hrv": chart("hrv", "trends", "line", "change_points", [s("hrv_last_night", "hrv", "ms", daily(30, 55, 5))], per_day=True),
+        "hrv": chart(
+            "hrv", "trends", "line", "change_points", [s("hrv_last_night", "hrv", "ms", daily(30, 55, 5))], per_day=True
+        ),
         "weekly_steps": chart(
-            "weekly_steps", "trends", "line", "change_points", [s("weekly_step_avg", "count", "steps", daily(30, 8600, 350))], per_day=True
+            "weekly_steps",
+            "trends",
+            "line",
+            "change_points",
+            [s("weekly_step_avg", "count", "steps", daily(30, 8600, 350))],
+            per_day=True,
         ),
         "vo2max": chart("vo2max", "trends", "step", "change_points", [s("vo2max", "vo2max", "mL/(kg·min)", vo2)]),
         "ftp_cycling": chart("ftp_cycling", "trends", "step", "change_points", [s("ftp_cycling", "power", "W", ftp)]),
