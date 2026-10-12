@@ -2,6 +2,7 @@
 
 from datetime import timedelta
 from typing import Any
+from unittest.mock import patch
 
 from homeassistant.core import HomeAssistant, State
 from homeassistant.util import dt as dt_util
@@ -171,3 +172,25 @@ async def test_non_admin_cannot_read_charts(
     client = await hass_ws_client(hass, hass_read_only_access_token)
     await client.send_json_auto_id({"type": f"{DOMAIN}/chart", "profile_id": PROFILE_ID, "chart_id": "sleep_stages"})
     assert (await client.receive_json())["error"]["code"] == "unauthorized"
+
+
+async def test_hrv_chart_carries_the_current_balanced_range(hass: HomeAssistant) -> None:
+    await _setup(hass)
+    hass.states.async_set(
+        entity_for("hrv_baseline"), "52", {"unit_of_measurement": "ms", "balancedLow": 46, "balancedUpper": 61}
+    )
+    entry = hass.config_entries.async_entries(DOMAIN)[0]
+    service, profile = entry.runtime_data.charts, entry.runtime_data.profiles[PROFILE_ID]
+    with patch.object(service, "_statistics", return_value=[]):
+        payload = await service.async_chart(profile, CHARTS_BY_ID["hrv"], 30)
+    assert payload["band"] == {"low": 46, "high": 61, "current_only": True}
+
+
+async def test_no_band_when_the_range_is_unknown(hass: HomeAssistant) -> None:
+    await _setup(hass)
+    hass.states.async_set(entity_for("hrv_baseline"), "52", {"unit_of_measurement": "ms"})
+    entry = hass.config_entries.async_entries(DOMAIN)[0]
+    service, profile = entry.runtime_data.charts, entry.runtime_data.profiles[PROFILE_ID]
+    with patch.object(service, "_statistics", return_value=[]):
+        payload = await service.async_chart(profile, CHARTS_BY_ID["hrv"], 7)
+    assert payload["band"] is None

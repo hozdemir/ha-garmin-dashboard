@@ -99,6 +99,14 @@ CATALOG: tuple[MetricSpec, ...] = (
         sport="cycling",
         date_attribute="calendar_date",
     ),
+    MetricSpec("sleep_need", "sleep_need", "recovery", "duration", "nightly"),
+    MetricSpec("bb_charged", "body_battery_charged", "recovery", "percent", "daily"),
+    MetricSpec("bb_drained", "body_battery_drained", "recovery", "percent", "daily"),
+    MetricSpec("spo2_avg", "avg_spo2", "recovery", "percent", "nightly"),
+    MetricSpec("spo2_latest", "latest_spo2", "recovery", "percent", "intraday"),
+    # Garmin's personal "balanced" HRV range; only the current range is available.
+    MetricSpec("hrv_balanced_low", "hrv_baseline", "recovery", "hrv", "slow", value_attribute="balancedLow"),
+    MetricSpec("hrv_balanced_high", "hrv_baseline", "recovery", "hrv", "slow", value_attribute="balancedUpper"),
     # The state is the running threshold; cycling has its own value in an attribute.
     MetricSpec("lthr_running", "lactate_threshold_hr", "training", "heart_rate", "slow", date_attribute="calendarDate"),
     MetricSpec(

@@ -58,6 +58,8 @@ class ChartSpec:
     goal_metric: str | None = None
     # Nightly values reset to 0 at the Garmin day change until the real value arrives.
     zero_is_placeholder: bool = False
+    # Two metrics whose current values draw a reference band (e.g. HRV balanced range).
+    band_metrics: tuple[str, str] | None = None
     # Keep only each HA day's last value: the source posts a provisional value
     # overnight and the real one in the morning (resting HR), or updates a
     # night's value more than once.
@@ -86,7 +88,14 @@ CHARTS: tuple[ChartSpec, ...] = (
     ),
     ChartSpec("resting_hr", "trends", "line", ("resting_hr",), "change_points", one_per_day=True),
     ChartSpec(
-        "hrv", "trends", "line", ("hrv_last_night",), "change_points", zero_is_placeholder=True, one_per_day=True
+        "hrv",
+        "trends",
+        "line",
+        ("hrv_last_night",),
+        "change_points",
+        zero_is_placeholder=True,
+        one_per_day=True,
+        band_metrics=("hrv_balanced_low", "hrv_balanced_high"),
     ),
     ChartSpec("weekly_steps", "trends", "line", ("weekly_step_avg",), "change_points", one_per_day=True),
     ChartSpec("vo2max", "trends", "step", ("vo2max",), "change_points"),
@@ -298,6 +307,10 @@ class ChartService:
             "end": now.isoformat(),
             "series": series,
         }
+        if chart.band_metrics:
+            low, high = (profile.metric(key) for key in chart.band_metrics)
+            ok = all(m and m["status"] == "available" for m in (low, high))
+            payload["band"] = {"low": low["value"], "high": high["value"], "current_only": True} if ok else None
         if chart.goal_metric:
             goal = profile.metric(chart.goal_metric)
             payload["goal"] = goal["value"] if goal and goal["status"] == "available" else None
