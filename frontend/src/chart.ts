@@ -179,6 +179,10 @@ export class GarminChart extends LitElement {
               <stop class="fade-top" offset="0"></stop>
               <stop class="fade-bottom" offset="1"></stop>
             </linearGradient>
+            <!-- A value carried in from before the range must not run over the axis labels. -->
+            <clipPath id="plot-area">
+              <rect x=${MARGIN.left} y="0" width=${plotRight - MARGIN.left + 8} height=${MARGIN.top + PLOT_HEIGHT + 4}></rect>
+            </clipPath>
           </defs>
           ${this._grid(ticks, y, series, plotRight)}
           ${this._xAxis(start, end, x, height)}
@@ -188,7 +192,7 @@ export class GarminChart extends LitElement {
             : nothing}
           ${payload.goal != null ? this._goalLine(series, payload.goal, y, plotRight) : nothing}
           ${mean !== null ? this._meanLine(series, mean, y, plotRight) : nothing}
-          ${this._marks(payload, series, points, x, y, plotRight)}
+          <g clip-path="url(#plot-area)">${this._marks(payload, series, points, x, y, plotRight)}</g>
           ${this._crosshair(payload, series, points, x, y)}
         </svg>
         ${this._tooltip(payload, series, points, width)}
