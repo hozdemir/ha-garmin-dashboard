@@ -98,7 +98,10 @@ ROUTE_TRANSLATION_KEY = "last_activity_route"
 LAST_SYNCED_TRANSLATION_KEY = "last_synced"
 # Fallback: the devices sensor carries the last used device's own sync time.
 DEVICES_TRANSLATION_KEY = "devices"
-DEVICE_SYNC_ATTRIBUTE = ("last_used_device", "lastSyncTime")
+# `last_used_device.userDeviceId` matches `devices[].deviceId`; only the model name
+# (`productDisplayName`) is used. Custom names and serial numbers are never read.
+LAST_USED_DEVICE_ATTRIBUTE = "last_used_device"
+DEVICE_LIST_ATTRIBUTE = "devices"
 
 # Unique-ID infixes after "{entry_id}_" for sport-specific sensors.
 _SPORT_PREFIXES: dict[str, str] = {"functional_threshold_power": "ftp_"}

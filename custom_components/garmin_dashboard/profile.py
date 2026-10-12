@@ -178,7 +178,7 @@ class ProfileRuntime:
             "display_name": self.display_name,
             "revision": self._revision,
             "source_status": self.source_status,
-            "source_synced_at": self._source_synced_at(),
+            **self._source_sync(),
             "metrics": metrics,
             "gear": self._gear(),
             **self._activities(),
@@ -218,18 +218,27 @@ class ProfileRuntime:
         state = self.hass.states.get(resolution.entity_id)
         return None if state is None or state.attributes.get("restored") else state
 
-    def _source_synced_at(self) -> str | None:
-        """When the watch last synced with Garmin, from the summary or the device itself."""
-        candidates: list[Any] = []
-        if (state := self._resolved_state(self.mapping.last_synced)) is not None:
-            candidates.append(state.state)
-        if (state := self._resolved_state(self.mapping.devices)) is not None:
-            outer, inner = provider.DEVICE_SYNC_ATTRIBUTE
-            device = state.attributes.get(outer)
-            if isinstance(device, dict):
-                candidates.append(device.get(inner))
-        times = [t for t in (parse_aware_time(c) for c in candidates) if t is not None]
-        return dt_util.as_utc(max(times)).isoformat() if times else None
+    def _source_sync(self) -> dict[str, Any]:
+        """When a Garmin device last synced, and which model, if the source says.
+
+        Any Garmin device counts (watch, bike computer, scale...). The daily
+        summary's time is empty until a device syncs on the new Garmin day, so the
+        last used device's own sync time is used as well; the newer one wins.
+        """
+        summary = self._resolved_state(self.mapping.last_synced)
+        summary_time = parse_aware_time(summary.state) if summary is not None else None
+        device_time, model = None, None
+        devices = self._resolved_state(self.mapping.devices)
+        if devices is not None:
+            last_used = devices.attributes.get(provider.LAST_USED_DEVICE_ATTRIBUTE)
+            if isinstance(last_used, dict):
+                device_time = parse_aware_time(last_used.get("lastSyncTime"))
+                model = _device_model(devices.attributes.get(provider.DEVICE_LIST_ATTRIBUTE), last_used)
+        if device_time is not None and (summary_time is None or device_time >= summary_time):
+            return {"source_synced_at": dt_util.as_utc(device_time).isoformat(), "source_sync_device": model}
+        if summary_time is not None:
+            return {"source_synced_at": dt_util.as_utc(summary_time).isoformat(), "source_sync_device": None}
+        return {"source_synced_at": None, "source_sync_device": None}
 
     def _activity_state(self, key: str):
         resolution = self.mapping.activity_entities.get(key)
@@ -324,3 +333,15 @@ class ProfileRuntime:
             "route_sensor": self.mapping.route.status,
             "activity_report": self._activity_report,
         }
+
+
+def _device_model(device_list: Any, last_used: dict[str, Any]) -> str | None:
+    """Model name of the last used device, matched by device ID."""
+    device_id = last_used.get("userDeviceId")
+    if device_id is None or not isinstance(device_list, list):
+        return None
+    for device in device_list:
+        if isinstance(device, dict) and str(device.get("deviceId")) == str(device_id):
+            model = device.get("productDisplayName")
+            return model.strip()[:60] or None if isinstance(model, str) else None
+    return None

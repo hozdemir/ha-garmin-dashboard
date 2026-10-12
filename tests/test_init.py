@@ -144,27 +144,39 @@ async def test_diagnostics_has_no_identifiers(hass: HomeAssistant) -> None:
         assert secret not in report
 
 
-async def test_sync_time_falls_back_to_the_device(hass: HomeAssistant) -> None:
+DEVICES = {
+    "last_used_device": {
+        "userDeviceId": 7,
+        "lastUsedDeviceName": "Custom name",
+        "lastSyncTime": "2026-01-15T08:00:00+00:00",
+    },
+    "devices": [
+        {"deviceId": 3, "productDisplayName": "Index S2", "displayName": "Bathroom", "serialNumber": "SER-3"},
+        {"deviceId": 7, "productDisplayName": "Edge 840", "displayName": "My bike", "serialNumber": "SER-7"},
+    ],
+}
+
+
+async def test_sync_time_falls_back_to_the_device_and_names_its_model(hass: HomeAssistant) -> None:
     entry = await _setup(hass)
     profile = entry.runtime_data.profiles[PROFILE_ID]
     hass.states.async_set(entity_for("last_synced"), "unknown", {"device_class": "timestamp"})
-    hass.states.async_set(
-        entity_for("devices"),
-        "1",
-        {"last_used_device": {"lastSyncTime": "2026-01-15T08:00:00+00:00", "deviceName": "Private name"}},
-    )
-    assert profile.snapshot()["source_synced_at"] == "2026-01-15T08:00:00+00:00"
-    assert "Private name" not in str(profile.snapshot())
+    hass.states.async_set(entity_for("devices"), "2", DEVICES)
+    snapshot = profile.snapshot()
+    assert snapshot["source_synced_at"] == "2026-01-15T08:00:00+00:00"
+    assert snapshot["source_sync_device"] == "Edge 840"
+    # Custom names and serial numbers never reach the panel.
+    for private in ("Custom name", "My bike", "Bathroom", "SER-7"):
+        assert private not in str(snapshot)
 
 
-async def test_newest_sync_time_wins(hass: HomeAssistant) -> None:
+async def test_newer_summary_time_wins_without_a_device_name(hass: HomeAssistant) -> None:
     entry = await _setup(hass)
     profile = entry.runtime_data.profiles[PROFILE_ID]
     hass.states.async_set(entity_for("last_synced"), "2026-01-15T09:00:00+00:00", {})
-    hass.states.async_set(
-        entity_for("devices"), "1", {"last_used_device": {"lastSyncTime": "2026-01-15T08:00:00+00:00"}}
-    )
-    assert profile.snapshot()["source_synced_at"] == "2026-01-15T09:00:00+00:00"
+    hass.states.async_set(entity_for("devices"), "2", DEVICES)
+    snapshot = profile.snapshot()
+    assert (snapshot["source_synced_at"], snapshot["source_sync_device"]) == ("2026-01-15T09:00:00+00:00", None)
 
 
 async def test_no_sync_time_anywhere(hass: HomeAssistant) -> None:
@@ -172,4 +184,5 @@ async def test_no_sync_time_anywhere(hass: HomeAssistant) -> None:
     profile = entry.runtime_data.profiles[PROFILE_ID]
     hass.states.async_set(entity_for("last_synced"), "unknown", {})
     hass.states.async_set(entity_for("devices"), "1", {"last_used_device": {"lastSyncTime": "not a time"}})
-    assert profile.snapshot()["source_synced_at"] is None
+    snapshot = profile.snapshot()
+    assert (snapshot["source_synced_at"], snapshot["source_sync_device"]) == (None, None)
