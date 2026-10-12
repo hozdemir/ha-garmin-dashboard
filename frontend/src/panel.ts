@@ -7,7 +7,7 @@ import "./settings";
 import { CHARTS, TILE_SECTIONS, TREND_RANGES, type ChartDef, type Preferences, type SectionId } from "./catalog";
 import type { ChartPayload } from "./chart-data";
 import { formatDistance, formatMetric, goalProgress, type FormatContext } from "./format";
-import { categoryMessage, hasMessage, translator, type MessageKey, type Translate } from "./i18n";
+import { categoryMessage, hasMessage, sensorLabel, translator, type MessageKey, type Translate } from "./i18n";
 import {
   SCHEMA_VERSION,
   type HassLike,
@@ -580,19 +580,39 @@ export class GarminDashboardPanel extends LitElement {
   }
 
   private _renderGear(snapshot: ProfileSnapshot): TemplateResult | typeof nothing {
+    const t = this._t;
     const gear = snapshot.gear.filter((g) => g.status === "available" && g.distance_meters !== null);
-    if (gear.length === 0) return nothing;
+    const sensors = snapshot.sensors ?? [];
+    if (gear.length === 0 && sensors.length === 0) return nothing;
     return html`
       <section class="card" aria-labelledby="h-gear">
-        <h2 id="h-gear">${this._t("section_gear")}</h2>
-        <ul class="list">
-          ${gear.map(
-            (g) => html`<li>
-              <span>${g.name ?? "—"}${g.retired ? html` <small>(${this._t("retired")})</small>` : nothing}</span>
-              <strong>${formatDistance(this._fmt, g.distance_meters ?? 0)}</strong>
-            </li>`,
-          )}
-        </ul>
+        <h2 id="h-gear">${t("section_gear")}</h2>
+        ${gear.length
+          ? html`<ul class="list">
+              ${gear.map(
+                (g) => html`<li>
+                  <span>${g.name ?? "—"}${g.retired ? html` <small>(${t("retired")})</small>` : nothing}</span>
+                  <strong>${formatDistance(this._fmt, g.distance_meters ?? 0)}</strong>
+                </li>`,
+              )}
+            </ul>`
+          : nothing}
+        ${sensors.length
+          ? html`<h3 class="sub">${t("sensors_title")}</h3>
+              <ul class="list">
+                ${sensors.map((s) => {
+                  const status = (s.battery_status ?? "unknown").toLowerCase();
+                  const key = `battery_${status}`;
+                  const warn = status === "low" || status === "critical";
+                  return html`<li>
+                    <span>${sensorLabel(t, s.type)}${s.manufacturer ? html` <small>${s.manufacturer}</small>` : nothing}</span>
+                    <span class=${warn ? "battery warn" : "battery"}>
+                      ${warn ? html`<span aria-hidden="true">⚠</span> ` : nothing}${hasMessage(key) ? t(key) : s.battery_status}${s.battery_level !== null ? ` · ${s.battery_level}%` : ""}
+                    </span>
+                  </li>`;
+                })}
+              </ul>`
+          : nothing}
       </section>
     `;
   }
@@ -705,6 +725,9 @@ export class GarminDashboardPanel extends LitElement {
     }
     .notice { margin: 16px 16px 0; }
     .card.wide { grid-column: 1 / -1; }
+    h3.sub { font-size: 13px; font-weight: 500; color: var(--secondary-text-color); margin: 12px 0 4px; }
+    .battery { white-space: nowrap; }
+    .battery.warn { color: var(--warning-color, #b26a00); font-weight: 500; }
     .activities-layout { display: grid; gap: 16px; grid-template-columns: 1fr; }
     @media (min-width: 1000px) { .activities-layout { grid-template-columns: 3fr 2fr; } }
     .route h3 { font-size: 14px; font-weight: 500; margin: 0 0 6px; }

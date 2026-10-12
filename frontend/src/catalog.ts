@@ -7,7 +7,13 @@ export type SectionId = Section | "gear" | "activities";
 export const TILE_SECTIONS: { id: Section; keys: string[] }[] = [
   { id: "movement", keys: ["steps", "distance_day", "calories_active", "calories_total"] },
   { id: "recovery", keys: ["body_battery", "sleep_score", "sleep_duration", "hrv_status", "hrv_last_night", "resting_hr"] },
-  { id: "training", keys: ["training_readiness", "training_status", "recovery_time", "vo2max", "ftp_cycling", "ftp_running"] },
+  {
+    id: "training",
+    keys: [
+      "training_readiness", "training_status", "recovery_time", "vo2max",
+      "ftp_cycling", "ptw_cycling", "lthr_cycling", "ftp_running", "lthr_running",
+    ],
+  },
 ];
 
 export interface ChartDef {
@@ -29,6 +35,7 @@ export const CHARTS: ChartDef[] = [
   { id: "weekly_steps", group: "trends", metrics: ["weekly_step_avg"] },
   { id: "vo2max", group: "trends", metrics: ["vo2max"] },
   { id: "ftp_cycling", group: "trends", metrics: ["ftp_cycling"] },
+  { id: "ptw_cycling", group: "trends", metrics: ["ptw_cycling"] },
 ];
 
 export const TREND_RANGES = [7, 30, 90] as const;

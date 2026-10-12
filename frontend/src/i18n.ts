@@ -55,6 +55,26 @@ const en = {
   metric_vo2max: "VO2 max",
   metric_ftp_cycling: "FTP (cycling)",
   metric_ftp_running: "FTP (running)",
+  metric_ptw_cycling: "Power to weight (cycling)",
+  metric_lthr_cycling: "Lactate threshold HR (cycling)",
+  metric_lthr_running: "Lactate threshold HR (running)",
+  chart_ptw_cycling: "Power to weight (cycling)",
+  sensors_title: "Paired sensors",
+  battery_good: "Battery good",
+  battery_low: "Battery low",
+  battery_critical: "Battery critical",
+  battery_unknown: "Battery unknown",
+  sensor_heart_rate: "Heart rate strap",
+  sensor_bike_power: "Power meter",
+  sensor_bike_speed: "Speed sensor",
+  sensor_bike_cadence: "Cadence sensor",
+  sensor_bike_speed_cadence: "Speed/cadence sensor",
+  sensor_foot_pod: "Foot pod",
+  sensor_bike_radar: "Bike radar",
+  sensor_bike_light: "Bike light",
+  sensor_shifting: "Electronic shifting",
+  sensor_fitness_equipment: "Indoor trainer",
+  sensor_tempe: "Temperature sensor",
   metric_weekly_step_avg: "Weekly step average",
   metric_sleep_deep: "Deep",
   metric_sleep_light: "Light",
@@ -233,6 +253,26 @@ const tr: Record<MessageKey, string> = {
   metric_vo2max: "VO2 max",
   metric_ftp_cycling: "FTP (bisiklet)",
   metric_ftp_running: "FTP (koşu)",
+  metric_ptw_cycling: "Güç/ağırlık (bisiklet)",
+  metric_lthr_cycling: "Laktat eşiği nabzı (bisiklet)",
+  metric_lthr_running: "Laktat eşiği nabzı (koşu)",
+  chart_ptw_cycling: "Güç/ağırlık (bisiklet)",
+  sensors_title: "Bağlı sensörler",
+  battery_good: "Pil iyi",
+  battery_low: "Pil zayıf",
+  battery_critical: "Pil kritik",
+  battery_unknown: "Pil durumu bilinmiyor",
+  sensor_heart_rate: "Nabız bandı",
+  sensor_bike_power: "Güç ölçer",
+  sensor_bike_speed: "Hız sensörü",
+  sensor_bike_cadence: "Kadans sensörü",
+  sensor_bike_speed_cadence: "Hız/kadans sensörü",
+  sensor_foot_pod: "Ayak sensörü",
+  sensor_bike_radar: "Bisiklet radarı",
+  sensor_bike_light: "Bisiklet lambası",
+  sensor_shifting: "Elektronik vites",
+  sensor_fitness_equipment: "Antrenman makinesi",
+  sensor_tempe: "Sıcaklık sensörü",
   metric_weekly_step_avg: "Haftalık adım ortalaması",
   metric_sleep_deep: "Derin",
   metric_sleep_light: "Hafif",
@@ -382,5 +422,13 @@ export function sportLabel(t: Translate, sport: string): string {
   const key = `sport_${sport}`;
   if (hasMessage(key)) return t(key);
   const words = sport.replace(/_/g, " ").trim();
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+/** Readable paired-sensor type ("BIKE_POWER" → "Power meter"); unknown types are humanized. */
+export function sensorLabel(t: Translate, type: string): string {
+  const key = `sensor_${type.toLowerCase()}`;
+  if (hasMessage(key)) return t(key);
+  const words = type.replace(/_/g, " ").trim().toLowerCase();
   return words.charAt(0).toUpperCase() + words.slice(1);
 }

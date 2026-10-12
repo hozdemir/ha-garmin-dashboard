@@ -25,7 +25,8 @@ export type MetricKind =
   | "vo2max"
   | "category"
   | "hrv"
-  | "level";
+  | "level"
+  | "power_ratio";
 
 export type Section = "movement" | "recovery" | "training";
 
@@ -49,6 +50,13 @@ export interface Gear {
   status: MetricStatus;
   distance_meters: number | null;
   retired: boolean;
+}
+
+export interface PairedSensor {
+  type: string;
+  manufacturer: string | null;
+  battery_status: string | null;
+  battery_level: number | null;
 }
 
 export interface Activity {
@@ -96,6 +104,7 @@ export interface ProfileSnapshot {
   source_sync_device?: string | null;
   metrics: Record<string, Metric>;
   gear: Gear[];
+  sensors?: PairedSensor[];
   activities: Activity[];
   activities_truncated?: boolean;
   capabilities: string[];

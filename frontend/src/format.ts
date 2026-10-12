@@ -67,6 +67,8 @@ export function formatNumber(ctx: FormatContext, kind: MetricKind, value: number
       return `${number(ctx, value)} ms`;
     case "vo2max":
       return number(ctx, value, 1);
+    case "power_ratio":
+      return `${number(ctx, value, 2)} W/kg`;
     default:
       return number(ctx, value);
   }
