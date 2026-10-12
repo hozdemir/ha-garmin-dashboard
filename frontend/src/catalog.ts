@@ -20,6 +20,7 @@ export const TILE_SECTIONS: { id: Section; keys: string[] }[] = [
       "ftp_cycling", "ptw_cycling", "lthr_cycling", "ftp_running", "lthr_running",
     ],
   },
+  { id: "body", keys: ["weight"] },
 ];
 
 export interface ChartDef {
@@ -42,6 +43,7 @@ export const CHARTS: ChartDef[] = [
   { id: "vo2max", group: "trends", metrics: ["vo2max"] },
   { id: "ftp_cycling", group: "trends", metrics: ["ftp_cycling"] },
   { id: "ptw_cycling", group: "trends", metrics: ["ptw_cycling"] },
+  { id: "weight", group: "trends", metrics: ["weight"] },
 ];
 
 export const TREND_RANGES = [7, 30, 90] as const;

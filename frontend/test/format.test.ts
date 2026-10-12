@@ -52,3 +52,11 @@ describe("formatSpeedOrPace", async () => {
     expect(formatSpeedOrPace({ locale: "en", lengthUnit: "km" }, "running", 0)).toBe("—");
   });
 });
+
+describe("mass", async () => {
+  const { formatNumber } = await import("../src/format");
+  it("follows HA's mass unit", () => {
+    expect(formatNumber({ locale: "en", lengthUnit: "km", massUnit: "kg" }, "mass", 74.3)).toBe("74.3 kg");
+    expect(formatNumber({ locale: "en", lengthUnit: "mi", massUnit: "lb" }, "mass", 74.3)).toBe("163.8 lb");
+  });
+});

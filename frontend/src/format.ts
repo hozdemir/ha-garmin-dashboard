@@ -3,6 +3,7 @@ import type { Metric, MetricKind } from "./types";
 export interface FormatContext {
   locale: string;
   lengthUnit: string; // HA unit system: "km" or "mi"
+  massUnit?: string; // HA unit system: "kg" or "lb"
 }
 
 const METERS_PER_MILE = 1609.344;
@@ -67,6 +68,8 @@ export function formatNumber(ctx: FormatContext, kind: MetricKind, value: number
       return `${number(ctx, value)} ms`;
     case "vo2max":
       return number(ctx, value, 1);
+    case "mass":
+      return ctx.massUnit === "lb" ? `${number(ctx, value / 0.45359237, 1)} lb` : `${number(ctx, value, 1)} kg`;
     case "power_ratio":
       return `${number(ctx, value, 2)} W/kg`;
     default:

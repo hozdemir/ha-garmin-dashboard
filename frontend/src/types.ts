@@ -26,9 +26,10 @@ export type MetricKind =
   | "category"
   | "hrv"
   | "level"
-  | "power_ratio";
+  | "power_ratio"
+  | "mass";
 
-export type Section = "movement" | "recovery" | "training";
+export type Section = "movement" | "recovery" | "training" | "body";
 
 export interface Metric {
   key: string;
@@ -50,6 +51,25 @@ export interface Gear {
   status: MetricStatus;
   distance_meters: number | null;
   retired: boolean;
+}
+
+export interface PlannedWorkout {
+  title: string;
+  sport: string | null;
+  date: string; // YYYY-MM-DD
+}
+
+export interface TrainingPlan {
+  today: PlannedWorkout | null;
+  next: PlannedWorkout | null;
+  upcoming: PlannedWorkout[];
+  goal: {
+    name: string;
+    date: string;
+    days_until: number;
+    distance_meters: number | null;
+    predicted_seconds: number | null;
+  } | null;
 }
 
 export interface PairedSensor {
@@ -105,6 +125,7 @@ export interface ProfileSnapshot {
   metrics: Record<string, Metric>;
   gear: Gear[];
   sensors?: PairedSensor[];
+  plan?: TrainingPlan | null;
   activities: Activity[];
   activities_truncated?: boolean;
   capabilities: string[];
@@ -135,7 +156,7 @@ export interface ProfilesResult {
 export interface HassLike {
   language: string;
   locale?: { language: string; number_format?: string; time_zone?: string };
-  config: { unit_system: { length: string }; time_zone: string };
+  config: { unit_system: { length: string; mass?: string }; time_zone: string };
   connection: {
     subscribeMessage<T>(
       callback: (message: T) => void,

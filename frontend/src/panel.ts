@@ -6,8 +6,8 @@ import "./route";
 import "./settings";
 import { CHARTS, TILE_SECTIONS, TREND_RANGES, type ChartDef, type Preferences, type SectionId } from "./catalog";
 import type { ChartPayload } from "./chart-data";
-import { formatDistance, formatMetric, goalProgress, type FormatContext } from "./format";
-import { categoryMessage, hasMessage, sensorLabel, translator, type MessageKey, type Translate } from "./i18n";
+import { formatDistance, formatMetric, formatNumber, goalProgress, type FormatContext } from "./format";
+import { categoryMessage, hasMessage, sensorLabel, sportLabel, translator, type MessageKey, type Translate } from "./i18n";
 import {
   SCHEMA_VERSION,
   type HassLike,
@@ -15,7 +15,9 @@ import {
   type ProfileInfo,
   type ProfileSnapshot,
   type ProfilesResult,
+  type PlannedWorkout,
   type Route,
+  type TrainingPlan,
   type Section,
 } from "./types";
 
@@ -339,6 +341,7 @@ export class GarminDashboardPanel extends LitElement {
     return {
       locale: this.hass?.locale?.language ?? this.hass?.language ?? "en",
       lengthUnit: this.hass?.config.unit_system.length ?? "km",
+      massUnit: this.hass?.config.unit_system.mass ?? "kg",
     };
   }
 
@@ -391,7 +394,7 @@ export class GarminDashboardPanel extends LitElement {
     const snapshot = this._snapshot;
     if (!snapshot) return html`<p class="muted">${t("loading")}</p>`;
     const prefs = this._prefs;
-    const order: SectionId[] = prefs?.section_order ?? ["movement", "recovery", "training", "gear"];
+    const order: SectionId[] = prefs?.section_order ?? ["movement", "recovery", "training", "body", "gear"];
     const hidden = new Set(prefs?.hidden_sections ?? []);
     const shown = order.filter((s) => !hidden.has(s));
     const sections = shown.map((id) => {
@@ -538,12 +541,14 @@ export class GarminDashboardPanel extends LitElement {
       .filter((key) => !hiddenMetrics.has(key))
       .map((key) => snapshot.metrics[key])
       .filter((m): m is Metric => m !== undefined && !HIDDEN_STATUSES.has(m.status));
+    const plan = section === "training" ? (snapshot.plan ?? null) : null;
     // A section the account never provides is hidden (e.g. no sleep data on a bike-only setup).
-    if (metrics.length === 0) return nothing;
+    if (metrics.length === 0 && !plan) return nothing;
     return html`
       <section class="card" aria-labelledby="h-${section}">
         <h2 id="h-${section}">${this._t(`section_${section}`)}</h2>
-        <div class="tiles">${metrics.map((m) => this._renderMetric(snapshot, m))}</div>
+        ${metrics.length ? html`<div class="tiles">${metrics.map((m) => this._renderMetric(snapshot, m))}</div>` : nothing}
+        ${plan ? this._renderPlan(plan) : nothing}
       </section>
     `;
   }
@@ -576,6 +581,43 @@ export class GarminDashboardPanel extends LitElement {
           : nothing}
         ${stale ? html`<div class="note warn">⚠ ${t("stale")}</div>` : nothing}
       </div>
+    `;
+  }
+
+  private _renderPlan(plan: TrainingPlan): TemplateResult {
+    const t = this._t;
+    const day = (iso: string) =>
+      new Date(`${iso}T12:00:00`).toLocaleDateString(this._fmt.locale, { weekday: "short", day: "numeric", month: "short" });
+    const row = (label: string, w: PlannedWorkout) => html`<li>
+      <span class="plan-label">${label}</span>
+      <span class="plan-main">${w.title}${w.sport ? html` <small>${sportLabel(t, w.sport)}</small>` : nothing}</span>
+      <span class="plan-when">${day(w.date)}</span>
+    </li>`;
+    const goal = plan.goal;
+    return html`
+      <h3 class="sub">${t("plan_title")}</h3>
+      <ul class="list plan">
+        ${plan.today ? row(t("plan_today"), plan.today) : nothing}
+        ${plan.next ? row(t("plan_next"), plan.next) : nothing}
+        ${plan.upcoming.map((w) => row(t("plan_upcoming"), w))}
+        ${goal
+          ? html`<li>
+              <span class="plan-label">${t("plan_goal")}</span>
+              <span class="plan-main">${goal.name}
+                <small>${[
+                  goal.distance_meters !== null ? formatDistance(this._fmt, goal.distance_meters) : null,
+                  goal.predicted_seconds !== null
+                    ? t("plan_predicted", { time: formatNumber(this._fmt, "duration", goal.predicted_seconds) })
+                    : null,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}</small></span>
+              <span class="plan-when"><strong>${goal.days_until === 0
+                ? t("plan_race_day")
+                : t("plan_days_left", { n: String(goal.days_until) })}</strong> · ${day(goal.date)}</span>
+            </li>`
+          : nothing}
+      </ul>
     `;
   }
 
@@ -744,6 +786,18 @@ export class GarminDashboardPanel extends LitElement {
     .notice { margin: 16px 16px 0; }
     .card.wide { grid-column: 1 / -1; }
     h3.sub { font-size: 13px; font-weight: 500; color: var(--secondary-text-color); margin: 12px 0 4px; }
+    .plan li {
+      display: grid; grid-template-columns: 1fr auto; grid-template-areas: "label when" "main main";
+      align-items: baseline; gap: 2px 8px;
+    }
+    .plan-label { grid-area: label; }
+    .plan-main { grid-area: main; }
+    .plan-when { grid-area: when; }
+    .plan-label { font-size: 12px; color: var(--secondary-text-color); }
+    .plan-main { min-width: 0; overflow-wrap: anywhere; }
+    .plan-main small { color: var(--secondary-text-color); margin-left: 4px; }
+    .plan-when { font-size: 13px; white-space: nowrap; color: var(--secondary-text-color); }
+    .plan-when strong { color: var(--primary-text-color); }
     .battery { white-space: nowrap; }
     .battery.warn { color: var(--warning-color, #b26a00); font-weight: 500; }
     .activities-layout { display: grid; gap: 16px; grid-template-columns: 1fr; }
