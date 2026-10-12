@@ -107,6 +107,17 @@
       };
       expand();
     }
+    // ?audit=1 lists every request the page made (Resource Timing) after the panel has
+    // rendered, to show the panel talks to nothing but its own host.
+    if (params.get("audit") === "1") {
+      setTimeout(() => {
+        const urls = performance.getEntriesByType("resource").map((e) => e.name);
+        const pre = document.createElement("pre");
+        pre.id = "audit";
+        pre.textContent = JSON.stringify([location.href, ...urls]);
+        document.body.append(pre);
+      }, Number(params.get("auditAfter") ?? 4000));
+    }
     // ?view=settings opens the settings screen once preferences are loaded.
     if (params.get("view") === "settings") {
       const open = () => (panel._prefs ? (panel._view = "settings") : setTimeout(open, 50));
