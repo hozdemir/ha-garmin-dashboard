@@ -1,5 +1,7 @@
 import type { Metric, MetricKind } from "./types";
 
+export type Tone = "good" | "warning" | "serious" | "neutral";
+
 export interface FormatContext {
   locale: string;
   lengthUnit: string; // HA unit system: "km" or "mi"
@@ -99,4 +101,25 @@ export function goalProgress(value: number | null, goal: number | null): { perce
   if (value === null || goal === null || goal <= 0 || value < 0) return null;
   const percent = (value / goal) * 100;
   return { percent, bar: Math.min(percent, 100) };
+}
+
+// Garmin's own grouping of its status words, shown as icon + label; never a judgement of ours.
+const TONES: Record<string, Record<string, Tone>> = {
+  hrv_status: { balanced: "good", unbalanced: "warning", low: "serious", poor: "serious" },
+  training_status: {
+    productive: "good",
+    peaking: "good",
+    maintaining: "neutral",
+    recovery: "neutral",
+    unproductive: "warning",
+    detraining: "warning",
+    strained: "warning",
+    overreaching: "serious",
+  },
+};
+
+/** Status tone of a category value, or null when the metric or value has none. */
+export function categoryTone(metricKey: string, value: string): Tone | null {
+  const key = value.trim().toLowerCase().replace(/[\s-]+/g, "_");
+  return TONES[metricKey]?.[key] ?? null;
 }

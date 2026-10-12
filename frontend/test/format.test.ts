@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatCategory, formatDistance, formatNumber, goalProgress } from "../src/format";
+import { categoryTone, formatCategory, formatDistance, formatNumber, goalProgress } from "../src/format";
 
 const tr = { locale: "tr", lengthUnit: "km" };
 const enMi = { locale: "en", lengthUnit: "mi" };
@@ -58,5 +58,11 @@ describe("mass", async () => {
   it("follows HA's mass unit", () => {
     expect(formatNumber({ locale: "en", lengthUnit: "km", massUnit: "kg" }, "mass", 74.3)).toBe("74.3 kg");
     expect(formatNumber({ locale: "en", lengthUnit: "mi", massUnit: "lb" }, "mass", 74.3)).toBe("163.8 lb");
+  });
+  it("maps Garmin status words to tones", () => {
+    expect(categoryTone("hrv_status", "BALANCED")).toBe("good");
+    expect(categoryTone("training_status", "Overreaching")).toBe("serious");
+    expect(categoryTone("training_status", "no status")).toBeNull();
+    expect(categoryTone("vo2max", "balanced")).toBeNull();
   });
 });

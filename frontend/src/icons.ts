@@ -32,6 +32,7 @@ import {
 import { html, nothing, type TemplateResult } from "lit";
 
 import type { SectionId } from "./catalog";
+import type { Tone } from "./format";
 
 export const SECTION_ICONS: Record<SectionId | "status", string> = {
   movement: mdiWalk,
@@ -68,8 +69,6 @@ export const METRIC_ICONS: Record<string, string> = {
   lthr_running: mdiHeartFlash,
   weight: mdiScaleBathroom,
 };
-
-export type Tone = "good" | "warning" | "serious" | "neutral";
 
 export const TONE_ICONS: Record<Tone, string> = {
   good: mdiCheckCircle,

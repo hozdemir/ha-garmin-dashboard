@@ -6,9 +6,9 @@ import "./route";
 import "./settings";
 import { CHARTS, TILE_SECTIONS, TREND_RANGES, type ChartDef, type Preferences, type SectionId } from "./catalog";
 import type { ChartPayload } from "./chart-data";
-import { formatDistance, formatMetric, formatNumber, goalProgress, type FormatContext } from "./format";
+import { categoryTone, formatDistance, formatMetric, formatNumber, goalProgress, type FormatContext } from "./format";
 import { categoryMessage, hasMessage, sensorLabel, sportLabel, translator, type MessageKey, type Translate } from "./i18n";
-import { METRIC_ICONS, SECTION_ICONS, icon } from "./icons";
+import { METRIC_ICONS, SECTION_ICONS, TONE_ICONS, icon } from "./icons";
 import {
   SCHEMA_VERSION,
   type HassLike,
@@ -613,13 +613,16 @@ export class GarminDashboardPanel extends LitElement {
         : signed && typeof metric.value === "number"
           ? `${signed}${new Intl.NumberFormat(this._fmt.locale).format(metric.value)}`
           : formatMetric(this._fmt, metric);
+    const tone = category && typeof metric.value === "string" ? categoryTone(metric.key, metric.value) : null;
     const statusKey = `status_${metric.status}`;
     const stale = metric.freshness === "stale";
     return html`
       <div class="tile">
         <div class="label">${METRIC_ICONS[metric.key] ? icon(METRIC_ICONS[metric.key]!, 16) : nothing}<span>${label}</span></div>
         ${shown !== null
-          ? html`<div class="value">${shown}</div>`
+          ? tone
+            ? html`<div class="value status ${tone}">${icon(TONE_ICONS[tone], 20)}<span>${shown}</span></div>`
+            : html`<div class="value">${shown}</div>`
           : html`<div class="value empty">—</div>`}
         ${TARGETS[metric.key] ? this._renderGoal(snapshot, metric) : nothing}
         ${metric.status !== "available" && hasMessage(statusKey)
@@ -774,6 +777,10 @@ export class GarminDashboardPanel extends LitElement {
       --gd-series-4: #eda100;
       --gd-surface: var(--card-background-color, #fff);
       --gd-grid: var(--divider-color, #e8e8e8);
+      /* Status colors are fixed across themes and always paired with an icon and a label. */
+      --gd-good: #0ca30c;
+      --gd-warning: #fab219;
+      --gd-serious: #ec835a;
       --gd-zone-1: #86b6ef;
       --gd-zone-2: #5598e7;
       --gd-zone-3: #2a78d6;
@@ -830,6 +837,12 @@ export class GarminDashboardPanel extends LitElement {
     .label { font-size: 13px; color: var(--secondary-text-color); display: flex; align-items: flex-start; gap: 6px; }
     .label .mdi { margin-top: 1px; opacity: 0.8; }
     .value { font-size: 24px; font-weight: 500; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; margin-top: 2px; }
+    .value.status { display: flex; align-items: center; gap: 6px; }
+    .value.status .mdi { margin-top: 1px; }
+    .value.good .mdi { color: var(--gd-good); }
+    .value.warning .mdi { color: var(--gd-warning); }
+    .value.serious .mdi { color: var(--gd-serious); }
+    .value.neutral .mdi { color: var(--secondary-text-color); }
     .value.empty { color: var(--disabled-text-color, var(--secondary-text-color)); }
     .note { font-size: 12px; color: var(--secondary-text-color); margin-top: 2px; }
     .warn { color: var(--warning-color, #b26a00); }
