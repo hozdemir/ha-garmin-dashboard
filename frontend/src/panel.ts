@@ -868,6 +868,11 @@ export class GarminDashboardPanel extends LitElement {
       --gd-zone-3: #2a78d6;
       --gd-zone-4: #1c5cab;
       --gd-zone-5: #104281;
+      /* Ordered levels (stress rest → high), validated as an ordinal ramp. */
+      --gd-ord-1: #86b6ef;
+      --gd-ord-2: #3987e5;
+      --gd-ord-3: #1c5cab;
+      --gd-ord-4: #104281;
       display: block;
       min-height: 100vh;
       background: var(--primary-background-color);
@@ -954,6 +959,10 @@ export class GarminDashboardPanel extends LitElement {
       --gd-zone-3: #3987e5;
       --gd-zone-4: #6da7ec;
       --gd-zone-5: #9ec5f4;
+      --gd-ord-1: #184f95;
+      --gd-ord-2: #3987e5;
+      --gd-ord-3: #6da7ec;
+      --gd-ord-4: #b7d3f6;
       --gd-series-1: #3987e5;
       --gd-series-2: #d95926;
       --gd-series-3: #199e70;

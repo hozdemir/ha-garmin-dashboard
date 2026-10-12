@@ -22,6 +22,8 @@ const PLOT_HEIGHT = 140;
 const AXIS_BAND = 22;
 const MARGIN = { left: 44, right: 16, top: 10 };
 const DAY = 86_400_000;
+// Stacked bars whose parts are ordered levels rather than kinds.
+const ORDINAL_CHARTS = new Set(["stress_breakdown"]);
 
 interface Active {
   index: number;
@@ -428,18 +430,20 @@ export class GarminChart extends LitElement {
   }
 
   private _renderStacked(payload: ChartPayload): TemplateResult {
+    // Ordered levels take one light-to-dark ramp; unordered stages take the series colors.
+    const ramp = ORDINAL_CHARTS.has(payload.chart_id) ? "ordinal" : "";
     const parts = payload.series
       .map((s, slot) => ({ s, slot, v: s.points?.[0]?.[1] ?? null }))
       .filter((p): p is { s: ChartSeries; slot: number; v: number } => p.v !== null && p.v > 0);
     const total = parts.reduce((sum, p) => sum + p.v, 0);
     if (!total) return html`<p class="empty">${this.t?.("chart_no_data")}</p>`;
     return html`
-      <div class="stack" role="img" aria-label=${parts.map((p) => `${this._label(p.s.metric)} ${this._fmtValue(p.s, p.v)}`).join(", ")}>
+      <div class="stack ${ramp}" role="img" aria-label=${parts.map((p) => `${this._label(p.s.metric)} ${this._fmtValue(p.s, p.v)}`).join(", ")}>
         ${parts.map(
           (p) => html`<span class="seg s${p.slot + 1}" style="flex-grow:${p.v}" title=${`${this._label(p.s.metric)}: ${this._fmtValue(p.s, p.v)}`}></span>`,
         )}
       </div>
-      <ul class="legend">
+      <ul class="legend ${ramp}">
         ${parts.map(
           (p) => html`<li><span class="swatch s${p.slot + 1}"></span>${this._label(p.s.metric)}
             <strong>${this._fmtValue(p.s, p.v)}</strong> <small>${Math.round((p.v / total) * 100)}%</small></li>`,
@@ -465,7 +469,8 @@ export class GarminChart extends LitElement {
     }
     const headers =
       payload.form === "range_columns" ? [t("chart_low"), t("chart_high")]
-      : payload.form === "stacked_bar" ? [t("chart_stage"), t("chart_value")]
+      : payload.form === "stacked_bar"
+        ? [t(ORDINAL_CHARTS.has(payload.chart_id) ? "chart_level" : "chart_stage"), t("chart_value")]
       : [t("chart_value")];
     return html`
       <div class="table-wrap">
@@ -533,6 +538,10 @@ export class GarminChart extends LitElement {
     .s2 { background: var(--gd-series-2); }
     .s3 { background: var(--gd-series-3); }
     .s4 { background: var(--gd-series-4); }
+    .ordinal .s1 { background: var(--gd-ord-1); }
+    .ordinal .s2 { background: var(--gd-ord-2); }
+    .ordinal .s3 { background: var(--gd-ord-3); }
+    .ordinal .s4 { background: var(--gd-ord-4); }
     .legend { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 4px 12px; font-size: 13px; }
     .legend li { display: flex; align-items: center; gap: 6px; }
     .legend strong { margin-left: auto; }
