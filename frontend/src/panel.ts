@@ -492,7 +492,12 @@ export class GarminDashboardPanel extends LitElement {
   private _renderSourceState(snapshot: ProfileSnapshot): TemplateResult {
     const t = this._t;
     const sync = snapshot.source_synced_at
-      ? `${t("last_sync")}: ${new Date(snapshot.source_synced_at).toLocaleString(this._fmt.locale)}`
+      ? [
+          `${t("last_sync")}: ${new Date(snapshot.source_synced_at).toLocaleString(this._fmt.locale, { dateStyle: "medium", timeStyle: "short" })}`,
+          snapshot.source_sync_device,
+        ]
+          .filter(Boolean)
+          .join(" · ")
       : t("last_sync_unknown");
     const warn = snapshot.source_status !== "ready";
     return html`

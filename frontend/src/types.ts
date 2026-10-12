@@ -92,6 +92,8 @@ export interface ProfileSnapshot {
   revision: number;
   source_status: SourceStatus;
   source_synced_at: string | null;
+  /** Model of the device that last synced (any Garmin device type), if known. */
+  source_sync_device?: string | null;
   metrics: Record<string, Metric>;
   gear: Gear[];
   activities: Activity[];
