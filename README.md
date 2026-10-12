@@ -8,11 +8,15 @@ A ready-made Garmin screen for Home Assistant. If your Garmin data already reach
 
 ## What you get
 
-- **Today at a glance:** steps and goal, distance, calories, Body Battery, sleep, HRV, resting heart rate, training readiness and status, VO2 max, FTP, gear distance.
-- **Charts** from Home Assistant's own history: Body Battery over the last 24 hours, today's steps against your goal, last night's sleep stages, and 7/30/90-day trends for Body Battery, sleep, resting heart rate, HRV, weekly steps, VO2 max and FTP. Every chart has a table view.
+- **Today at a glance:** steps against your goal, distance, calories, Body Battery with today's charge and drain, sleep against your sleep need, HRV, resting heart rate, SpO2, training readiness and status, VO2 max.
+- **For cyclists and runners:** FTP and power-to-weight, lactate threshold heart rate (cycling and running), gear distance, and the battery state of paired sensors such as power meters and heart-rate straps.
+- **Training plan:** today's and the next scheduled workout, and a countdown to your goal race, when you use a Garmin plan or calendar.
+- **Body:** weight, in your Home Assistant unit system.
+- **Charts** from Home Assistant's own history: Body Battery over the last 24 hours, today's steps against your goal, last night's sleep stages, and 7/30/90-day trends for Body Battery, sleep, resting heart rate, HRV (with Garmin's current balanced range), weekly steps, VO2 max, FTP, power-to-weight and weight. Every chart has a table view.
 - **Activities:** the latest activities Garmin Connect provides, with a sport filter, details and time in heart-rate zones.
 - **Route trace** of the last synced activity, drawn locally without a map.
 - **Several Garmin accounts**, each as its own profile.
+- **Clear status:** when the watch, bike computer or other device last synced, and a plain message with a link when Garmin Connect needs you to sign in again.
 - **Settings** to hide or reorder sections, values and charts.
 - English and Turkish, light and dark theme, works on phones.
 
@@ -61,6 +65,7 @@ Garmin Dashboard shows what Home Assistant has recorded, and avoids showing numb
 - No requests to Garmin, maps, CDNs or analytics. All JavaScript ships with the integration.
 - No Garmin credentials are asked for or stored.
 - Coordinates never reach the browser except as the simplified route trace, and the route can be turned off in the panel's settings.
+- Device and sensor serial numbers, custom device names and image links are never sent to the browser; only model names and battery states are.
 - Diagnostics contain versions, metric keys and status codes only: no values, names or IDs.
 - No telemetry.
 
@@ -68,7 +73,7 @@ Garmin Dashboard shows what Home Assistant has recorded, and avoids showing numb
 
 | Garmin Dashboard | Home Assistant | Garmin Connect |
 |---|---|---|
-| 0.4.0 | 2026.9, 2026.10 | 3.0.19 |
+| 0.5.0 | 2026.9, 2026.10 | 3.0.19 |
 
 Only tested combinations are listed. With another Garmin Connect version you get a Repairs notice; values that can no longer be matched safely are hidden rather than shown wrongly.
 
@@ -76,6 +81,7 @@ Only tested combinations are listed. With another Garmin Connect version you get
 
 - **"Activity sensors are turned off":** enable *Last activity* and *Last activities* under Settings → Devices & services → Garmin Connect → Entities, or remove and re-add Garmin Dashboard to be asked again.
 - **Values say "Out of date":** Garmin Connect has not delivered new data. Check that integration; Garmin Dashboard cannot sync on its own.
+- **"Garmin Connect needs you to sign in again":** Garmin sign-ins expire from time to time. Follow the link in the panel, or Settings → Devices & services → Garmin Connect, and sign in.
 - **Repairs notice "Garmin account was removed":** open Garmin Dashboard → Configure and choose another account or remove the profile.
 - **The panel looks old after an update:** reload the page (Ctrl/Cmd + Shift + R).
 
