@@ -74,7 +74,7 @@ Garmin Dashboard shows what Home Assistant has recorded, and avoids showing numb
 
 | Garmin Dashboard | Home Assistant | Garmin Connect |
 |---|---|---|
-| 0.6.0 | 2026.9, 2026.10 | 3.0.x (verified on 3.0.19) |
+| 0.6.1 | 2026.9, 2026.10 | 3.0.x (verified on 3.0.19) |
 
 Every 3.0.x release of Garmin Connect is accepted: each sensor is still matched and checked one by one, so a value whose sensor changed is hidden as "not provided" rather than shown wrongly. The status card says whether your exact release was verified. A release outside the series (3.1, 4.x) raises a Repairs notice until a compatible Garmin Dashboard release is out.
 
