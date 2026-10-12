@@ -12,7 +12,7 @@ from homeassistant.helpers.event import async_call_later, async_track_state_chan
 from homeassistant.loader import async_get_integration
 from homeassistant.util import dt as dt_util
 
-from .activities import normalize_activities, normalize_route
+from .activities import normalize_activities, normalize_route, parse_aware_time
 from .const import DOMAIN, SCHEMA_VERSION, SOURCE_DOMAIN, UPDATE_DEBOUNCE_SECONDS
 from .discovery import ProfileMapping, Resolution, resolve_profile
 from .normalization import build_metric
@@ -212,15 +212,24 @@ class ProfileRuntime:
             }
         return metric
 
-    def _source_synced_at(self) -> str | None:
-        resolution = self.mapping.last_synced
+    def _resolved_state(self, resolution: Resolution):
         if resolution.status != "resolved" or resolution.entity_id is None:
             return None
         state = self.hass.states.get(resolution.entity_id)
-        if state is None:
-            return None
-        parsed = dt_util.parse_datetime(state.state)
-        return dt_util.as_utc(parsed).isoformat() if parsed else None
+        return None if state is None or state.attributes.get("restored") else state
+
+    def _source_synced_at(self) -> str | None:
+        """When the watch last synced with Garmin, from the summary or the device itself."""
+        candidates: list[Any] = []
+        if (state := self._resolved_state(self.mapping.last_synced)) is not None:
+            candidates.append(state.state)
+        if (state := self._resolved_state(self.mapping.devices)) is not None:
+            outer, inner = provider.DEVICE_SYNC_ATTRIBUTE
+            device = state.attributes.get(outer)
+            if isinstance(device, dict):
+                candidates.append(device.get(inner))
+        times = [t for t in (parse_aware_time(c) for c in candidates) if t is not None]
+        return dt_util.as_utc(max(times)).isoformat() if times else None
 
     def _activity_state(self, key: str):
         resolution = self.mapping.activity_entities.get(key)

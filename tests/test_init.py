@@ -142,3 +142,34 @@ async def test_diagnostics_has_no_identifiers(hass: HomeAssistant) -> None:
     report = str(await async_get_config_entry_diagnostics(hass, entry))
     for secret in (FIXTURE["source_entry_id"], "user@example.com", "sensor.", PROFILE_ID, "8500"):
         assert secret not in report
+
+
+async def test_sync_time_falls_back_to_the_device(hass: HomeAssistant) -> None:
+    entry = await _setup(hass)
+    profile = entry.runtime_data.profiles[PROFILE_ID]
+    hass.states.async_set(entity_for("last_synced"), "unknown", {"device_class": "timestamp"})
+    hass.states.async_set(
+        entity_for("devices"),
+        "1",
+        {"last_used_device": {"lastSyncTime": "2026-01-15T08:00:00+00:00", "deviceName": "Private name"}},
+    )
+    assert profile.snapshot()["source_synced_at"] == "2026-01-15T08:00:00+00:00"
+    assert "Private name" not in str(profile.snapshot())
+
+
+async def test_newest_sync_time_wins(hass: HomeAssistant) -> None:
+    entry = await _setup(hass)
+    profile = entry.runtime_data.profiles[PROFILE_ID]
+    hass.states.async_set(entity_for("last_synced"), "2026-01-15T09:00:00+00:00", {})
+    hass.states.async_set(
+        entity_for("devices"), "1", {"last_used_device": {"lastSyncTime": "2026-01-15T08:00:00+00:00"}}
+    )
+    assert profile.snapshot()["source_synced_at"] == "2026-01-15T09:00:00+00:00"
+
+
+async def test_no_sync_time_anywhere(hass: HomeAssistant) -> None:
+    entry = await _setup(hass)
+    profile = entry.runtime_data.profiles[PROFILE_ID]
+    hass.states.async_set(entity_for("last_synced"), "unknown", {})
+    hass.states.async_set(entity_for("devices"), "1", {"last_used_device": {"lastSyncTime": "not a time"}})
+    assert profile.snapshot()["source_synced_at"] is None

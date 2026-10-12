@@ -94,7 +94,11 @@ CATALOG_BY_KEY: dict[str, MetricSpec] = {spec.key: spec for spec in CATALOG}
 # Source sensors the Activities screen needs; disabled by the source by default.
 ACTIVITY_TRANSLATION_KEYS: tuple[str, ...] = ("last_activity", "last_activities")
 ROUTE_TRANSLATION_KEY = "last_activity_route"
+# Sync time from the daily summary; empty until the device syncs on the new Garmin day.
 LAST_SYNCED_TRANSLATION_KEY = "last_synced"
+# Fallback: the devices sensor carries the last used device's own sync time.
+DEVICES_TRANSLATION_KEY = "devices"
+DEVICE_SYNC_ATTRIBUTE = ("last_used_device", "lastSyncTime")
 
 # Unique-ID infixes after "{entry_id}_" for sport-specific sensors.
 _SPORT_PREFIXES: dict[str, str] = {"functional_threshold_power": "ftp_"}
