@@ -294,6 +294,7 @@ def main(out):
         "profile_id": "preview",
         "display_name": "Garmin",
         "revision": 1,
+        "observed_at": NOW.isoformat(),
         "source_status": "ready",
         "source_synced_at": (NOW - timedelta(minutes=12)).isoformat(),
         "source_sync_device": "Edge 840",

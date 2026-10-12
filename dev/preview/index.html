@@ -30,6 +30,14 @@
     const dark = params.get("dark") === "1";
     if (dark) document.documentElement.setAttribute("data-dark", "");
     const data = await (await fetch(params.get("data") ?? "/dev/raw/preview.json")).json();
+    // ?bikeOnly=1: a bike computer without health sensors (no sleep, Body Battery, steps...).
+    if (params.get("bikeOnly") === "1") {
+      const keep = new Set(["ftp_cycling", "ptw_cycling", "lthr_cycling", "vo2max", "training_status"]);
+      for (const [key, metric] of Object.entries(data.snapshot.metrics)) {
+        if (!keep.has(key)) Object.assign(metric, { status: "missing", value: null });
+      }
+      data.snapshot.plan = null;
+    }
     // ?profiles=2 adds a second profile ("Partner"); ?partnerStatus=reauth|offline|removed sets its source state.
     const twoProfiles = params.get("profiles") === "2";
     const partner = structuredClone(data.snapshot);
@@ -59,6 +67,8 @@
             return prefs;
           case "garmin_dashboard/preferences/set":
             prefs = msg.preferences; return prefs;
+          case "garmin_dashboard/refresh":
+            return data.snapshot;
           case "garmin_dashboard/route":
             return prefs.show_route ? { hidden: false, route: data.route ?? null } : { hidden: true };
           case "garmin_dashboard/chart": {
