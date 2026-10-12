@@ -1,0 +1,6 @@
+{
+  "name": "Garmin Dashboard",
+  "homeassistant": "2026.9.0",
+  "zip_release": true,
+  "filename": "garmin_dashboard.zip"
+}
