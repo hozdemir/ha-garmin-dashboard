@@ -135,8 +135,17 @@ export class GarminChart extends LitElement {
     const series = this._primary;
     if (!series) return html``;
 
-    const start = Date.parse(payload.start);
-    const end = Date.parse(payload.end);
+    let start = Date.parse(payload.start);
+    let end = Date.parse(payload.end);
+    // Day-aligned marks are drawn mid-day; widen the axis to whole days so the
+    // first and last columns stay inside the plot instead of over the axis labels.
+    if (payload.form === "range_columns" || (payload.form === "columns" && payload.per_day)) {
+      const days = [...(series.ranges ?? []).map(([t]) => t), ...(series.points ?? []).map(([t]) => t)];
+      if (days.length) {
+        start = Math.min(start, Math.min(...days));
+        end = Math.max(end, Math.max(...days) + DAY);
+      }
+    }
     const range = extent(payload.series, payload.goal != null ? [payload.goal] : []);
     if (!range) return html``;
     const ticks = ticksForKind(series.kind, payload.form === "columns" ? 0 : range[0], range[1]);
