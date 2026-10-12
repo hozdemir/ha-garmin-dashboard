@@ -18,3 +18,7 @@ docs/phase0-findings.md
 
 # hassfest scratch workspace
 .hassfest-ws/
+
+# Local agent notes; never committed
+AGENTS.md
+CLAUDE.md
