@@ -50,13 +50,12 @@ async def connect(session):
 
 
 def p95(values):
-    return sorted(values)[max(0, int(round(0.95 * len(values))) - 1)]
+    return sorted(values)[max(0, round(0.95 * len(values)) - 1)]
 
 
 def report(name, ms):
-    print(
-        f"{name:34} n={len(ms):3}  median={statistics.median(ms):7.1f} ms  p95={p95(ms):7.1f} ms  max={max(ms):7.1f} ms"
-    )
+    median = statistics.median(ms)
+    print(f"{name:34} n={len(ms):3}  median={median:7.1f} ms  p95={p95(ms):7.1f} ms  max={max(ms):7.1f} ms")
 
 
 async def main(samples):
