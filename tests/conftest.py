@@ -61,25 +61,37 @@ def no_panel_frontend() -> Generator[None]:
         yield panels
 
 
+SECOND_SOURCE_ENTRY_ID = "01SECONDSOURCE00000000000"
+
+
+def _entity_id(item: dict[str, Any], suffix: str) -> str:
+    return f"{item['entity_id']}{suffix}"
+
+
 def load_source(
     hass: HomeAssistant,
     *,
     states: bool = True,
     overrides: dict[str, str] | None = None,
+    entry_id: str = FIXTURE["source_entry_id"],
+    title: str = "user@example.com",
+    suffix: str = "",
 ) -> MockConfigEntry:
-    """Register the fixture's entities under a loaded garmin_connect entry."""
-    source = MockConfigEntry(
-        domain="garmin_connect", entry_id=FIXTURE["source_entry_id"], title="user@example.com"
-    )
+    """Register the fixture's entities under a loaded garmin_connect entry.
+
+    A second account uses another `entry_id` and an entity-ID `suffix`, exactly
+    like two Garmin Connect entries side by side in one HA.
+    """
+    source = MockConfigEntry(domain="garmin_connect", entry_id=entry_id, title=title)
     source.add_to_hass(hass)
     source.mock_state(hass, ConfigEntryState.LOADED)
     registry = er.async_get(hass)
     for item in FIXTURE["entities"]:
-        domain, object_id = item["entity_id"].split(".", 1)
+        domain, object_id = _entity_id(item, suffix).split(".", 1)
         registry.async_get_or_create(
             domain,
             "garmin_connect",
-            item["unique_id"],
+            item["unique_id"].replace(FIXTURE["source_entry_id"], entry_id),
             suggested_object_id=object_id,
             config_entry=source,
             translation_key=item["translation_key"],
@@ -88,14 +100,15 @@ def load_source(
         )
     if states:
         for item in FIXTURE["states"]:
-            value = (overrides or {}).get(item["entity_id"], item["state"])
-            hass.states.async_set(item["entity_id"], value, item["attributes"])
+            entity_id = _entity_id(item, suffix)
+            value = (overrides or {}).get(entity_id, item["state"])
+            hass.states.async_set(entity_id, value, item["attributes"])
     return source
 
 
-def entity_for(translation_key: str, sport: str | None = None) -> str:
+def entity_for(translation_key: str, sport: str | None = None, suffix: str = "") -> str:
     """Entity ID of a fixture sensor by translation key (and sport)."""
     for item in FIXTURE["entities"]:
         if item["translation_key"] == translation_key and (sport is None or item["unique_id"].endswith(f"_{sport}")):
-            return item["entity_id"]
+            return _entity_id(item, suffix)
     raise KeyError(translation_key)
