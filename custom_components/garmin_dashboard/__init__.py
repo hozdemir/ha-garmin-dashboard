@@ -66,6 +66,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: GarminDashboardConfigEnt
     """Start profiles and register the panel."""
     preferences = PreferenceStore(hass)
     await preferences.async_load()
+    await preferences.async_prune({s[CONF_PROFILE_ID] for s in entry.data[CONF_SOURCES]})
     data = DashboardData(charts=ChartService(hass), preferences=preferences)
     for source in entry.data[CONF_SOURCES]:
         profile = ProfileRuntime(

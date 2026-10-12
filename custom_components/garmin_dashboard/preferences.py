@@ -110,5 +110,11 @@ class PreferenceStore:
         await self._store.async_save({"profiles": self._data})
         return self.get(profile_id)
 
+    async def async_prune(self, keep: set[str]) -> None:
+        """Forget preferences of profiles that no longer exist."""
+        if set(self._data) - keep:
+            self._data = {pid: prefs for pid, prefs in self._data.items() if pid in keep}
+            await self._store.async_save({"profiles": self._data})
+
     async def async_remove(self) -> None:
         await self._store.async_remove()
