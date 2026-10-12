@@ -198,19 +198,22 @@ export class GarminChart extends LitElement {
   }
 
   private _grid(ticks: number[], y: Scale, series: ChartSeries, plotRight: number): SVGTemplateResult {
+    // Enough decimals that neighbouring ticks never print the same label (3.35 vs 3.40).
+    const step = ticks.length > 1 ? Math.abs(ticks[1]! - ticks[0]!) : 1;
+    const decimals = Math.min(3, Math.max(0, -Math.floor(Math.log10(step) + 1e-9)));
     return svg`${ticks.map(
       (tick) => svg`
         <line class="grid" x1=${MARGIN.left} x2=${plotRight} y1=${y(tick)} y2=${y(tick)}></line>
-        <text class="tick" x=${MARGIN.left - 6} y=${y(tick) + 4} text-anchor="end">${this._tickLabel(series, tick)}</text>`,
+        <text class="tick" x=${MARGIN.left - 6} y=${y(tick) + 4} text-anchor="end">${this._tickLabel(series, tick, decimals)}</text>`,
     )}`;
   }
 
-  private _tickLabel(series: ChartSeries, value: number): string {
+  private _tickLabel(series: ChartSeries, value: number, decimals: number): string {
     if (series.kind === "duration") return `${Math.round(value / 3600)}${this.t?.("hour_short") ?? "h"}`;
     if (Math.abs(value) >= 1000) {
       return new Intl.NumberFormat(this.fmt.locale, { notation: "compact", maximumFractionDigits: 1 }).format(value);
     }
-    return new Intl.NumberFormat(this.fmt.locale, { maximumFractionDigits: 1 }).format(value);
+    return new Intl.NumberFormat(this.fmt.locale, { minimumFractionDigits: decimals, maximumFractionDigits: decimals }).format(value);
   }
 
   private _xAxis(start: number, end: number, x: Scale, height: number): SVGTemplateResult {
