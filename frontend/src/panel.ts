@@ -497,7 +497,8 @@ export class GarminDashboardPanel extends LitElement {
     const warn = snapshot.source_status !== "ready";
     return html`
       <p class="source ${warn ? "warn" : ""}" role=${warn ? "alert" : "status"}>
-        ${warn ? html`<strong>${t(`source_${snapshot.source_status}`)}</strong> · ` : nothing}${sync}
+        ${warn ? html`<strong class="alert"><span aria-hidden="true">⚠</span> ${t(`source_${snapshot.source_status}`)}</strong>` : nothing}
+        <span>${sync}</span>
       </p>
     `;
   }
@@ -659,7 +660,12 @@ export class GarminDashboardPanel extends LitElement {
     .progress { height: 6px; border-radius: 3px; background: var(--divider-color, #ddd); margin-top: 6px; overflow: hidden; }
     .bar { height: 100%; background: var(--primary-color); }
     .banner { padding: 12px 16px; border-radius: 8px; background: var(--card-background-color); margin: 0 0 16px; }
-    .source { margin: 0 0 16px; color: var(--secondary-text-color); font-size: 14px; }
+    .source { margin: 0 0 16px; color: var(--secondary-text-color); font-size: 14px; display: flex; flex-direction: column; gap: 6px; }
+    .source .alert {
+      color: var(--primary-text-color); font-weight: 500; padding: 10px 12px; border-radius: 8px;
+      background: var(--card-background-color); border-left: 4px solid var(--warning-color, #b26a00);
+    }
+    .source .alert span { color: var(--warning-color, #b26a00); }
     .muted { color: var(--secondary-text-color); }
     .list { list-style: none; margin: 0; padding: 0; }
     .list li { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--divider-color, #eee); }
