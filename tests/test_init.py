@@ -1,6 +1,7 @@
 """Lifecycle, panel registration and the admin-only WebSocket API."""
 
 from typing import Any
+from unittest.mock import patch
 
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
@@ -186,3 +187,12 @@ async def test_no_sync_time_anywhere(hass: HomeAssistant) -> None:
     hass.states.async_set(entity_for("devices"), "1", {"last_used_device": {"lastSyncTime": "not a time"}})
     snapshot = profile.snapshot()
     assert (snapshot["source_synced_at"], snapshot["source_sync_device"]) == (None, None)
+
+
+async def test_expired_garmin_sign_in_is_reported(hass: HomeAssistant) -> None:
+    entry = await _setup(hass)
+    profile = entry.runtime_data.profiles[PROFILE_ID]
+    source = hass.config_entries.async_get_entry(FIXTURE["source_entry_id"])
+    with patch.object(type(source), "async_get_active_flows", return_value=iter([{"flow_id": "x"}])):
+        assert profile.source_status == "reauth"
+    assert profile.source_status == "ready"

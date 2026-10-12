@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
-from homeassistant.config_entries import ConfigEntryState
+from homeassistant.config_entries import SOURCE_REAUTH, ConfigEntryState
 from homeassistant.core import CALLBACK_TYPE, Event, HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er, issue_registry as ir
 from homeassistant.helpers.event import async_call_later, async_track_state_change_event
@@ -80,6 +80,9 @@ class ProfileRuntime:
             return "removed"
         if not self.compatible:
             return "unsupported"
+        # Garmin sign-ins expire (e.g. MFA sessions); the source then waits for a new login.
+        if any(entry.async_get_active_flows(self.hass, {SOURCE_REAUTH})):
+            return "reauth"
         return _SOURCE_STATUS.get(entry.state, "offline")
 
     @callback
