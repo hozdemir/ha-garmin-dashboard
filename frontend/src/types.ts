@@ -83,7 +83,7 @@ export interface Route {
   simplified: boolean;
 }
 
-export type SourceStatus = "ready" | "starting" | "offline" | "removed" | "unsupported";
+export type SourceStatus = "ready" | "starting" | "offline" | "removed" | "unsupported" | "reauth";
 
 export interface ProfileSnapshot {
   schema_version: number;

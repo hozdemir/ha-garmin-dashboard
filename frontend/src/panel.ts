@@ -20,6 +20,16 @@ import {
 } from "./types";
 
 const LAST_PROFILE_KEY = "garmin-dashboard:last-profile";
+const SOURCE_PAGE = "/config/integrations/integration/garmin_connect";
+
+/** Navigate inside the HA frontend without a full page load. */
+function navigateInApp(e: Event): void {
+  const href = (e.currentTarget as HTMLAnchorElement).getAttribute("href");
+  if (!href) return;
+  e.preventDefault();
+  history.pushState(null, "", href);
+  window.dispatchEvent(new CustomEvent("location-changed", { detail: { replace: false } }));
+}
 
 /** Per-browser convenience only; storage may be unavailable (private mode). */
 function rememberedProfile(): string | null {
@@ -502,7 +512,12 @@ export class GarminDashboardPanel extends LitElement {
     const warn = snapshot.source_status !== "ready";
     return html`
       <p class="source ${warn ? "warn" : ""}" role=${warn ? "alert" : "status"}>
-        ${warn ? html`<strong class="alert"><span aria-hidden="true">⚠</span> ${t(`source_${snapshot.source_status}`)}</strong>` : nothing}
+        ${warn
+          ? html`<strong class="alert"><span aria-hidden="true">⚠</span> ${t(`source_${snapshot.source_status}`)}
+              ${snapshot.source_status === "reauth" || snapshot.source_status === "offline"
+                ? html`<a href=${SOURCE_PAGE} @click=${navigateInApp}>${t("open_garmin_connect")}</a>`
+                : nothing}</strong>`
+          : nothing}
         <span>${sync}</span>
       </p>
     `;
@@ -671,6 +686,7 @@ export class GarminDashboardPanel extends LitElement {
       background: var(--card-background-color); border-left: 4px solid var(--warning-color, #b26a00);
     }
     .source .alert span { color: var(--warning-color, #b26a00); }
+    .source .alert a { color: var(--primary-color); margin-left: 6px; white-space: nowrap; }
     .muted { color: var(--secondary-text-color); }
     .list { list-style: none; margin: 0; padding: 0; }
     .list li { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--divider-color, #eee); }
