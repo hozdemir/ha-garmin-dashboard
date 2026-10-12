@@ -27,7 +27,8 @@ export type MetricKind =
   | "hrv"
   | "level"
   | "power_ratio"
-  | "mass";
+  | "mass"
+  | "floors";
 
 export type Section = "movement" | "recovery" | "training" | "body";
 

@@ -27,6 +27,8 @@ import {
   mdiShoePrint,
   mdiSleep,
   mdiSpeedometer,
+  mdiStairsDown,
+  mdiStairsUp,
   mdiTimerSand,
   mdiViewDashboardVariant,
   mdiWalk,
@@ -50,6 +52,8 @@ export const SECTION_ICONS: Record<SectionId | "status", string> = {
 
 export const METRIC_ICONS: Record<string, string> = {
   steps: mdiShoePrint,
+  floors_up: mdiStairsUp,
+  floors_down: mdiStairsDown,
   distance_day: mdiMapMarkerDistance,
   calories_active: mdiFire,
   calories_total: mdiFire,

@@ -74,9 +74,16 @@ export function formatNumber(ctx: FormatContext, kind: MetricKind, value: number
       return ctx.massUnit === "lb" ? `${number(ctx, value / 0.45359237, 1)} lb` : `${number(ctx, value, 1)} kg`;
     case "power_ratio":
       return `${number(ctx, value, 2)} W/kg`;
+    case "floors":
+      return number(ctx, wholeFloors(value));
     default:
       return number(ctx, value);
   }
+}
+
+/** Garmin counts a floor once it is fully climbed; the source sends the fraction. */
+export function wholeFloors(value: number): number {
+  return Math.floor(value + 1e-9);
 }
 
 const PACE_SPORTS = /running|walking|hiking/;

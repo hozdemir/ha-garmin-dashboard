@@ -23,6 +23,11 @@ describe("format", () => {
     expect(formatCategory("BALANCED")).toBe("Balanced");
     expect(formatCategory("NO_STATUS")).toBe("No status");
   });
+  it("counts only fully climbed floors", () => {
+    expect(formatNumber({ locale: "en", lengthUnit: "km" }, "floors", 7.0899)).toBe("7");
+    expect(formatNumber({ locale: "en", lengthUnit: "km" }, "floors", 0.65846)).toBe("0");
+    expect(formatNumber({ locale: "en", lengthUnit: "km" }, "floors", 10)).toBe("10");
+  });
   it("lets progress exceed 100% while the bar stops at 100", () => {
     expect(goalProgress(15000, 10000)).toEqual({ percent: 150, bar: 100 });
     expect(goalProgress(500, 0)).toBeNull();
