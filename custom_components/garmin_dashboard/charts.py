@@ -244,6 +244,10 @@ class ChartService:
         self.hass = hass
         self._cache: dict[tuple[str, str, int], tuple[datetime, dict[str, Any]]] = {}
 
+    def forget(self, profile_id: str) -> None:
+        """Drop cached charts of one profile so the next request re-reads the recorder."""
+        self._cache = {k: v for k, v in self._cache.items() if k[0] != profile_id}
+
     @staticmethod
     def range_for(chart: ChartSpec, requested: int | None) -> int:
         if chart.group == "today":

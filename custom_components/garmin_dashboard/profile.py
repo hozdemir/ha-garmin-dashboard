@@ -153,6 +153,12 @@ class ProfileRuntime:
             listener(snapshot)
 
     @callback
+    def async_refresh(self) -> None:
+        """Re-resolve sensors and re-read HA's states. Never asks Garmin for anything."""
+        self._remap()
+        self._push()
+
+    @callback
     def async_subscribe(self, listener: SnapshotListener) -> CALLBACK_TYPE:
         self._listeners.add(listener)
 
@@ -181,6 +187,8 @@ class ProfileRuntime:
             "profile_id": self.profile_id,
             "display_name": self.display_name,
             "revision": self._revision,
+            # When the dashboard read Home Assistant's states for this snapshot.
+            "observed_at": now.isoformat(),
             "source_status": self.source_status,
             **self._source_sync(),
             "metrics": metrics,

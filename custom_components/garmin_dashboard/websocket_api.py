@@ -20,6 +20,7 @@ def async_register(hass: HomeAssistant) -> None:
     websocket_api.async_register_command(hass, ws_profiles)
     websocket_api.async_register_command(hass, ws_snapshot)
     websocket_api.async_register_command(hass, ws_subscribe)
+    websocket_api.async_register_command(hass, ws_refresh)
     websocket_api.async_register_command(hass, ws_chart)
     websocket_api.async_register_command(hass, ws_preferences_get)
     websocket_api.async_register_command(hass, ws_preferences_set)
@@ -93,6 +94,18 @@ def ws_subscribe(hass: HomeAssistant, connection: websocket_api.ActiveConnection
     connection.subscriptions[msg_id] = profile.async_subscribe(forward)
     connection.send_result(msg_id)
     forward(profile.snapshot())
+
+
+@websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/refresh", vol.Required("profile_id"): str})
+@websocket_api.require_admin
+@callback
+def ws_refresh(hass: HomeAssistant, connection: websocket_api.ActiveConnection, msg: dict[str, Any]) -> None:
+    """Re-read Home Assistant's data for a profile; subscribers get a fresh snapshot."""
+    if (profile := _get_profile(hass, connection, msg)) is None:
+        return
+    _data(hass).charts.forget(profile.profile_id)
+    profile.async_refresh()
+    connection.send_result(msg["id"], profile.snapshot())
 
 
 @websocket_api.websocket_command(

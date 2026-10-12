@@ -251,3 +251,28 @@ async def test_missing_attribute_value_is_unknown_not_zero(hass: HomeAssistant) 
     hass.states.async_set(entity_for("lactate_threshold_hr"), "172", {"unit_of_measurement": "bpm"})
     metric = entry.runtime_data.profiles[PROFILE_ID].snapshot()["metrics"]["lthr_cycling"]
     assert (metric["status"], metric["value"]) == ("unknown", None)
+
+
+async def test_refresh_rereads_and_pushes(hass: HomeAssistant, hass_ws_client: WebSocketGenerator) -> None:
+    await _setup(hass)
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({"type": f"{DOMAIN}/subscribe", "profile_id": PROFILE_ID})
+    await client.receive_json()
+    first = (await client.receive_json())["event"]
+    assert first["observed_at"]
+
+    await client.send_json_auto_id({"type": f"{DOMAIN}/refresh", "profile_id": PROFILE_ID})
+    messages = [await client.receive_json(), await client.receive_json()]
+    pushed = next(m for m in messages if m.get("type") == "event")
+    result = next(m for m in messages if m.get("type") == "result")
+    assert result["success"]
+    assert pushed["event"]["revision"] > first["revision"]
+
+
+async def test_non_admin_cannot_refresh(
+    hass: HomeAssistant, hass_ws_client: WebSocketGenerator, hass_read_only_access_token: str
+) -> None:
+    await _setup(hass)
+    client = await hass_ws_client(hass, hass_read_only_access_token)
+    await client.send_json_auto_id({"type": f"{DOMAIN}/refresh", "profile_id": PROFILE_ID})
+    assert (await client.receive_json())["error"]["code"] == "unauthorized"
