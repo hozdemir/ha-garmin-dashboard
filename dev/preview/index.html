@@ -30,6 +30,11 @@
     const dark = params.get("dark") === "1";
     if (dark) document.documentElement.setAttribute("data-dark", "");
     const data = await (await fetch(params.get("data") ?? "/dev/raw/preview.json")).json();
+    // ?profiles=2 adds a second profile ("Partner") with a removed source, to check the picker and warnings.
+    const twoProfiles = params.get("profiles") === "2";
+    const partner = structuredClone(data.snapshot);
+    Object.assign(partner, { profile_id: "partner", display_name: "Partner", source_status: "removed" });
+    const snapshots = { preview: data.snapshot, partner };
     let prefs = {
       section_order: ["movement", "recovery", "training", "gear", "activities"],
       hidden_sections: [], hidden_metrics: [], hidden_charts: ["stress_today"],
@@ -42,7 +47,9 @@
       async callWS(msg) {
         switch (msg.type) {
           case "garmin_dashboard/profiles":
-            return { schema_version: 1, profiles: [{ profile_id: "preview", display_name: "Garmin", source_status: "ready",
+            return { schema_version: 1, profiles: [...(twoProfiles ? [{ profile_id: "partner", display_name: "Partner", source_status: "removed",
+              status: { source_version: "3.0.19", compatible: true, metric_status: {}, metric_counts: {}, activity_sensors: {}, gear_count: 0 } }] : []),
+              { profile_id: "preview", display_name: "Garmin", source_status: "ready",
               status: { source_version: "3.0.19", compatible: true, metric_status: {}, metric_counts: { resolved: 17 },
                 activity_sensors: { last_activity: "resolved", last_activities: "resolved" }, gear_count: 0 } }] };
           case "garmin_dashboard/preferences/get":
@@ -63,7 +70,7 @@
         }
       },
       connection: {
-        async subscribeMessage(cb) { setTimeout(() => cb(data.snapshot), 0); return async () => {}; },
+        async subscribeMessage(cb, msg) { setTimeout(() => cb(snapshots[msg.profile_id] ?? data.snapshot), 0); return async () => {}; },
         addEventListener() {}, removeEventListener() {},
       },
     };
