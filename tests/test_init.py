@@ -269,6 +269,27 @@ async def test_refresh_rereads_and_pushes(hass: HomeAssistant, hass_ws_client: W
     assert pushed["event"]["revision"] > first["revision"]
 
 
+async def test_subscriptions_per_connection_are_limited(
+    hass: HomeAssistant, hass_ws_client: WebSocketGenerator
+) -> None:
+    from custom_components.garmin_dashboard.websocket_api import MAX_SUBSCRIPTIONS_PER_CONNECTION
+
+    await _setup(hass)
+    client = await hass_ws_client(hass)
+    for _ in range(MAX_SUBSCRIPTIONS_PER_CONNECTION):
+        await client.send_json_auto_id({"type": f"{DOMAIN}/subscribe", "profile_id": PROFILE_ID})
+        assert (await client.receive_json())["success"]
+        await client.receive_json()
+    await client.send_json_auto_id({"type": f"{DOMAIN}/subscribe", "profile_id": PROFILE_ID})
+    assert (await client.receive_json())["error"]["code"] == "too_many_subscriptions"
+
+    # Unsubscribing frees a slot.
+    await client.send_json_auto_id({"type": "unsubscribe_events", "subscription": 1})
+    await client.receive_json()
+    await client.send_json_auto_id({"type": f"{DOMAIN}/subscribe", "profile_id": PROFILE_ID})
+    assert (await client.receive_json())["success"]
+
+
 async def test_non_admin_cannot_refresh(
     hass: HomeAssistant, hass_ws_client: WebSocketGenerator, hass_read_only_access_token: str
 ) -> None:

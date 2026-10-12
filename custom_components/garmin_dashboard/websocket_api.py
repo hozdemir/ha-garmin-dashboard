@@ -13,6 +13,11 @@ from .const import DOMAIN, SCHEMA_VERSION
 from .preferences import default_preferences, validate as validate_preferences
 from .profile import ProfileRuntime
 
+# A panel needs one subscription per open tab; more on one connection is a client bug.
+MAX_SUBSCRIPTIONS_PER_CONNECTION = 10
+# Marks our entries in `connection.subscriptions`, which HA prunes on unsubscribe and close.
+_OURS = "_garmin_dashboard_subscription"
+
 
 @callback
 def async_register(hass: HomeAssistant) -> None:
@@ -86,12 +91,18 @@ def ws_subscribe(hass: HomeAssistant, connection: websocket_api.ActiveConnection
     if (profile := _get_profile(hass, connection, msg)) is None:
         return
     msg_id = msg["id"]
+    active = sum(1 for stop in connection.subscriptions.values() if getattr(stop, _OURS, False))
+    if active >= MAX_SUBSCRIPTIONS_PER_CONNECTION:
+        connection.send_error(msg_id, "too_many_subscriptions", "Too many subscriptions on this connection")
+        return
 
     @callback
     def forward(snapshot: dict[str, Any]) -> None:
         connection.send_message(websocket_api.event_message(msg_id, snapshot))
 
-    connection.subscriptions[msg_id] = profile.async_subscribe(forward)
+    unsubscribe = profile.async_subscribe(forward)
+    setattr(unsubscribe, _OURS, True)
+    connection.subscriptions[msg_id] = unsubscribe
     connection.send_result(msg_id)
     forward(profile.snapshot())
 
