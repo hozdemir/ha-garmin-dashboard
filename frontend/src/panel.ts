@@ -737,7 +737,9 @@ export class GarminDashboardPanel extends LitElement {
         <ul class="list">
           <li><span>${t("status_read_at")}</span><strong>${readAt}</strong></li>
           <li><span>${t("source_version")}</span><strong>${info.status.source_version ?? "—"}</strong></li>
-          <li><span>${t("compatible")}</span><strong>${info.status.compatible ? t("compatible_yes") : t("compatible_no")}</strong></li>
+          <li><span>${t("compatible")}</span><strong>${
+            !info.status.compatible ? t("compatible_no") : info.status.verified ? t("compatible_yes") : t("compatible_series")
+          }</strong></li>
           <li><span>${t("metrics_found")}</span><strong>${counts.resolved ?? 0}</strong></li>
           <li><span>${t("metrics_off")}</span><strong>${counts.disabled ?? 0}</strong></li>
           <li><span>${t("metrics_missing")}</span><strong>${(counts.missing ?? 0) + (counts.ambiguous ?? 0)}</strong></li>

@@ -136,6 +136,8 @@ export interface ProfileSnapshot {
 export interface ProfileStatus {
   source_version: string | null;
   compatible: boolean;
+  /** This exact Garmin Connect release was checked on a live install. */
+  verified?: boolean;
   metric_status: Record<string, MetricStatus>;
   metric_counts: Partial<Record<MetricStatus | "resolved", number>>;
   activity_sensors: Record<string, string>;
