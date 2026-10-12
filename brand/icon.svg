@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <!-- Neutral mark: a watch face with a trend line. No Garmin logo or trade dress. -->
+  <rect x="98" y="8" width="60" height="38" rx="10" fill="#1c5cab"/>
+  <rect x="98" y="210" width="60" height="38" rx="10" fill="#1c5cab"/>
+  <circle cx="128" cy="128" r="96" fill="#2a78d6"/>
+  <circle cx="128" cy="128" r="78" fill="#ffffff"/>
+  <polyline points="70,150 98,150 114,112 136,170 154,124 168,140 188,140"
+    fill="none" stroke="#2a78d6" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
