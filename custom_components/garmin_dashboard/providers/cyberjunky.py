@@ -11,7 +11,21 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
-SUPPORTED_VERSIONS: frozenset[str] = frozenset({"3.0.19"})
+# Releases this adapter was checked against on a live install.
+VERIFIED_VERSIONS: frozenset[str] = frozenset({"3.0.19"})
+# The whole series is accepted: every sensor is still matched and validated one by
+# one, so a changed field is hidden as "not provided" instead of shown wrongly.
+SUPPORTED_SERIES = "3.0"
+SUPPORTED_SERIES_LABEL = "3.0.x"
+
+
+def is_supported_version(version: str | None) -> bool:
+    """True for any release of the supported series, including pre-releases (3.0.20b1)."""
+    if not version or not version.startswith(f"{SUPPORTED_SERIES}."):
+        return False
+    patch = version[len(SUPPORTED_SERIES) + 1 :]
+    return bool(patch) and patch[0].isdigit()
+
 
 Section = Literal["movement", "recovery", "training", "body"]
 Kind = Literal[

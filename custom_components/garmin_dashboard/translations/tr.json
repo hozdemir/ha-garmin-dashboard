@@ -90,8 +90,8 @@
       "description": "“{profile}” profilinin bağlı olduğu Garmin Connect bağlantısı artık yok. Başka bir hesap seçmek veya profili kaldırmak için Garmin Dashboard → Yapılandır'ı açın. Panel verisi hiçbir zaman kendiliğinden başka bir hesaba geçirilmez."
     },
     "unsupported_source": {
-      "title": "“{profile}” için Garmin Connect sürümü doğrulanmadı",
-      "description": "Garmin Connect {version}, bu Garmin Dashboard sürümüyle doğrulanmadı (doğrulanan: {supported}). Güvenle eşleştirilemeyen değerler yanlış gösterilmek yerine gizlenir. Uyumlu sürüm çıktığında Garmin Dashboard'u güncelleyin."
+      "title": "“{profile}” için Garmin Connect sürümü desteklenmiyor",
+      "description": "Garmin Connect {version}, bu Garmin Dashboard sürümünün desteklediği serinin ({supported}) dışında. Güvenle eşleştirilemeyen değerler yanlış gösterilmek yerine gizlenir. Uyumlu sürüm çıktığında Garmin Dashboard'u güncelleyin."
     }
   }
 }

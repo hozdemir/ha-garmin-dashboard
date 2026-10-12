@@ -90,8 +90,8 @@
       "description": "The Garmin Connect connection behind the “{profile}” profile no longer exists. Open Garmin Dashboard → Configure to choose another account or remove the profile. Dashboard data is never switched to another account automatically."
     },
     "unsupported_source": {
-      "title": "Garmin Connect version not verified for “{profile}”",
-      "description": "Garmin Connect {version} has not been verified with this version of Garmin Dashboard (verified: {supported}). Values that cannot be matched safely are hidden instead of shown wrongly. Update Garmin Dashboard when a compatible release is available."
+      "title": "Garmin Connect version not supported for “{profile}”",
+      "description": "Garmin Connect {version} is outside the series this version of Garmin Dashboard supports ({supported}). Values that cannot be matched safely are hidden instead of shown wrongly. Update Garmin Dashboard when a compatible release is available."
     }
   }
 }

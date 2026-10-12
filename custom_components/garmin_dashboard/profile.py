@@ -72,7 +72,11 @@ class ProfileRuntime:
 
     @property
     def compatible(self) -> bool:
-        return self.source_version in provider.SUPPORTED_VERSIONS
+        return provider.is_supported_version(self.source_version)
+
+    @property
+    def verified(self) -> bool:
+        return self.source_version in provider.VERIFIED_VERSIONS
 
     @property
     def source_status(self) -> str:
@@ -107,7 +111,7 @@ class ProfileRuntime:
                 {
                     "profile": self.display_name,
                     "version": self.source_version or "?",
-                    "supported": ", ".join(sorted(provider.SUPPORTED_VERSIONS)),
+                    "supported": provider.SUPPORTED_SERIES_LABEL,
                 },
             ),
         }
@@ -375,6 +379,7 @@ class ProfileRuntime:
         return {
             "source_version": self.source_version,
             "compatible": self.compatible,
+            "verified": self.verified,
             "metric_status": {key: r.status for key, r in self.mapping.metrics.items()},
             "metric_counts": counts,
             "activity_sensors": {key: r.status for key, r in self.mapping.activity_entities.items()},

@@ -297,3 +297,18 @@ async def test_non_admin_cannot_refresh(
     client = await hass_ws_client(hass, hass_read_only_access_token)
     await client.send_json_auto_id({"type": f"{DOMAIN}/refresh", "profile_id": PROFILE_ID})
     assert (await client.receive_json())["error"]["code"] == "unauthorized"
+
+
+async def test_whole_supported_series_is_accepted(hass: HomeAssistant, source_version) -> None:
+    from custom_components.garmin_dashboard.providers.cyberjunky import is_supported_version
+
+    assert is_supported_version("3.0.15") and is_supported_version("3.0.20b1")
+    assert not is_supported_version("3.1.0") and not is_supported_version("4.0.0")
+    assert not is_supported_version("3.0.") and not is_supported_version(None)
+
+    source_version.version = "3.0.15"
+    entry = await _setup(hass)
+    profile = entry.runtime_data.profiles[PROFILE_ID]
+    assert profile.source_status == "ready"
+    assert profile.status_summary()["compatible"] is True
+    assert profile.status_summary()["verified"] is False
