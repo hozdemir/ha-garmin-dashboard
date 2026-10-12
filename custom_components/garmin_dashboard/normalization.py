@@ -15,6 +15,7 @@ from .providers.cyberjunky import FreshnessClass, MetricSpec
 
 _DISTANCE_TO_M = {"m": 1.0, "km": 1000.0, "mi": 1609.344, "ft": 0.3048, "yd": 0.9144, "cm": 0.01}
 _DURATION_TO_S = {"s": 1.0, "min": 60.0, "h": 3600.0, "d": 86400.0}
+_MASS_TO_KG = {"kg": 1.0, "g": 0.001, "lb": 0.45359237, "oz": 0.028349523125, "st": 6.35029318}
 # Units each numeric kind accepts as-is; anything else is "invalid", not guessed.
 _PASSTHROUGH_UNITS: dict[str, set[str | None]] = {
     "count": {"steps", None},
@@ -59,6 +60,9 @@ def normalize_value(spec: MetricSpec, raw: str, unit: str | None) -> tuple[Any, 
     if spec.kind == "duration":
         factor = _DURATION_TO_S.get(unit or "")
         return (number * factor, "s") if factor else None
+    if spec.kind == "mass":
+        factor = _MASS_TO_KG.get(unit or "")
+        return (number * factor, "kg") if factor else None
     if unit not in _PASSTHROUGH_UNITS[spec.kind]:
         return None
     if spec.kind in ("percent", "score") and number > 100:

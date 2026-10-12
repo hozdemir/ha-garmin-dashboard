@@ -101,6 +101,7 @@ CHARTS: tuple[ChartSpec, ...] = (
     ChartSpec("vo2max", "trends", "step", ("vo2max",), "change_points"),
     ChartSpec("ftp_cycling", "trends", "step", ("ftp_cycling",), "change_points"),
     ChartSpec("ptw_cycling", "trends", "step", ("ptw_cycling",), "change_points"),
+    ChartSpec("weight", "trends", "dots", ("weight",), "change_points", one_per_day=True),
 )
 CHARTS_BY_ID: dict[str, ChartSpec] = {chart.id: chart for chart in CHARTS}
 
@@ -233,7 +234,7 @@ def _converter(metric_key: str, unit: str | None):
 
 def _canonical_unit(metric_key: str, unit: str | None) -> str | None:
     kind = CATALOG_BY_KEY[metric_key].kind
-    return {"distance": "m", "duration": "s"}.get(kind, unit)
+    return {"distance": "m", "duration": "s", "mass": "kg"}.get(kind, unit)
 
 
 class ChartService:

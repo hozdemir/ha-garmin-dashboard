@@ -20,7 +20,7 @@ from .providers.cyberjunky import CATALOG
 STORAGE_VERSION = 1
 STORAGE_KEY = f"{DOMAIN}.preferences"
 
-SECTIONS: tuple[str, ...] = ("movement", "recovery", "training", "gear", "activities")
+SECTIONS: tuple[str, ...] = ("movement", "recovery", "training", "body", "gear", "activities")
 METRIC_KEYS: frozenset[str] = frozenset(spec.key for spec in CATALOG)
 CHART_IDS: frozenset[str] = frozenset(chart.id for chart in CHARTS)
 

@@ -13,7 +13,7 @@ from typing import Literal
 
 SUPPORTED_VERSIONS: frozenset[str] = frozenset({"3.0.19"})
 
-Section = Literal["movement", "recovery", "training"]
+Section = Literal["movement", "recovery", "training", "body"]
 Kind = Literal[
     "count",
     "distance",
@@ -28,6 +28,7 @@ Kind = Literal[
     "hrv",
     "level",
     "power_ratio",
+    "mass",
 ]
 FreshnessClass = Literal["intraday", "daily", "nightly", "slow", "event"]
 
@@ -107,6 +108,7 @@ CATALOG: tuple[MetricSpec, ...] = (
     # Garmin's personal "balanced" HRV range; only the current range is available.
     MetricSpec("hrv_balanced_low", "hrv_baseline", "recovery", "hrv", "slow", value_attribute="balancedLow"),
     MetricSpec("hrv_balanced_high", "hrv_baseline", "recovery", "hrv", "slow", value_attribute="balancedUpper"),
+    MetricSpec("weight", "weight", "body", "mass", "slow"),
     # The state is the running threshold; cycling has its own value in an attribute.
     MetricSpec("lthr_running", "lactate_threshold_hr", "training", "heart_rate", "slow", date_attribute="calendarDate"),
     MetricSpec(
