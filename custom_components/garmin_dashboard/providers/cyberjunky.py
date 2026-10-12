@@ -43,6 +43,7 @@ Kind = Literal[
     "level",
     "power_ratio",
     "mass",
+    "floors",
 ]
 FreshnessClass = Literal["intraday", "daily", "nightly", "slow", "event"]
 
@@ -67,6 +68,9 @@ class MetricSpec:
 CATALOG: tuple[MetricSpec, ...] = (
     MetricSpec("steps", "total_steps", "movement", "count", "daily"),
     MetricSpec("steps_goal", "daily_step_goal", "movement", "count", "daily"),
+    MetricSpec("floors_up", "floors_ascended", "movement", "floors", "daily"),
+    MetricSpec("floors_down", "floors_descended", "movement", "floors", "daily"),
+    MetricSpec("floors_goal", "floors_ascended_goal", "movement", "floors", "daily"),
     MetricSpec("distance_day", "total_distance", "movement", "distance", "daily"),
     MetricSpec("calories_active", "active_calories", "movement", "energy", "daily"),
     MetricSpec("calories_total", "total_calories", "movement", "energy", "daily"),

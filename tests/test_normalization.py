@@ -57,6 +57,13 @@ def test_zero_is_valid_data() -> None:
     assert metric["value"] == 0
 
 
+def test_floors_keep_garmins_fraction() -> None:
+    metric = _metric("floors_up", _state("7.0899", "floors"))
+    assert metric["status"] == "available"
+    assert metric["value"] == pytest.approx(7.0899)
+    assert _metric("floors_up", _state("7", "m"))["status"] == "invalid"
+
+
 def test_percent_over_100_is_invalid() -> None:
     assert _metric("body_battery", _state("140", "%"))["status"] == "invalid"
 
