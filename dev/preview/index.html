@@ -33,7 +33,7 @@
     let prefs = {
       section_order: ["movement", "recovery", "training", "gear", "activities"],
       hidden_sections: [], hidden_metrics: [], hidden_charts: ["stress_today"],
-      trend_range_days: Number(params.get("range") ?? 30), show_route: true,
+      trend_range_days: Number(params.get("range") ?? 30), show_route: params.get("showRoute") !== "0",
     };
     const hass = {
       language: params.get("lang") ?? "tr",
@@ -46,6 +46,8 @@
               status: { source_version: "3.0.19", compatible: true, metric_status: {}, metric_counts: { resolved: 17 },
                 activity_sensors: { last_activity: "resolved", last_activities: "resolved" }, gear_count: 0 } }] };
           case "garmin_dashboard/preferences/get":
+            // ?prefsDelay=ms makes preferences arrive after the first snapshot, as in a live HA.
+            await new Promise((r) => setTimeout(r, Number(params.get("prefsDelay") ?? 0)));
             return prefs;
           case "garmin_dashboard/preferences/set":
             prefs = msg.preferences; return prefs;
