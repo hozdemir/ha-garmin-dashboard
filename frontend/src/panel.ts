@@ -166,8 +166,9 @@ export class GarminDashboardPanel extends LitElement {
     if (snapshot.revision <= this._lastRevision) return;
     this._lastRevision = snapshot.revision;
     this._snapshot = snapshot;
-    if (!this._prefs) return;
+    // The route needs only the snapshot; the backend applies the route preference.
     this._maybeLoadRoute();
+    if (!this._prefs) return;
     if (!this._chartsLoaded) void this._loadCharts();
     else if (Date.now() - this._todayLoadedAt > TODAY_REFRESH_MS) void this._loadCharts("today");
   }
@@ -394,7 +395,7 @@ export class GarminDashboardPanel extends LitElement {
           ${hasRoute
             ? html`<div class="route">
                 <h3>${t("route_title")}</h3>
-                <garmin-route .route=${this._route} ?hidden=${this._routeHidden} .t=${t}></garmin-route>
+                <garmin-route .route=${this._route} ?route-hidden=${this._routeHidden} .t=${t}></garmin-route>
               </div>`
             : nothing}
         </div>

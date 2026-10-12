@@ -10,13 +10,14 @@ const MAX_HEIGHT = 280;
 export class GarminRoute extends LitElement {
   static override properties = {
     route: { attribute: false },
-    hidden: { type: Boolean },
+    // Not "hidden": that is the global HTML attribute and would hide the whole element.
+    routeHidden: { type: Boolean, attribute: "route-hidden" },
     t: { attribute: false },
     _width: { state: true },
   };
 
   route?: Route | null;
-  override hidden = false;
+  routeHidden = false;
   t?: Translate;
   private _width = 0;
   private _observer?: ResizeObserver;
@@ -38,7 +39,7 @@ export class GarminRoute extends LitElement {
   protected override render(): TemplateResult {
     const t = this.t;
     if (!t) return html``;
-    if (this.hidden) return html`<p class="note">${t("route_hidden")}</p>`;
+    if (this.routeHidden) return html`<p class="note">${t("route_hidden")}</p>`;
     if (this.route === undefined) return html`<div class="placeholder"></div>`;
     if (this.route === null) return html`<p class="note">${t("route_none")}</p>`;
     const p = this._width ? projectRoute(this.route.points, this._width, MAX_HEIGHT) : null;
