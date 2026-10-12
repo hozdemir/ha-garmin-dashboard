@@ -165,6 +165,21 @@ async def test_current_chart_works_without_recorder(hass: HomeAssistant, hass_ws
     assert reply["result"]["series"][0]["points"][0][1] == 60
 
 
+async def test_stress_breakdown_is_todays_time_per_level(
+    hass: HomeAssistant, hass_ws_client: WebSocketGenerator
+) -> None:
+    await _setup(hass)
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id(
+        {"type": f"{DOMAIN}/chart", "profile_id": PROFILE_ID, "chart_id": "stress_breakdown"}
+    )
+    reply = await client.receive_json()
+    assert reply["success"]
+    series = reply["result"]["series"]
+    assert [s["metric"] for s in series] == ["stress_rest", "stress_low", "stress_medium", "stress_high"]
+    assert series[0]["points"][0][1] == 60
+
+
 async def test_non_admin_cannot_read_charts(
     hass: HomeAssistant, hass_ws_client: WebSocketGenerator, hass_read_only_access_token: str
 ) -> None:

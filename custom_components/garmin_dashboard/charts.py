@@ -73,6 +73,13 @@ CHARTS: tuple[ChartSpec, ...] = (
     ChartSpec(
         "sleep_stages", "today", "stacked_bar", ("sleep_deep", "sleep_light", "sleep_rem", "sleep_awake"), "current"
     ),
+    ChartSpec(
+        "stress_breakdown",
+        "today",
+        "stacked_bar",
+        ("stress_rest", "stress_low", "stress_medium", "stress_high"),
+        "current",
+    ),
     ChartSpec("body_battery_range", "trends", "range_columns", ("body_battery",), "daily_range"),
     ChartSpec(
         "sleep_score", "trends", "dots", ("sleep_score",), "change_points", zero_is_placeholder=True, one_per_day=True

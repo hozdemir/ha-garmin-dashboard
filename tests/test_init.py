@@ -61,6 +61,7 @@ async def test_snapshot_shape(hass: HomeAssistant, hass_ws_client: WebSocketGene
     assert snapshot["metrics"]["distance_day"]["value"] == 6200
     assert snapshot["metrics"]["floors_up"]["value"] == 1
     assert snapshot["metrics"]["floors_goal"]["unit"] == "floors"
+    assert snapshot["metrics"]["stress_high"]["value"] == 60
     assert snapshot["metrics"]["ftp_cycling"]["source_date"] == "2026-01-15"
     assert snapshot["source_synced_at"] == "2026-01-15T07:30:00+00:00"
     assert [g["distance_meters"] for g in snapshot["gear"]] == [12000]

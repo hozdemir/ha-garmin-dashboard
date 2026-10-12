@@ -109,6 +109,10 @@ CATALOG: tuple[MetricSpec, ...] = (
     MetricSpec("sleep_rem", "rem_sleep", "recovery", "duration", "nightly"),
     MetricSpec("sleep_awake", "awake_sleep", "recovery", "duration", "nightly"),
     MetricSpec("stress_avg", "avg_stress_level", "recovery", "level", "intraday"),
+    MetricSpec("stress_rest", "rest_stress_duration", "recovery", "duration", "daily"),
+    MetricSpec("stress_low", "low_stress_duration", "recovery", "duration", "daily"),
+    MetricSpec("stress_medium", "medium_stress_duration", "recovery", "duration", "daily"),
+    MetricSpec("stress_high", "high_stress_duration", "recovery", "duration", "daily"),
     MetricSpec(
         "ptw_cycling",
         "power_to_weight",
