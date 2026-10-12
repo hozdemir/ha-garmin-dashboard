@@ -77,6 +77,24 @@ Garmin Dashboard shows what Home Assistant has recorded, and avoids showing numb
 
 Only tested combinations are listed. With another Garmin Connect version you get a Repairs notice; values that can no longer be matched safely are hidden rather than shown wrongly.
 
+## Performance
+
+Measured on 12 October 2026 (Home Assistant 2026.9.4, Garmin Connect 3.0.19):
+
+| What | p95 | Target |
+|---|---|---|
+| Value tiles drawn (desktop / phone width) | 34 ms / 66 ms | — |
+| All 13 charts drawn (desktop / phone width) | 65 ms / 88 ms | — |
+| First snapshot over the local WebSocket | 1.5 ms | — |
+| Chart data query, 30 days of hourly records | 70 ms | — |
+| Chart data query, 90 days of hourly records | 279 ms | — |
+| Sensor change to updated panel | 260 ms | ≤ 1 s |
+| First usable view (snapshot + tiles) | well under 0.1 s | ≤ 2 s |
+
+Rendering was timed in headless Chrome with synthetic data; queries were timed against a real installation over the local network. The update time is mostly the intentional 250 ms batching of sensor changes. Tools: `dev/tools/render_probe.mjs`, `perf_probe.py`, `recorder_probe.py`.
+
+The panel's own requests were audited in the same preview: every request goes to the Home Assistant host only.
+
 ## Troubleshooting
 
 - **"Activity sensors are turned off":** enable *Last activity* and *Last activities* under Settings → Devices & services → Garmin Connect → Entities, or remove and re-add Garmin Dashboard to be asked again.
