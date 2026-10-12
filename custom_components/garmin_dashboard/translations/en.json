@@ -1,20 +1,94 @@
 {
   "config": {
     "abort": {
-      "no_source": "Set up the Garmin Connect integration first. Garmin Dashboard shows the data it provides: {docs_url}",
-      "single_instance_allowed": "Garmin Dashboard is already set up."
+      "no_source": "Set up the Garmin Connect integration first; Garmin Dashboard shows the data it provides.\n\n1. [Open Garmin Connect in HACS]({hacs_url}), download it and restart Home Assistant.\n2. [Add Garmin Connect]({setup_url}) and sign in.\n3. Add Garmin Dashboard again.\n\nMore: {docs_url}",
+      "single_instance_allowed": "Garmin Dashboard is already set up. Use Configure to add or remove Garmin accounts."
+    },
+    "error": {
+      "no_accounts": "Choose at least one Garmin account.",
+      "invalid_name": "Names must be 1–40 characters.",
+      "name_taken": "Each profile needs a different name."
     },
     "step": {
-      "pick_source": {
-        "title": "Choose a Garmin account",
-        "description": "More than one Garmin Connect account is set up. Choose the one to show.",
-        "data": { "source": "Garmin account" }
+      "accounts": {
+        "title": "Garmin accounts",
+        "description": "Choose the Garmin accounts to show in the dashboard.",
+        "data": {
+          "accounts": "Accounts"
+        }
+      },
+      "names": {
+        "title": "Profile names",
+        "description": "Name each profile as it should appear in the dashboard:\n{accounts}",
+        "data": {
+          "name_1": "Profile 1",
+          "name_2": "Profile 2",
+          "name_3": "Profile 3",
+          "name_4": "Profile 4",
+          "name_5": "Profile 5",
+          "name_6": "Profile 6",
+          "name_7": "Profile 7",
+          "name_8": "Profile 8",
+          "name_9": "Profile 9",
+          "name_10": "Profile 10"
+        }
       },
       "activities": {
         "title": "Activity sensors",
         "description": "The Activities screen needs two Garmin Connect sensors that are turned off by default: last activity and last activities. Turn them on? Garmin Connect will reload, which may fetch fresh data from Garmin. Nothing else is changed.",
-        "data": { "enable_activities": "Turn on activity sensors" }
+        "data": {
+          "enable_activities": "Turn on activity sensors"
+        }
       }
+    }
+  },
+  "options": {
+    "error": {
+      "no_accounts": "Choose at least one Garmin account.",
+      "invalid_name": "Names must be 1–40 characters.",
+      "name_taken": "Each profile needs a different name."
+    },
+    "step": {
+      "accounts": {
+        "title": "Garmin accounts",
+        "description": "Add or remove Garmin accounts. Removing one also deletes that profile's dashboard settings; Garmin Connect itself is not changed.",
+        "data": {
+          "accounts": "Accounts"
+        }
+      },
+      "names": {
+        "title": "Profile names",
+        "description": "Name each profile as it should appear in the dashboard:\n{accounts}",
+        "data": {
+          "name_1": "Profile 1",
+          "name_2": "Profile 2",
+          "name_3": "Profile 3",
+          "name_4": "Profile 4",
+          "name_5": "Profile 5",
+          "name_6": "Profile 6",
+          "name_7": "Profile 7",
+          "name_8": "Profile 8",
+          "name_9": "Profile 9",
+          "name_10": "Profile 10"
+        }
+      },
+      "activities": {
+        "title": "Activity sensors",
+        "description": "A newly added account has its activity sensors turned off. Turn them on? Garmin Connect will reload. Nothing else is changed.",
+        "data": {
+          "enable_activities": "Turn on activity sensors"
+        }
+      }
+    }
+  },
+  "issues": {
+    "source_removed": {
+      "title": "Garmin account for “{profile}” was removed",
+      "description": "The Garmin Connect connection behind the “{profile}” profile no longer exists. Open Garmin Dashboard → Configure to choose another account or remove the profile. Dashboard data is never switched to another account automatically."
+    },
+    "unsupported_source": {
+      "title": "Garmin Connect version not verified for “{profile}”",
+      "description": "Garmin Connect {version} has not been verified with this version of Garmin Dashboard (verified: {supported}). Values that cannot be matched safely are hidden instead of shown wrongly. Update Garmin Dashboard when a compatible release is available."
     }
   }
 }

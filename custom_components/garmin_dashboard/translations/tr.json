@@ -1,20 +1,94 @@
 {
   "config": {
     "abort": {
-      "no_source": "Önce Garmin Connect entegrasyonunu kurun. Garmin Dashboard onun sağladığı verileri gösterir: {docs_url}",
-      "single_instance_allowed": "Garmin Dashboard zaten kurulu."
+      "no_source": "Önce Garmin Connect entegrasyonunu kurun; Garmin Dashboard onun sağladığı verileri gösterir.\n\n1. [Garmin Connect'i HACS'ta açın]({hacs_url}), indirin ve Home Assistant'ı yeniden başlatın.\n2. [Garmin Connect'i ekleyin]({setup_url}) ve giriş yapın.\n3. Garmin Dashboard'u yeniden ekleyin.\n\nAyrıntı: {docs_url}",
+      "single_instance_allowed": "Garmin Dashboard zaten kurulu. Garmin hesabı eklemek veya çıkarmak için Yapılandır'ı kullanın."
+    },
+    "error": {
+      "no_accounts": "En az bir Garmin hesabı seçin.",
+      "invalid_name": "Ad 1–40 karakter olmalı.",
+      "name_taken": "Her profilin adı farklı olmalı."
     },
     "step": {
-      "pick_source": {
-        "title": "Garmin hesabı seçin",
-        "description": "Birden fazla Garmin Connect hesabı kurulu. Gösterilecek hesabı seçin.",
-        "data": { "source": "Garmin hesabı" }
+      "accounts": {
+        "title": "Garmin hesapları",
+        "description": "Panelde gösterilecek Garmin hesaplarını seçin.",
+        "data": {
+          "accounts": "Hesaplar"
+        }
+      },
+      "names": {
+        "title": "Profil adları",
+        "description": "Her profile panelde görünecek adı verin:\n{accounts}",
+        "data": {
+          "name_1": "Profil 1",
+          "name_2": "Profil 2",
+          "name_3": "Profil 3",
+          "name_4": "Profil 4",
+          "name_5": "Profil 5",
+          "name_6": "Profil 6",
+          "name_7": "Profil 7",
+          "name_8": "Profil 8",
+          "name_9": "Profil 9",
+          "name_10": "Profil 10"
+        }
       },
       "activities": {
         "title": "Aktivite sensörleri",
         "description": "Aktiviteler ekranı, Garmin Connect'in varsayılan olarak kapalı gelen iki sensörüne ihtiyaç duyar: son aktivite ve son aktiviteler. Açılsın mı? Garmin Connect yeniden yüklenir ve bu sırada Garmin'den yeni veri çekebilir. Başka hiçbir şey değiştirilmez.",
-        "data": { "enable_activities": "Aktivite sensörlerini aç" }
+        "data": {
+          "enable_activities": "Aktivite sensörlerini aç"
+        }
       }
+    }
+  },
+  "options": {
+    "error": {
+      "no_accounts": "En az bir Garmin hesabı seçin.",
+      "invalid_name": "Ad 1–40 karakter olmalı.",
+      "name_taken": "Her profilin adı farklı olmalı."
+    },
+    "step": {
+      "accounts": {
+        "title": "Garmin hesapları",
+        "description": "Garmin hesabı ekleyin veya çıkarın. Bir hesabı çıkarmak o profilin panel ayarlarını da siler; Garmin Connect'in kendisi değişmez.",
+        "data": {
+          "accounts": "Hesaplar"
+        }
+      },
+      "names": {
+        "title": "Profil adları",
+        "description": "Her profile panelde görünecek adı verin:\n{accounts}",
+        "data": {
+          "name_1": "Profil 1",
+          "name_2": "Profil 2",
+          "name_3": "Profil 3",
+          "name_4": "Profil 4",
+          "name_5": "Profil 5",
+          "name_6": "Profil 6",
+          "name_7": "Profil 7",
+          "name_8": "Profil 8",
+          "name_9": "Profil 9",
+          "name_10": "Profil 10"
+        }
+      },
+      "activities": {
+        "title": "Aktivite sensörleri",
+        "description": "Yeni eklenen hesabın aktivite sensörleri kapalı. Açılsın mı? Garmin Connect yeniden yüklenir. Başka hiçbir şey değiştirilmez.",
+        "data": {
+          "enable_activities": "Aktivite sensörlerini aç"
+        }
+      }
+    }
+  },
+  "issues": {
+    "source_removed": {
+      "title": "“{profile}” için Garmin hesabı kaldırıldı",
+      "description": "“{profile}” profilinin bağlı olduğu Garmin Connect bağlantısı artık yok. Başka bir hesap seçmek veya profili kaldırmak için Garmin Dashboard → Yapılandır'ı açın. Panel verisi hiçbir zaman kendiliğinden başka bir hesaba geçirilmez."
+    },
+    "unsupported_source": {
+      "title": "“{profile}” için Garmin Connect sürümü doğrulanmadı",
+      "description": "Garmin Connect {version}, bu Garmin Dashboard sürümüyle doğrulanmadı (doğrulanan: {supported}). Güvenle eşleştirilemeyen değerler yanlış gösterilmek yerine gizlenir. Uyumlu sürüm çıktığında Garmin Dashboard'u güncelleyin."
     }
   }
 }
