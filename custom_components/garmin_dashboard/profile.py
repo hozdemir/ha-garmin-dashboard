@@ -7,13 +7,13 @@ from typing import Any
 
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import CALLBACK_TYPE, Event, HomeAssistant, callback
-from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers import entity_registry as er, issue_registry as ir
 from homeassistant.helpers.event import async_call_later, async_track_state_change_event
 from homeassistant.loader import async_get_integration
 from homeassistant.util import dt as dt_util
 
 from .activities import normalize_activities, normalize_route
-from .const import SCHEMA_VERSION, SOURCE_DOMAIN, UPDATE_DEBOUNCE_SECONDS
+from .const import DOMAIN, SCHEMA_VERSION, SOURCE_DOMAIN, UPDATE_DEBOUNCE_SECONDS
 from .discovery import ProfileMapping, Resolution, resolve_profile
 from .normalization import build_metric
 from .providers import cyberjunky as provider
@@ -70,6 +70,8 @@ class ProfileRuntime:
                 unsub()
         self._unsub_states = self._unsub_registry = self._unsub_debounce = None
         self._listeners.clear()
+        for issue in ("source_removed", "unsupported_source"):
+            ir.async_delete_issue(self.hass, DOMAIN, f"{issue}_{self.profile_id}")
 
     @property
     def compatible(self) -> bool:
@@ -92,6 +94,29 @@ class ProfileRuntime:
         self._unsub_states = async_track_state_change_event(
             self.hass, sorted(self.mapping.entity_ids), self._on_state_changed
         )
+        self._sync_issues()
+
+    @callback
+    def _sync_issues(self) -> None:
+        """Surface problems the user can fix in HA's Repairs, and clear them once fixed."""
+        status = self.source_status
+        issues = {
+            "source_removed": (status == "removed", {"profile": self.display_name}),
+            "unsupported_source": (
+                status == "unsupported",
+                {"profile": self.display_name, "version": self.source_version or "?",
+                 "supported": ", ".join(sorted(provider.SUPPORTED_VERSIONS))},
+            ),
+        }
+        for key, (active, placeholders) in issues.items():
+            issue_id = f"{key}_{self.profile_id}"
+            if active:
+                ir.async_create_issue(
+                    self.hass, DOMAIN, issue_id, is_fixable=False, severity=ir.IssueSeverity.WARNING,
+                    translation_key=key, translation_placeholders=placeholders,
+                )
+            else:
+                ir.async_delete_issue(self.hass, DOMAIN, issue_id)
 
     @callback
     def _on_registry_updated(self, event: Event[er.EventEntityRegistryUpdatedData]) -> None:
