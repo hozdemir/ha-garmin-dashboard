@@ -154,6 +154,9 @@ def main(out):
     m = {
         "steps": metric("steps", "movement", "count", 7432, "steps"),
         "steps_goal": metric("steps_goal", "movement", "count", 9000, "steps"),
+        "floors_up": metric("floors_up", "movement", "floors", 6.4, "floors"),
+        "floors_down": metric("floors_down", "movement", "floors", 5.1, "floors"),
+        "floors_goal": metric("floors_goal", "movement", "floors", 10, "floors"),
         "distance_day": metric("distance_day", "movement", "distance", 5830, "m"),
         "calories_active": metric("calories_active", "movement", "energy", 612, "kcal"),
         "calories_total": metric("calories_total", "movement", "energy", 2540, "kcal"),
