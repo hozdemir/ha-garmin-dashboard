@@ -91,6 +91,7 @@ CHARTS: tuple[ChartSpec, ...] = (
     ChartSpec("weekly_steps", "trends", "line", ("weekly_step_avg",), "change_points", one_per_day=True),
     ChartSpec("vo2max", "trends", "step", ("vo2max",), "change_points"),
     ChartSpec("ftp_cycling", "trends", "step", ("ftp_cycling",), "change_points"),
+    ChartSpec("ptw_cycling", "trends", "step", ("ptw_cycling",), "change_points"),
 )
 CHARTS_BY_ID: dict[str, ChartSpec] = {chart.id: chart for chart in CHARTS}
 

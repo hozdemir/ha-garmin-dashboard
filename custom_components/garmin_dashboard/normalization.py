@@ -26,6 +26,7 @@ _PASSTHROUGH_UNITS: dict[str, set[str | None]] = {
     "vo2max": {"mL/(kg·min)", None},
     "hrv": {"ms"},
     "level": {"level", None},
+    "power_ratio": {"W/kg"},
 }
 _STALE_AFTER: dict[FreshnessClass, timedelta] = {
     "intraday": timedelta(hours=6),
@@ -116,11 +117,12 @@ def build_metric(spec: MetricSpec, resolution: Resolution, state: State | None, 
     if state.state == STATE_UNAVAILABLE:
         metric["status"] = "unavailable"
         return metric
-    if state.state == STATE_UNKNOWN:
+    raw = state.state if spec.value_attribute is None else state.attributes.get(spec.value_attribute)
+    if raw is None or raw == STATE_UNKNOWN:
         metric["status"] = "unknown"
         return metric
 
-    normalized = normalize_value(spec, state.state, state.attributes.get("unit_of_measurement"))
+    normalized = normalize_value(spec, str(raw), state.attributes.get("unit_of_measurement"))
     if normalized is None:
         metric["status"] = "invalid"
         return metric

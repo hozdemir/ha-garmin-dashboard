@@ -27,6 +27,7 @@ Kind = Literal[
     "category",
     "hrv",
     "level",
+    "power_ratio",
 ]
 FreshnessClass = Literal["intraday", "daily", "nightly", "slow", "event"]
 
@@ -44,6 +45,8 @@ class MetricSpec:
     sport: str | None = None
     # Attribute holding the Garmin calendar date of the value, if any.
     date_attribute: str | None = None
+    # Read this attribute instead of the state (same unit as the state).
+    value_attribute: str | None = None
 
 
 CATALOG: tuple[MetricSpec, ...] = (
@@ -87,6 +90,26 @@ CATALOG: tuple[MetricSpec, ...] = (
     MetricSpec("sleep_rem", "rem_sleep", "recovery", "duration", "nightly"),
     MetricSpec("sleep_awake", "awake_sleep", "recovery", "duration", "nightly"),
     MetricSpec("stress_avg", "avg_stress_level", "recovery", "level", "intraday"),
+    MetricSpec(
+        "ptw_cycling",
+        "power_to_weight",
+        "training",
+        "power_ratio",
+        "slow",
+        sport="cycling",
+        date_attribute="calendar_date",
+    ),
+    # The state is the running threshold; cycling has its own value in an attribute.
+    MetricSpec("lthr_running", "lactate_threshold_hr", "training", "heart_rate", "slow", date_attribute="calendarDate"),
+    MetricSpec(
+        "lthr_cycling",
+        "lactate_threshold_hr",
+        "training",
+        "heart_rate",
+        "slow",
+        date_attribute="calendarDate",
+        value_attribute="heartRateCycling",
+    ),
 )
 
 CATALOG_BY_KEY: dict[str, MetricSpec] = {spec.key: spec for spec in CATALOG}
@@ -104,7 +127,7 @@ LAST_USED_DEVICE_ATTRIBUTE = "last_used_device"
 DEVICE_LIST_ATTRIBUTE = "devices"
 
 # Unique-ID infixes after "{entry_id}_" for sport-specific sensors.
-_SPORT_PREFIXES: dict[str, str] = {"functional_threshold_power": "ftp_"}
+_SPORT_PREFIXES: dict[str, str] = {"functional_threshold_power": "ftp_", "power_to_weight": "ptw_"}
 _GEAR_PREFIX = "gear_"
 
 

@@ -196,3 +196,26 @@ async def test_expired_garmin_sign_in_is_reported(hass: HomeAssistant) -> None:
     with patch.object(type(source), "async_get_active_flows", return_value=iter([{"flow_id": "x"}])):
         assert profile.source_status == "reauth"
     assert profile.source_status == "ready"
+
+
+async def test_cycling_metrics(hass: HomeAssistant) -> None:
+    entry = await _setup(hass)
+    profile = entry.runtime_data.profiles[PROFILE_ID]
+    hass.states.async_set(entity_for("power_to_weight", "cycling"), "3.4", {"unit_of_measurement": "W/kg"})
+    hass.states.async_set(
+        entity_for("lactate_threshold_hr"),
+        "172",
+        {"unit_of_measurement": "bpm", "heartRateCycling": 165, "calendarDate": "2026-01-10"},
+    )
+    metrics = profile.snapshot()["metrics"]
+    assert (metrics["ptw_cycling"]["value"], metrics["ptw_cycling"]["unit"]) == (3.4, "W/kg")
+    assert metrics["lthr_running"]["value"] == 172
+    assert metrics["lthr_cycling"]["value"] == 165
+    assert metrics["lthr_cycling"]["source_date"] == "2026-01-10"
+
+
+async def test_missing_attribute_value_is_unknown_not_zero(hass: HomeAssistant) -> None:
+    entry = await _setup(hass)
+    hass.states.async_set(entity_for("lactate_threshold_hr"), "172", {"unit_of_measurement": "bpm"})
+    metric = entry.runtime_data.profiles[PROFILE_ID].snapshot()["metrics"]["lthr_cycling"]
+    assert (metric["status"], metric["value"]) == ("unknown", None)
