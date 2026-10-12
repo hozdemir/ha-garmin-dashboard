@@ -15,3 +15,6 @@ custom_components/garmin_dashboard/www/
 # Local planning docs; never committed
 Garmin-Dashboard-SPEC-*.md
 docs/phase0-findings.md
+
+# hassfest scratch workspace
+.hassfest-ws/
