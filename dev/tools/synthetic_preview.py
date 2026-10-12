@@ -180,6 +180,12 @@ def main(out):
         "stress_avg": metric("stress_avg", "recovery", "level", 28, "level"),
         "bb_charged": metric("bb_charged", "recovery", "percent", 62, "%"),
         "bb_drained": metric("bb_drained", "recovery", "percent", 41, "%"),
+        "bb_highest": metric("bb_highest", "recovery", "percent", 82, "%"),
+        "bb_lowest": metric("bb_lowest", "recovery", "percent", 24, "%"),
+        "stress_rest": metric("stress_rest", "recovery", "duration", 312 * 60, "s"),
+        "stress_low": metric("stress_low", "recovery", "duration", 198 * 60, "s"),
+        "stress_medium": metric("stress_medium", "recovery", "duration", 74 * 60, "s"),
+        "stress_high": metric("stress_high", "recovery", "duration", 21 * 60, "s"),
         "spo2_avg": metric("spo2_avg", "recovery", "percent", 95, "%"),
         "spo2_latest": metric("spo2_latest", "recovery", "percent", 96, "%"),
         "sleep_need": metric("sleep_need", "recovery", "duration", 8 * 3600, "s"),
@@ -221,6 +227,16 @@ def main(out):
             [
                 s(k, "duration", "s", [[t_last, m[k]["value"]]])
                 for k in ("sleep_deep", "sleep_light", "sleep_rem", "sleep_awake")
+            ],
+        ),
+        "stress_breakdown": chart(
+            "stress_breakdown",
+            "today",
+            "stacked_bar",
+            "current",
+            [
+                s(k, "duration", "s", [[ms(NOW), m[k]["value"]]])
+                for k in ("stress_rest", "stress_low", "stress_medium", "stress_high")
             ],
         ),
         "stress_today": chart("stress_today", "today", "line", "intraday", []),
