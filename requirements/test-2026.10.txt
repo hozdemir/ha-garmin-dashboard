@@ -1,0 +1,4 @@
+# Test environment pinned to Home Assistant 2026.10.1.
+pytest-homeassistant-custom-component==0.13.372
+# Frontend package pinned by that HA version; the panel depends on `frontend`.
+home-assistant-frontend==20260930.3
