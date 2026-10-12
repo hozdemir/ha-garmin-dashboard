@@ -12,6 +12,7 @@ validated, simplified route.
 from __future__ import annotations
 
 from collections.abc import Mapping
+from datetime import datetime
 import math
 from typing import Any
 
@@ -42,11 +43,25 @@ def _text(value: Any, limit: int = 200) -> str | None:
     return value[:limit] or None
 
 
+def _start_time(value: Any) -> datetime | None:
+    """Live state attributes hold a datetime; JSON dumps hold an ISO string."""
+    if isinstance(value, datetime):
+        parsed = value
+    elif isinstance(value, str):
+        parsed = dt_util.parse_datetime(value)
+    else:
+        return None
+    if parsed is None or parsed.tzinfo is None:
+        # A naive time cannot be placed on the timeline safely.
+        return None
+    return parsed
+
+
 def normalize_activity(raw: Any) -> dict[str, Any] | None:
     """One activity, or None when it cannot be identified at all."""
     if not isinstance(raw, Mapping):
         return None
-    started = dt_util.parse_datetime(raw["startTime"]) if isinstance(raw.get("startTime"), str) else None
+    started = _start_time(raw.get("startTime"))
     activity_id = raw.get("activityId")
     if isinstance(activity_id, bool) or not isinstance(activity_id, (int, str)) or str(activity_id) == "":
         activity_id = None

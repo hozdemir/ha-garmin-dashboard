@@ -1,5 +1,6 @@
 """Recent activities and the last synced route."""
 
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from pytest_homeassistant_custom_component.typing import WebSocketGenerator
@@ -37,6 +38,17 @@ def test_units_and_fields() -> None:
     assert a["started_at"] == "2026-10-11T06:00:00+00:00"
     assert (a["distance_meters"], a["duration_seconds"], a["average_speed_mps"]) == (24000, 3600, 6.67)
     assert a["hr_zone_seconds"] == [600, 1200, 1200, 500, 100]
+
+
+def test_start_time_as_live_datetime_attribute() -> None:
+    # In a running HA the source stores startTime as a datetime, not a string.
+    started = datetime(2026, 10, 11, 9, 0, tzinfo=timezone(timedelta(hours=3)))
+    a = normalize_activity(_activity(1, "ignored", startTime=started))
+    assert a["started_at"] == "2026-10-11T06:00:00+00:00"
+
+
+def test_naive_start_time_is_not_guessed() -> None:
+    assert normalize_activity(_activity(1, "2026-10-11T09:00:00"))["started_at"] is None
 
 
 def test_coordinates_never_leave_the_backend() -> None:
