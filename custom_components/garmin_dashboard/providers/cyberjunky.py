@@ -128,6 +128,9 @@ DEVICE_LIST_ATTRIBUTE = "devices"
 
 # Unique-ID infixes after "{entry_id}_" for sport-specific sensors.
 _SPORT_PREFIXES: dict[str, str] = {"functional_threshold_power": "ftp_", "power_to_weight": "ptw_"}
+
+# Paired ANT+/BLE sensors (power meters, HR straps...) with battery state in `sensors[]`.
+CONNECTED_SENSORS_TRANSLATION_KEY = "connected_sensors"
 _GEAR_PREFIX = "gear_"
 
 

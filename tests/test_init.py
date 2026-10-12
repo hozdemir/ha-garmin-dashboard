@@ -198,6 +198,38 @@ async def test_expired_garmin_sign_in_is_reported(hass: HomeAssistant) -> None:
     assert profile.source_status == "ready"
 
 
+async def test_connected_sensors_without_private_fields(hass: HomeAssistant) -> None:
+    entry = await _setup(hass)
+    profile = entry.runtime_data.profiles[PROFILE_ID]
+    hass.states.async_set(
+        entity_for("connected_sensors"),
+        "2",
+        {
+            "sensors": [
+                {
+                    "sensorType": "BIKE_POWER",
+                    "batteryStatus": "LOW",
+                    "batteryLevel": None,
+                    "manufacturer": "Brand",
+                    "serialNumber": 123456789,
+                    "productId": 9,
+                    "imageUrl": "https://example.com/x.png",
+                    "lastConnected": "2026-01-15T08:00:00.0",
+                },
+                {"sensorType": "HEART_RATE", "batteryStatus": "GOOD", "batteryLevel": 140, "deviceName": "Custom"},
+                "junk",
+            ]
+        },
+    )
+    sensors = profile.snapshot()["sensors"]
+    assert sensors == [
+        {"type": "BIKE_POWER", "manufacturer": "Brand", "battery_status": "LOW", "battery_level": None},
+        {"type": "HEART_RATE", "manufacturer": None, "battery_status": "GOOD", "battery_level": None},
+    ]
+    for private in ("123456789", "example.com", "Custom"):
+        assert private not in str(profile.snapshot())
+
+
 async def test_cycling_metrics(hass: HomeAssistant) -> None:
     entry = await _setup(hass)
     profile = entry.runtime_data.profiles[PROFILE_ID]

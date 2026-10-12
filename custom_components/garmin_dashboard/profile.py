@@ -184,6 +184,7 @@ class ProfileRuntime:
             **self._source_sync(),
             "metrics": metrics,
             "gear": self._gear(),
+            "sensors": self._connected_sensors(),
             **self._activities(),
             "capabilities": self._capabilities(metrics),
         }
@@ -242,6 +243,33 @@ class ProfileRuntime:
         if summary_time is not None:
             return {"source_synced_at": dt_util.as_utc(summary_time).isoformat(), "source_sync_device": None}
         return {"source_synced_at": None, "source_sync_device": None}
+
+    def _connected_sensors(self) -> list[dict[str, Any]]:
+        """Paired sensors and their batteries; never serial numbers, IDs or image URLs.
+
+        The source's connection and low-battery times carry no time zone, so they
+        are not shown rather than guessed.
+        """
+        state = self._resolved_state(self.mapping.connected_sensors)
+        raw = state.attributes.get("sensors") if state is not None else None
+        if not isinstance(raw, list):
+            return []
+        sensors = []
+        for item in raw[:20]:
+            if not isinstance(item, dict):
+                continue
+            level = item.get("batteryLevel")
+            sensors.append(
+                {
+                    "type": _short_text(item.get("sensorType"), 40) or "UNKNOWN",
+                    "manufacturer": _short_text(item.get("manufacturer"), 40),
+                    "battery_status": _short_text(item.get("batteryStatus"), 20),
+                    "battery_level": level
+                    if isinstance(level, int) and not isinstance(level, bool) and 0 <= level <= 100
+                    else None,
+                }
+            )
+        return sensors
 
     def _activity_state(self, key: str):
         resolution = self.mapping.activity_entities.get(key)
@@ -348,3 +376,7 @@ def _device_model(device_list: Any, last_used: dict[str, Any]) -> str | None:
             model = device.get("productDisplayName")
             return model.strip()[:60] or None if isinstance(model, str) else None
     return None
+
+
+def _short_text(value: Any, limit: int) -> str | None:
+    return value.strip()[:limit] or None if isinstance(value, str) else None
