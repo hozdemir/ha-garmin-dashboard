@@ -235,6 +235,35 @@ async def test_week_starts_on_local_monday(hass: HomeAssistant) -> None:
     await hass.config.async_set_time_zone("Europe/Istanbul")
     wednesday_night = dt_util.parse_datetime("2026-11-04T22:30:00+00:00")  # Thu 01:30 local
     assert start_of_local_week(wednesday_night).isoformat() == "2026-11-02T00:00:00+03:00"
+    assert start_of_local_week(wednesday_night, "sun").isoformat() == "2026-11-01T00:00:00+03:00"
+    assert start_of_local_week(wednesday_night, "thu").isoformat() == "2026-11-05T00:00:00+03:00"
+
+
+async def test_week_chart_starts_on_the_viewers_first_weekday(
+    hass: HomeAssistant, hass_ws_client: WebSocketGenerator
+) -> None:
+    await _setup(hass)
+    hass.config.components.add("recorder")
+    entry = hass.config_entries.async_entries(DOMAIN)[0]
+    service = entry.runtime_data.charts
+    client = await hass_ws_client(hass)
+    with patch.object(service, "_statistics", return_value=[]), patch.object(service, "_change", return_value=None):
+        for day in ("mon", "sun"):
+            await client.send_json_auto_id(
+                {
+                    "type": f"{DOMAIN}/chart",
+                    "profile_id": PROFILE_ID,
+                    "chart_id": "intensity_week",
+                    "first_weekday": day,
+                }
+            )
+            reply = await client.receive_json()
+            assert reply["success"], reply
+            assert reply["result"]["start"] == start_of_local_week(dt_util.utcnow(), day).isoformat()
+        await client.send_json_auto_id(
+            {"type": f"{DOMAIN}/chart", "profile_id": PROFILE_ID, "chart_id": "intensity_week", "first_weekday": "x"}
+        )
+        assert not (await client.receive_json())["success"]
 
 
 async def test_intensity_week_runs_from_monday_to_the_live_total(hass: HomeAssistant) -> None:

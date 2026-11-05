@@ -9,8 +9,8 @@ Each series type is read with the one method that does not misstate it:
   VO2max...) stay constant for a day or more in HA; daily mean/max would count
   one night twice.
 - ``daily_range``: per-HA-day min/max of a continuous measurement.
-- ``cumulative_week``: running total of a daily-reset counter since local
-  Monday, from the recorder's sum. The sum skips each daily reset, so the
+- ``cumulative_week``: running total of a daily-reset counter since the
+  viewer's first day of the week, from the recorder's sum. The sum skips each daily reset, so the
   total is right whatever time of day the source resets.
 
 Multi-day totals of daily-reset counters (steps per day) are deliberately not
@@ -37,6 +37,7 @@ Method = Literal["intraday", "cumulative_today", "cumulative_week", "change_poin
 Group = Literal["today", "trends"]
 Form = Literal["line", "area", "step", "columns", "dots", "range_columns", "stacked_bar"]
 
+WEEKDAYS: tuple[str, ...] = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
 TREND_RANGES: tuple[int, ...] = (7, 30, 90)
 DEFAULT_TREND_RANGE = 30
 INTRADAY_WINDOW = timedelta(hours=24)
@@ -222,9 +223,10 @@ def running_total(rows: Iterable[Mapping[str, Any]], convert, start_ms: int) -> 
     return points
 
 
-def start_of_local_week(now: datetime) -> datetime:
+def start_of_local_week(now: datetime, first_weekday: str = "mon") -> datetime:
     today = dt_util.as_local(now).date()
-    return dt_util.start_of_local_day(today - timedelta(days=today.weekday()))
+    days_in = (today.weekday() - WEEKDAYS.index(first_weekday)) % 7
+    return dt_util.start_of_local_day(today - timedelta(days=days_in))
 
 
 def daily_range(rows: Iterable[Mapping[str, Any]], convert) -> list[tuple[int, float, float]]:
@@ -286,24 +288,28 @@ class ChartService:
             return 1
         return requested if requested in TREND_RANGES else DEFAULT_TREND_RANGE
 
-    async def async_chart(self, profile, chart: ChartSpec, range_days: int) -> dict[str, Any]:
-        key = (profile.profile_id, chart.id, range_days)
+    async def async_chart(
+        self, profile, chart: ChartSpec, range_days: int, first_weekday: str = "mon"
+    ) -> dict[str, Any]:
+        key = (profile.profile_id, chart.id, range_days, first_weekday)
         now = dt_util.utcnow()
         cached = self._cache.get(key)
         if cached and cached[0] > now:
             return cached[1]
-        payload = await self._build(profile, chart, range_days, now)
+        payload = await self._build(profile, chart, range_days, now, first_weekday)
         if chart.method != "current":
             self._cache[key] = (now + timedelta(seconds=CACHE_SECONDS), payload)
         return payload
 
-    async def _build(self, profile, chart: ChartSpec, range_days: int, now: datetime) -> dict[str, Any]:
+    async def _build(
+        self, profile, chart: ChartSpec, range_days: int, now: datetime, first_weekday: str
+    ) -> dict[str, Any]:
         if chart.method == "intraday":
             start = now - INTRADAY_WINDOW
         elif chart.method == "cumulative_today":
             start = dt_util.start_of_local_day()
         elif chart.method == "cumulative_week":
-            start = start_of_local_week(now)
+            start = start_of_local_week(now, first_weekday)
         else:
             start = now - timedelta(days=range_days)
 

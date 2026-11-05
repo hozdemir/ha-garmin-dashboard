@@ -8,7 +8,7 @@ from homeassistant.components import websocket_api
 from homeassistant.core import HomeAssistant, callback
 import voluptuous as vol
 
-from .charts import CHARTS_BY_ID
+from .charts import CHARTS_BY_ID, WEEKDAYS
 from .const import DOMAIN, SCHEMA_VERSION
 from .preferences import default_preferences, validate as validate_preferences
 from .profile import ProfileRuntime
@@ -125,6 +125,8 @@ def ws_refresh(hass: HomeAssistant, connection: websocket_api.ActiveConnection, 
         vol.Required("profile_id"): str,
         vol.Required("chart_id"): vol.In(list(CHARTS_BY_ID)),
         vol.Optional("range_days"): int,
+        # The viewer's first day of the week, from their HA profile.
+        vol.Optional("first_weekday", default="mon"): vol.In(WEEKDAYS),
     }
 )
 @websocket_api.require_admin
@@ -139,7 +141,7 @@ async def ws_chart(hass: HomeAssistant, connection: websocket_api.ActiveConnecti
         return
     service = _data(hass).charts
     range_days = service.range_for(chart, msg.get("range_days"))
-    connection.send_result(msg["id"], await service.async_chart(profile, chart, range_days))
+    connection.send_result(msg["id"], await service.async_chart(profile, chart, range_days, msg["first_weekday"]))
 
 
 @websocket_api.websocket_command({vol.Required("type"): f"{DOMAIN}/preferences/get", vol.Required("profile_id"): str})
