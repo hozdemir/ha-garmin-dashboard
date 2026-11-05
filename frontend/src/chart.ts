@@ -15,7 +15,7 @@ import {
   type Point,
   type Scale,
 } from "./chart-data";
-import { formatNumber, type FormatContext } from "./format";
+import { formatNumber, goalProgress, type FormatContext } from "./format";
 import type { Translate } from "./i18n";
 
 const PLOT_HEIGHT = 140;
@@ -89,6 +89,9 @@ export class GarminChart extends LitElement {
   private _fmtTime(ms: number): string {
     const payload = this.payload;
     const intraday = payload?.method === "intraday" || payload?.method === "cumulative_today";
+    if (payload?.method === "cumulative_week") {
+      return new Date(ms).toLocaleString(this.fmt.locale, { weekday: "short", hour: "2-digit", minute: "2-digit" });
+    }
     return new Date(ms).toLocaleString(this.fmt.locale, intraday
       ? { hour: "2-digit", minute: "2-digit" }
       : { day: "numeric", month: "short" });
@@ -236,6 +239,14 @@ export class GarminChart extends LitElement {
     const count = Math.max(2, Math.min(6, Math.floor((x.range[1] - x.range[0]) / 80)));
     const ticks = Array.from({ length: count }, (_, i) => start + (span * i) / (count - 1));
     const short = span <= 2 * DAY;
+    if (this.payload?.method === "cumulative_week") {
+      // One label per day, centred on its day.
+      const days = Array.from({ length: Math.round(span / DAY) }, (_, i) => start + i * DAY);
+      return svg`${days.map((d) => svg`
+        <text class="tick" x=${x(d + DAY / 2)} y=${height - 6} text-anchor="middle">
+          ${new Date(d).toLocaleString(this.fmt.locale, { weekday: "short" })}
+        </text>`)}`;
+    }
     return svg`${ticks.map((t, i) => svg`
       <text class="tick" x=${x(t)} y=${height - 6}
         text-anchor=${i === 0 ? "start" : i === ticks.length - 1 ? "end" : "middle"}>
@@ -420,6 +431,14 @@ export class GarminChart extends LitElement {
       ...(series.ranges ?? []).flatMap(([, lo, hi]) => [lo, hi]),
     ];
     if (!values.length) return "";
+    if (this.payload?.method === "cumulative_week") {
+      const total = values[values.length - 1]!;
+      const goal = this.payload.goal ?? null;
+      const progress = goalProgress(total, goal);
+      return progress && goal !== null
+        ? t("chart_week_goal", { total: this._fmtValue(series, total), goal: this._fmtValue(series, goal), percent: String(Math.round(progress.percent)) })
+        : t("chart_week_total", { total: this._fmtValue(series, total) });
+    }
     const last = series.ranges?.length
       ? series.ranges[series.ranges.length - 1]![2]
       : values[values.length - 1]!;

@@ -28,7 +28,8 @@ export type MetricKind =
   | "level"
   | "power_ratio"
   | "mass"
-  | "floors";
+  | "floors"
+  | "minutes";
 
 export type Section = "movement" | "recovery" | "training" | "body";
 

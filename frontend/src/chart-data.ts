@@ -3,7 +3,7 @@
 import type { MetricKind } from "./types";
 
 export type ChartForm = "line" | "area" | "step" | "columns" | "dots" | "range_columns" | "stacked_bar";
-export type ChartMethod = "intraday" | "cumulative_today" | "change_points" | "daily_range" | "current";
+export type ChartMethod = "intraday" | "cumulative_today" | "cumulative_week" | "change_points" | "daily_range" | "current";
 
 /** [epoch ms, value]; a null value marks a gap in the records. */
 export type Point = [number, number | null];

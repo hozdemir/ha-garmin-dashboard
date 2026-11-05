@@ -32,6 +32,7 @@ export interface ChartDef {
 export const CHARTS: ChartDef[] = [
   { id: "body_battery_today", group: "today", metrics: ["body_battery"] },
   { id: "steps_today", group: "today", metrics: ["steps"] },
+  { id: "intensity_week", group: "today", metrics: ["intensity_minutes"] },
   { id: "sleep_stages", group: "today", metrics: ["sleep_deep", "sleep_light", "sleep_rem", "sleep_awake"] },
   { id: "stress_breakdown", group: "today", metrics: ["stress_rest", "stress_low", "stress_medium", "stress_high"] },
   { id: "stress_today", group: "today", metrics: ["stress_avg"] },

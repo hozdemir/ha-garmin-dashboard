@@ -76,6 +76,8 @@ export function formatNumber(ctx: FormatContext, kind: MetricKind, value: number
       return `${number(ctx, value, 2)} W/kg`;
     case "floors":
       return number(ctx, wholeFloors(value));
+    case "minutes":
+      return new Intl.NumberFormat(ctx.locale, { style: "unit", unit: "minute", unitDisplay: "short" }).format(Math.round(value));
     default:
       return number(ctx, value);
   }
