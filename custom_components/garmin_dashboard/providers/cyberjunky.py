@@ -44,6 +44,7 @@ Kind = Literal[
     "power_ratio",
     "mass",
     "floors",
+    "minutes",
 ]
 FreshnessClass = Literal["intraday", "daily", "nightly", "slow", "event"]
 
@@ -113,6 +114,9 @@ CATALOG: tuple[MetricSpec, ...] = (
     MetricSpec("stress_low", "low_stress_duration", "recovery", "duration", "daily"),
     MetricSpec("stress_medium", "medium_stress_duration", "recovery", "duration", "daily"),
     MetricSpec("stress_high", "high_stress_duration", "recovery", "duration", "daily"),
+    # Today's moderate + 2 x vigorous minutes; the separate goal sensor is disabled by default.
+    MetricSpec("intensity_minutes", "total_intensity_minutes", "movement", "minutes", "daily"),
+    MetricSpec("intensity_goal", "total_intensity_minutes", "movement", "minutes", "slow", value_attribute="goal"),
     MetricSpec(
         "ptw_cycling",
         "power_to_weight",

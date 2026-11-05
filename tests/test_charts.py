@@ -21,6 +21,8 @@ from custom_components.garmin_dashboard.charts import (
     downsample,
     history_points,
     last_per_day,
+    running_total,
+    start_of_local_week,
 )
 from custom_components.garmin_dashboard.const import DOMAIN
 
@@ -209,3 +211,62 @@ async def test_no_band_when_the_range_is_unknown(hass: HomeAssistant) -> None:
     with patch.object(service, "_statistics", return_value=[]):
         payload = await service.async_chart(profile, CHARTS_BY_ID["hrv"], 7)
     assert payload["band"] is None
+
+
+def test_running_total_adds_each_hours_change_at_the_hours_end() -> None:
+    rows = [
+        {"start": T0, "change": 20.0},
+        {"start": T0 + HOUR, "change": None},
+        {"start": T0 + 2 * HOUR, "change": 5.0},
+    ]
+    start_ms = int(T0 * 1000)
+    assert running_total(rows, ident_or_none, start_ms) == [
+        (start_ms, 0.0),
+        (start_ms + 3_600_000, 20.0),
+        (start_ms + 3 * 3_600_000, 25.0),
+    ]
+
+
+def ident_or_none(value: Any) -> float | None:
+    return None if value is None else float(value)
+
+
+async def test_week_starts_on_local_monday(hass: HomeAssistant) -> None:
+    await hass.config.async_set_time_zone("Europe/Istanbul")
+    wednesday_night = dt_util.parse_datetime("2026-11-04T22:30:00+00:00")  # Thu 01:30 local
+    assert start_of_local_week(wednesday_night).isoformat() == "2026-11-02T00:00:00+03:00"
+
+
+async def test_intensity_week_runs_from_monday_to_the_live_total(hass: HomeAssistant) -> None:
+    await _setup(hass)
+    hass.states.async_set(
+        entity_for("total_intensity_minutes"),
+        "30",
+        {"unit_of_measurement": "min", "state_class": "total_increasing", "goal": 150},
+    )
+    entry = hass.config_entries.async_entries(DOMAIN)[0]
+    service, profile = entry.runtime_data.charts, entry.runtime_data.profiles[PROFILE_ID]
+    monday = start_of_local_week(dt_util.utcnow())
+    rows = [{"start": monday.timestamp() + 10 * HOUR, "change": 40.0}]
+    with (
+        patch.object(service, "_statistics", return_value=rows),
+        patch.object(service, "_change", return_value=55.0),
+    ):
+        payload = await service.async_chart(profile, CHARTS_BY_ID["intensity_week"], 1)
+    assert payload["goal"] == 150
+    assert payload["start"] == monday.isoformat()
+    assert payload["end"] == (monday + timedelta(days=7)).isoformat()
+    assert [v for _, v in payload["series"][0]["points"]] == [0.0, 40.0, 55.0]
+
+
+async def test_intensity_week_reads_the_recorder(
+    recorder_mock, hass: HomeAssistant, hass_ws_client: WebSocketGenerator
+) -> None:
+    await _setup(hass)
+    client = await hass_ws_client(hass)
+    await client.send_json_auto_id({"type": f"{DOMAIN}/chart", "profile_id": PROFILE_ID, "chart_id": "intensity_week"})
+    reply = await client.receive_json()
+    assert reply["success"], reply
+    assert reply["result"]["series"][0]["points"] == [
+        [int(start_of_local_week(dt_util.utcnow()).timestamp() * 1000), 0.0]
+    ]

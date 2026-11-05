@@ -9,6 +9,9 @@ Each series type is read with the one method that does not misstate it:
   VO2max...) stay constant for a day or more in HA; daily mean/max would count
   one night twice.
 - ``daily_range``: per-HA-day min/max of a continuous measurement.
+- ``cumulative_week``: running total of a daily-reset counter since local
+  Monday, from the recorder's sum. The sum skips each daily reset, so the
+  total is right whatever time of day the source resets.
 
 Multi-day totals of daily-reset counters (steps per day) are deliberately not
 offered: the counter's end-of-day value does not match the real daily total.
@@ -30,7 +33,7 @@ from homeassistant.util import dt as dt_util
 from .normalization import normalize_value
 from .providers.cyberjunky import CATALOG_BY_KEY
 
-Method = Literal["intraday", "cumulative_today", "change_points", "daily_range", "current"]
+Method = Literal["intraday", "cumulative_today", "cumulative_week", "change_points", "daily_range", "current"]
 Group = Literal["today", "trends"]
 Form = Literal["line", "area", "step", "columns", "dots", "range_columns", "stacked_bar"]
 
@@ -43,6 +46,7 @@ CACHE_SECONDS = 300
 GAP_MS = 48 * 3600 * 1000
 
 Point = tuple[int, float | None]  # (epoch ms, value); None marks a gap
+HOUR_MS = 3600 * 1000
 
 
 @dataclass(frozen=True, slots=True)
@@ -69,6 +73,9 @@ class ChartSpec:
 CHARTS: tuple[ChartSpec, ...] = (
     ChartSpec("body_battery_today", "today", "area", ("body_battery",), "intraday"),
     ChartSpec("steps_today", "today", "line", ("steps",), "cumulative_today", goal_metric="steps_goal"),
+    ChartSpec(
+        "intensity_week", "today", "area", ("intensity_minutes",), "cumulative_week", goal_metric="intensity_goal"
+    ),
     ChartSpec("stress_today", "today", "line", ("stress_avg",), "intraday", default_visible=False),
     ChartSpec(
         "sleep_stages", "today", "stacked_bar", ("sleep_deep", "sleep_light", "sleep_rem", "sleep_awake"), "current"
@@ -202,6 +209,24 @@ def last_per_day(points: list[Point]) -> list[Point]:
     return out
 
 
+def running_total(rows: Iterable[Mapping[str, Any]], convert, start_ms: int) -> list[Point]:
+    """Cumulative total from hourly ``change`` rows, each placed at its hour's end."""
+    total = 0.0
+    points: list[Point] = [(start_ms, 0.0)]
+    for row in rows:
+        change = convert(row.get("change"))
+        if change is None:
+            continue
+        total += change
+        points.append((_ms(row["start"]) + HOUR_MS, total))
+    return points
+
+
+def start_of_local_week(now: datetime) -> datetime:
+    today = dt_util.as_local(now).date()
+    return dt_util.start_of_local_day(today - timedelta(days=today.weekday()))
+
+
 def daily_range(rows: Iterable[Mapping[str, Any]], convert) -> list[tuple[int, float, float]]:
     """(day start ms, low, high) per HA day with data."""
     out: list[tuple[int, float, float]] = []
@@ -277,6 +302,8 @@ class ChartService:
             start = now - INTRADAY_WINDOW
         elif chart.method == "cumulative_today":
             start = dt_util.start_of_local_day()
+        elif chart.method == "cumulative_week":
+            start = start_of_local_week(now)
         else:
             start = now - timedelta(days=range_days)
 
@@ -299,6 +326,14 @@ class ChartService:
             elif chart.method in ("intraday", "cumulative_today"):
                 states = await self._history(entity_id, start, now)
                 entry["points"] = downsample(history_points(states, convert))
+            elif chart.method == "cumulative_week":
+                rows = await self._statistics(entity_id, start, now, "hour", {"change"})
+                points = running_total(rows, convert, _ms(start))
+                # Hourly rows lag up to an hour; the period change also reads 5-minute statistics.
+                latest = convert(await self._change(entity_id, start, now))
+                if latest is not None and latest >= (points[-1][1] or 0):
+                    points.append((_ms(now), latest))
+                entry["points"] = points
             elif chart.method == "change_points":
                 rows = await self._statistics(entity_id, start, now, "hour")
                 points = change_points(rows, convert, zero_is_placeholder=chart.zero_is_placeholder)
@@ -316,7 +351,7 @@ class ChartService:
             "per_day": chart.one_per_day,
             "range_days": range_days,
             "start": start.isoformat(),
-            "end": now.isoformat(),
+            "end": (start + timedelta(days=7) if chart.method == "cumulative_week" else now).isoformat(),
             "series": series,
         }
         if chart.band_metrics:
@@ -343,7 +378,9 @@ class ChartService:
         )
         return result.get(entity_id, [])
 
-    async def _statistics(self, entity_id: str, start: datetime, end: datetime, period: str) -> list[Any]:
+    async def _statistics(
+        self, entity_id: str, start: datetime, end: datetime, period: str, types: set[str] | None = None
+    ) -> list[Any]:
         result = await get_instance(self.hass).async_add_executor_job(
             statistics.statistics_during_period,
             self.hass,
@@ -352,6 +389,12 @@ class ChartService:
             {entity_id},
             period,
             None,
-            {"min", "max", "mean"},
+            types or {"min", "max", "mean"},
         )
         return result.get(entity_id, [])
+
+    async def _change(self, entity_id: str, start: datetime, end: datetime) -> float | None:
+        result = await get_instance(self.hass).async_add_executor_job(
+            statistics.statistic_during_period, self.hass, start, end, entity_id, {"change"}, None
+        )
+        return result.get("change")

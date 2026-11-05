@@ -29,6 +29,7 @@ _PASSTHROUGH_UNITS: dict[str, set[str | None]] = {
     "level": {"level", None},
     "power_ratio": {"W/kg"},
     "floors": {"floors", None},
+    "minutes": {"min"},
 }
 _STALE_AFTER: dict[FreshnessClass, timedelta] = {
     "intraday": timedelta(hours=6),
