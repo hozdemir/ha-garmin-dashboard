@@ -92,6 +92,18 @@ def steps_today(final=7432):
     return [[t, round(v * final / total)] for t, v in points] if total else points
 
 
+def intensity_week():
+    """NOW is a Monday evening: a morning walk and an evening ride since local midnight."""
+    start = NOW.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(hours=3)
+    hours = {7: 12, 8: 4, 17: 30, 18: 8}  # local hour -> minutes credited in it
+    points, total = [[ms(start), 0]], 0
+    for local_hour, minutes in hours.items():
+        total += minutes
+        points.append([ms(start + timedelta(hours=local_hour + 1)), total])
+    points.append([ms(NOW), total])
+    return start, points
+
+
 def route():
     pts = []
     for i in range(400):
@@ -192,6 +204,8 @@ def main(out):
         "hrv_balanced_low": metric("hrv_balanced_low", "recovery", "hrv", 48, "ms"),
         "hrv_balanced_high": metric("hrv_balanced_high", "recovery", "hrv", 62, "ms"),
         "weight": metric("weight", "body", "mass", 74.3, "kg"),
+        "intensity_minutes": metric("intensity_minutes", "movement", "minutes", 54, "min"),
+        "intensity_goal": metric("intensity_goal", "movement", "minutes", 150, "min"),
         "ptw_cycling": metric("ptw_cycling", "training", "power_ratio", 3.42, "W/kg", source_date="2026-10-02"),
         "lthr_cycling": metric("lthr_cycling", "training", "heart_rate", 165, "bpm", source_date="2026-09-28"),
         "lthr_running": metric("lthr_running", "training", "heart_rate", 172, "bpm", source_date="2026-09-28"),
@@ -219,6 +233,18 @@ def main(out):
         "steps_today": chart(
             "steps_today", "today", "line", "cumulative_today", [s("steps", "count", "steps", steps_today())], goal=9000
         ),
+        "intensity_week": {
+            **chart(
+                "intensity_week",
+                "today",
+                "area",
+                "cumulative_week",
+                [s("intensity_minutes", "minutes", "min", intensity_week()[1])],
+                goal=150,
+            ),
+            "start": intensity_week()[0].isoformat(),
+            "end": (intensity_week()[0] + timedelta(days=7)).isoformat(),
+        },
         "sleep_stages": chart(
             "sleep_stages",
             "today",
