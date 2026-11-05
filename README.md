@@ -13,7 +13,7 @@ A ready-made Garmin screen for Home Assistant. If your Garmin data already reach
 - **For cyclists and runners:** FTP and power-to-weight, lactate threshold heart rate (cycling and running), gear distance, and the battery state of paired sensors such as power meters and heart-rate straps.
 - **Training plan:** today's and the next scheduled workout, and a countdown to your goal race, when you use a Garmin plan or calendar.
 - **Body:** weight, in your Home Assistant unit system.
-- **Charts** from Home Assistant's own history: Body Battery over the last 24 hours, today's steps against your goal, last night's sleep stages, today's stress from rest to high, and 7/30/90-day trends for Body Battery, sleep, resting heart rate, HRV (with Garmin's current balanced range), weekly steps, VO2 max, FTP, power-to-weight and weight, with the average of the days shown and the latest value marked. Every chart has a table view.
+- **Charts** from Home Assistant's own history: Body Battery over the last 24 hours, today's steps against your goal, this week's intensity minutes against your weekly goal, last night's sleep stages, today's stress from rest to high, and 7/30/90-day trends for Body Battery, sleep, resting heart rate, HRV (with Garmin's current balanced range), weekly steps, VO2 max, FTP, power-to-weight and weight, with the average of the days shown and the latest value marked. Every chart has a table view.
 - **Activities:** the latest activities Garmin Connect provides, with a sport filter, details and time in heart-rate zones.
 - **Route trace** of the last synced activity, drawn locally without a map.
 - **Several Garmin accounts**, each as its own profile.
