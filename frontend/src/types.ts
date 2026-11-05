@@ -161,7 +161,8 @@ export interface ProfilesResult {
 // The subset of HA's frontend `hass` object the panel uses.
 export interface HassLike {
   language: string;
-  locale?: { language: string; number_format?: string; time_zone?: string };
+  // first_weekday: "language" or a day name ("monday" ... "sunday"), from the user profile.
+  locale?: { language: string; number_format?: string; time_zone?: string; first_weekday?: string };
   config: { unit_system: { length: string; mass?: string }; time_zone: string };
   connection: {
     subscribeMessage<T>(

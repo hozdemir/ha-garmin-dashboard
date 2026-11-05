@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { categoryTone, formatCategory, formatDistance, formatNumber, goalProgress } from "../src/format";
+import { categoryTone, formatCategory, formatDistance, formatNumber, goalProgress, firstWeekday } from "../src/format";
 
 const tr = { locale: "tr", lengthUnit: "km" };
 const enMi = { locale: "en", lengthUnit: "mi" };
@@ -69,5 +69,20 @@ describe("mass", async () => {
     expect(categoryTone("training_status", "Overreaching")).toBe("serious");
     expect(categoryTone("training_status", "no status")).toBeNull();
     expect(categoryTone("vo2max", "balanced")).toBeNull();
+  });
+});
+
+describe("firstWeekday", () => {
+  it("uses the profile's named day", () => {
+    expect(firstWeekday("sunday", "tr")).toBe("sun");
+    expect(firstWeekday("saturday", "en-US")).toBe("sat");
+  });
+  it("follows the language when the profile says so", () => {
+    expect(firstWeekday("language", "tr")).toBe("mon");
+    expect(firstWeekday("language", "en-US")).toBe("sun");
+    expect(firstWeekday(undefined, "en-US")).toBe("sun");
+  });
+  it("falls back to Monday for a language it cannot read", () => {
+    expect(firstWeekday("language", "!!")).toBe("mon");
   });
 });

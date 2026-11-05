@@ -7,7 +7,7 @@ import "./settings";
 import { SUMMARY_RINGS } from "./summary";
 import { CHARTS, TILE_SECTIONS, TREND_RANGES, type ChartDef, type Preferences, type SectionId } from "./catalog";
 import { sparkline, type ChartPayload } from "./chart-data";
-import { categoryTone, formatDistance, formatMetric, formatNumber, goalProgress, wholeFloors, type FormatContext } from "./format";
+import { categoryTone, firstWeekday, formatDistance, formatMetric, formatNumber, goalProgress, wholeFloors, type FormatContext } from "./format";
 import { categoryMessage, hasMessage, sensorLabel, sportLabel, translator, type MessageKey, type Translate } from "./i18n";
 import { ARROW_DOWN, ARROW_UP, METRIC_ICONS, SECTION_ICONS, TONE_ICONS, icon } from "./icons";
 import {
@@ -286,6 +286,7 @@ export class GarminDashboardPanel extends LitElement {
           profile_id: profileId,
           chart_id: chart.id,
           ...(chart.group === "trends" ? { range_days: this._trendRange } : {}),
+          first_weekday: firstWeekday(this.hass!.locale?.first_weekday, this._fmt.locale),
         });
         // A late answer for a profile we already left must not be shown.
         if (profileId !== this._profileId) return;

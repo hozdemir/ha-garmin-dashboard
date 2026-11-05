@@ -132,3 +132,22 @@ export function categoryTone(metricKey: string, value: string): Tone | null {
   const key = value.trim().toLowerCase().replace(/[\s-]+/g, "_");
   return TONES[metricKey]?.[key] ?? null;
 }
+
+export type Weekday = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
+const WEEKDAYS: Weekday[] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
+
+/** The profile's first day of the week; "language" follows the locale, Monday when the browser can't tell. */
+export function firstWeekday(setting: string | undefined, language: string): Weekday {
+  const named = WEEKDAYS.find((day) => setting?.startsWith(day));
+  if (named) return named;
+  try {
+    const locale = new Intl.Locale(language) as Intl.Locale & {
+      getWeekInfo?: () => { firstDay: number };
+      weekInfo?: { firstDay: number };
+    };
+    const firstDay = (locale.getWeekInfo?.() ?? locale.weekInfo)?.firstDay;
+    return firstDay ? WEEKDAYS[firstDay - 1]! : "mon";
+  } catch {
+    return "mon";
+  }
+}
