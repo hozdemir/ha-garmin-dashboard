@@ -260,7 +260,10 @@ export class GarminChart extends LitElement {
   private _lastLabel(series: ChartSeries, point: [number, number], x: Scale, y: Scale): SVGTemplateResult {
     const px = x(point[0]);
     const py = y(point[1]);
-    return svg`<text class="last halo" x=${px - 8} y=${py - 10} text-anchor="end">${this._fmtValue(series, point[1])}</text>`;
+    // Near the left edge there is no room before the mark, so write it after.
+    const before = px > (x.range[0] + x.range[1]) / 2;
+    return svg`<text class="last halo" x=${before ? px - 8 : px + 8} y=${py - 10}
+      text-anchor=${before ? "end" : "start"}>${this._fmtValue(series, point[1])}</text>`;
   }
 
   private _marks(
