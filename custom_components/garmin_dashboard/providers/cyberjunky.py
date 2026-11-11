@@ -1,6 +1,6 @@
 """Contract for cyberjunky/home-assistant-garmin_connect.
 
-Everything here was verified against live installs of source versions 3.0.19 and 3.0.21.
+Everything here was verified against live installs of source versions 3.0.19, 3.0.21 and 3.1.0.
 Metrics are matched by registry ``translation_key``; unique IDs are only used
 to tell sport-specific duplicates apart and to find gear, never parsed by
 splitting on underscores.
@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from typing import Literal
 
 # Releases this adapter was checked against on a live install.
-VERIFIED_VERSIONS: frozenset[str] = frozenset({"3.0.19", "3.0.21"})
+VERIFIED_VERSIONS: frozenset[str] = frozenset({"3.0.19", "3.0.21", "3.1.0"})
 # Whole series are accepted: every sensor is still matched and validated one by
 # one, so a changed field is hidden as "not provided" instead of shown wrongly.
 SUPPORTED_SERIES: tuple[str, ...] = ("3.0", "3.1")

@@ -1,6 +1,6 @@
 """Recent activities and the last synced route, normalized from source attributes.
 
-Verified against source 3.0.19 and 3.0.21: `distance` is meters, `duration`/`movingDuration`
+Verified against source 3.0.19, 3.0.21 and 3.1.0: `distance` is meters, `duration`/`movingDuration`
 are seconds, `averageSpeed` is m/s (distance / duration / speed == 1.00),
 `startTime` is ISO 8601 with offset. The list arrives oldest-first and the
 sensor state is not the list length, so neither is relied on.
