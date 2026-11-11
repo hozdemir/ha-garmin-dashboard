@@ -13,18 +13,21 @@ from typing import Literal
 
 # Releases this adapter was checked against on a live install.
 VERIFIED_VERSIONS: frozenset[str] = frozenset({"3.0.19", "3.0.21"})
-# The whole series is accepted: every sensor is still matched and validated one by
+# Whole series are accepted: every sensor is still matched and validated one by
 # one, so a changed field is hidden as "not provided" instead of shown wrongly.
-SUPPORTED_SERIES = "3.0"
-SUPPORTED_SERIES_LABEL = "3.0.x"
+SUPPORTED_SERIES: tuple[str, ...] = ("3.0", "3.1")
+SUPPORTED_SERIES_LABEL = ", ".join(f"{series}.x" for series in SUPPORTED_SERIES)
 
 
 def is_supported_version(version: str | None) -> bool:
-    """True for any release of the supported series, including pre-releases (3.0.20b1)."""
-    if not version or not version.startswith(f"{SUPPORTED_SERIES}."):
+    """True for any release of a supported series, including pre-releases (3.0.20b1)."""
+    if not version:
         return False
-    patch = version[len(SUPPORTED_SERIES) + 1 :]
-    return bool(patch) and patch[0].isdigit()
+    for series in SUPPORTED_SERIES:
+        if version.startswith(f"{series}."):
+            patch = version[len(series) + 1 :]
+            return bool(patch) and patch[0].isdigit()
+    return False
 
 
 Section = Literal["movement", "recovery", "training", "body"]
